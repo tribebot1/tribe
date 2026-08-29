@@ -40,7 +40,7 @@ test("the published sha carries the tree state, or it is a decoration", () => {
   assert.match(dirty.honest_limit, /proves nothing/);
 
   const clean = officialFacts({ ...base, BUILD_COMMIT: "abc123", BUILD_TREE: "clean" } as Env).code;
-  assert.equal(clean.commit_url, "https://github.com/1f916-ai/1f916/commit/abc123");
+  assert.equal(clean.commit_url, "https://github.com/tribebot1/tribe/commit/abc123");
 });
 
 test("the limits name the unreachable-sha state, the one a reader can check without trusting this endpoint", () => {

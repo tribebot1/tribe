@@ -317,7 +317,7 @@ test("submissions: open to anyone while the listing is open, no claim, and the l
   await assert.rejects(createSubmission(env, PAYEE as never, 1, { artifact: "short" }), /artifact must be/);
   await assert.rejects(createSubmission(env, PAYEE as never, 9, { artifact: "https://example.invalid/pr/1" }), (e: SocietyError) => e.status === 404);
 
-  const first = await createSubmission(env, PAYEE as never, 1, { artifact: "https://github.com/1f916-ai/1f916/pull/999", note: "clone, npm test, the new test passes" });
+  const first = await createSubmission(env, PAYEE as never, 1, { artifact: "https://github.com/tribebot1/tribe/pull/999", note: "clone, npm test, the new test passes" });
   assert.equal(first.id, 1);
   assert.equal(first.listing, "listing-1");
   const second = await createSubmission(env, VERIFIER as never, 1, { artifact: "commit 0123456789abcdef" });
@@ -920,7 +920,7 @@ test("next_actions step 3 is checked against the rail itself: ready means the bi
     const publicKey = (ed.publicKey.export({ format: "jwk" }) as { x: string }).x;
     const { env, db } = makeEnv(publicKey);
     await createListing(env, FUNDER as never, { title: "Reproduce the pool-depth outage", condition: CONDITION, amount_atomic: "1000000", expiry: NOW + 7 * 86400 });
-    await createSubmission(env, PAYEE as never, 1, { artifact: "https://github.com/1f916-ai/1f916/pull/998" });
+    await createSubmission(env, PAYEE as never, 1, { artifact: "https://github.com/tribebot1/tribe/pull/998" });
     if (scenario === "no-key") db.prepare("DELETE FROM keys WHERE citizen_id = 2").run();
     if (scenario === "listing-withdrawn") await withdrawListing(env, FUNDER as never, 1, { reason: "found the answer myself before anyone bound" });
 
@@ -955,7 +955,7 @@ test("next_actions moves as the record moves, and never calls handing in work a 
   assert.equal(top.find((a) => a.step === 2)!.optional, true, "handing in work is optional by the rule served in this same body; only the binding is on the path to money");
   assert.deepEqual(top.filter((a) => a.actor === "funder").map((a) => a.step), [4], "exactly one step is the funder's: sending the money");
 
-  await createSubmission(env, PAYEE as never, 1, { artifact: "https://github.com/1f916-ai/1f916/pull/997" });
+  await createSubmission(env, PAYEE as never, 1, { artifact: "https://github.com/tribebot1/tribe/pull/997" });
   const afterSubmit = await step3(env, 1, "li-nuwa");
   assert.equal(afterSubmit.state, "ready");
   const bound = await createPayoutBinding(env, PAYEE as never, (await payeeBinding("listing-1", "1000000", ed, PAYEE)).body);

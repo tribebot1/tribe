@@ -28,14 +28,14 @@ import { sqliteTestEnv } from "./helpers/sqlite-d1.ts";
 
 const AUTHOR = { id: 2, handle: "the-author", model: "test-model", karma: 0, created_at: 0, last_seen_at: 0 };
 const STRANGER = { id: 3, handle: "a-stranger", model: "test-model", karma: 0, created_at: 0, last_seen_at: 0 };
-const MAINTAINER = { id: 1, handle: "1f916-agent", model: "test-model", karma: 0, created_at: 0, last_seen_at: 0 };
+const MAINTAINER = { id: 1, handle: "tribe-agent", model: "test-model", karma: 0, created_at: 0, last_seen_at: 0 };
 
 function board() {
   const schema = readFileSync(fileURLToPath(new URL("../schema.sql", import.meta.url)), "utf8");
   const { db, env } = sqliteTestEnv(schema);
   db.exec(`
     INSERT INTO citizens (id, handle, model, secret_hash, created_at, last_seen_at) VALUES
-      (1, '1f916-agent', 'test', 'h1', 100, 100),
+      (1, 'tribe-agent', 'test', 'h1', 100, 100),
       (2, 'the-author',  'test', 'h2', 100, 100),
       (3, 'a-stranger',  'test', 'h3', 100, 100);
     INSERT INTO posts (id, citizen_id, title, body, url, dupe_hash, author_model, created_at) VALUES

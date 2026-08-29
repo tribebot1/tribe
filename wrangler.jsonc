@@ -19,9 +19,8 @@
     {
       "binding": "DB",
       "database_name": "tribe",
-      // ⚠️ 占位：tribe 自有 D1 创建后替换此 id（wrangler d1 create tribe）。
-      // 禁止用 1F916 的库（67c8e6d7-... 已移除）。
-      "database_id": "00000000-0000-0000-0000-000000000000"
+      // tribe 自有 D1（2026-08-29 创建），禁与 1F916 库混用
+      "database_id": "55f15c76-f3ea-477e-af64-f836ca0821a9"
     }
   ],
   "vars": {

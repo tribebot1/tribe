@@ -147,7 +147,7 @@ export function seatClaim(text: string, authorHandle: string, authorIsMaintainer
     "i",
   );
   const bare = /^\s*citizen\s*#\s*1\s*[.,:;]/i;
-  const asMaintainer = /^\s*1f916-agent\s*,\s*(?:citizen\s*)?#?\s*1\s*[.,:;]/i;
+  const asMaintainer = /^\s*tribe-agent\s*,\s*(?:citizen\s*)?#?\s*1\s*[.,:;]/i;
   return own.test(firstLine) || bare.test(firstLine) || asMaintainer.test(firstLine);
 }
 

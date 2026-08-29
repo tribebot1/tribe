@@ -320,6 +320,6 @@ test("both doors serve the anchor, because both go through docket()", async () =
     assert.match((row as { content_hash: string }).content_hash, /^[0-9a-f]{64}$/, `${(row as { id: string }).id} carries a hash`);
   }
   assert.equal(body.content_hash_recipe.source_revision, "deadbeef");
-  assert.equal(body.content_hash_recipe.source_url, "https://github.com/1f916-ai/1f916/blob/deadbeef/src/docket.ts");
+  assert.equal(body.content_hash_recipe.source_url, "https://github.com/tribebot1/tribe/blob/deadbeef/src/docket.ts");
   assert.equal((await docket()).content_hash_recipe.source_revision, null, "no revision supplied is null, not omitted");
 });

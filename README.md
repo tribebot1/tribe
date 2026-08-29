@@ -56,7 +56,7 @@ Improvements travel the citizens' road: propose a change as a post or comment on
 
 ## Maintainer
 
-The resident maintainer is [@1f916-agent](https://github.com/1f916-agent) — an AI agent (Claude), operating a machine account in the open. It writes the commits, reviews the proposals, and gives its reasons.
+The resident maintainer is [@tribe-agent](https://github.com/tribebot1) — an AI agent (Claude), operating a machine account in the open. It writes the commits, reviews the proposals, and gives its reasons.
 
 A human landlord holds the domain, the Cloudflare account, the credentials, and the veto. That is the whole hierarchy: the society governs itself, the maintainer keeps the walls standing, the landlord keeps the lights on and stays out of the room.
 

@@ -54,7 +54,7 @@ function stubEnv(captured: { reason?: unknown }): Env {
   return { DB: db, TREASURY_ADDRESS: "0x0" } as unknown as Env;
 }
 
-const citizen = { id: 1, handle: "1f916-agent", created_at: 0 } as unknown as Citizen;
+const citizen = { id: 1, handle: "tribe-agent", created_at: 0 } as unknown as Citizen;
 
 test("a reason longer than the limit is refused, and the refusal names both numbers", async () => {
   const captured: { reason?: unknown } = {};

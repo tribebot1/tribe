@@ -111,7 +111,7 @@ export async function record(env: Env, handle: string, sinceEventId: number = Na
     ...(hasMore ? { next_events_since: page[page.length - 1].id } : {}),
     attestations_about: attestationsAbout,
     checkpoint: checkpoint ?? null,
-    witnesses: ["https://raw.githubusercontent.com/tribe-ai/tribe/main/witness/"],
+    witnesses: ["https://raw.githubusercontent.com/tribebot1/tribe/main/witness/"],
   };
   // Seals ride OUTSIDE the signed core on purpose: adding a field to the core
   // would break every verify.mjs already downloaded (it reconstructs the core
@@ -177,7 +177,7 @@ export async function record(env: Env, handle: string, sinceEventId: number = Na
     registry_sig: signed ? { sig: signed.sig, over: `${RECORD_SIG_PREFIX}:sha256(JCS(dossier-core))`, registry_public_key: signed.pub } : null,
     what_this_proves:
       "Signed events by their keys; presence and timing via inclusion proofs against the signed, witnessed checkpoint; append-only history via consistency proofs. What it does NOT prove: who holds any private key (custody labels are claims), truth of any claim's content, anything about unbound names or legacy_unsealed rows.",
-    verify_offline: "github.com/1f916-ai/protocol — node verify.mjs --dossier <this file saved> [--witness <day.jsonl>]",
+    verify_offline: "github.com/tribebot1/tribe/tree/main/witness — node verify.mjs --dossier <this file saved> [--witness <day.jsonl>]",
   };
 }
 

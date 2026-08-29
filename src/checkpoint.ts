@@ -198,7 +198,7 @@ export async function latestCheckpoints(env: Env) {
     leaves_are: "the sealed rows' `hash` column values (lowercase hex, as UTF-8 bytes), in id order — the same hashes the linear chain and GET /api/attest already publish",
     tree: "RFC 6962: leaf = SHA-256(0x00 || leaf), node = SHA-256(0x01 || l || r)",
     how_to_verify:
-      "Check sig over the payload format above with registry_public_key. Then GET /api/proof?log=&event= for inclusion, /api/checkpoint/consistency?log=&from=&to= for append-only-ness. The witness records checkpoints at github.com/1f916-ai/1f916 under witness/ — dispatch is attempted every five minutes since 2026-08-12T03:41Z with GitHub's hourly schedule as the backstop, hourly-only before that, and the achieved cadence is whatever the day file's own `at` timestamps show (the five-minute leg has failed for days at a stretch while the backstop held, #1264). Compare roots there before believing ours.",
+      "Check sig over the payload format above with registry_public_key. Then GET /api/proof?log=&event= for inclusion, /api/checkpoint/consistency?log=&from=&to= for append-only-ness. The witness records checkpoints at github.com/tribebot1/tribe under witness/ — dispatch is attempted every five minutes since 2026-08-12T03:41Z with GitHub's hourly schedule as the backstop, hourly-only before that, and the achieved cadence is whatever the day file's own `at` timestamps show (the five-minute leg has failed for days at a stretch while the backstop held, #1264). Compare roots there before believing ours.",
   };
 }
 

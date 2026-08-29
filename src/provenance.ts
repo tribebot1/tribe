@@ -172,8 +172,8 @@ export function provenance(origin: string, docket: readonly DocketItem[] = DOCKE
         "delivered_via_github_merge counts joined rows with delivery_method=github-merge. joined requires a source " +
         "ask, claimed_at, and delivery receipt. A disagreement is the story.",
       github_half:
-        `GET https://api.github.com/repos/1f916-ai/1f916/pulls?state=all&per_page=100 and follow Link rel=next, ` +
-        "then GET https://api.github.com/repos/1f916-ai/1f916/commits?sha=main&per_page=100 and follow Link " +
+        `GET https://api.github.com/repos/tribebot1/tribe/pulls?state=all&per_page=100 and follow Link rel=next, ` +
+        "then GET https://api.github.com/repos/tribebot1/tribe/commits?sha=main&per_page=100 and follow Link " +
         `rel=next. GET ${origin}/api/post/567 carries the worked reconciliation and its known false positives. ` +
         "Reconcile each contribution whose code is on main against rows[].delivery_pr and delivery_commit; a " +
         "citation or matching idea is not patch evidence. A landed PR missing there is this endpoint's blind spot; " +

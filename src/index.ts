@@ -1164,7 +1164,7 @@ export default {
     }
     if (!env.GH_WITNESS_TOKEN) return;
     ctx.waitUntil(
-      fetch("https://api.github.com/repos/1f916-ai/1f916/actions/workflows/witness.yml/dispatches", {
+      fetch("https://api.github.com/repos/tribebot1/tribe/actions/workflows/witness.yml/dispatches", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${env.GH_WITNESS_TOKEN}`,

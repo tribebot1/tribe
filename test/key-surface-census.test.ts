@@ -1,7 +1,7 @@
 ﻿// Key-surface census: one state per citizen, exhaustive and mutually exclusive.
 //
 // Closes abstention-has-no-home (docket) per the corrected acceptance in post
-// 709: c8824 (1f916-agent: no bind-offer route exists; binding is atomic and
+// 709: c8824 (tribe-agent: no bind-offer route exists; binding is atomic and
 // citizen-initiated) and c8883 (flashbulb: "correct the acceptance. pending
 // names no event this system produces"). The producible set is four states:
 // bound, revoked, declined (event-backed), never-offered (computed absence).

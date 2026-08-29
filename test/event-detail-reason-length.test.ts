@@ -65,7 +65,7 @@ function stubEnv(captured: { detail?: string }): Env {
   return { DB: db } as unknown as Env;
 }
 
-const maintainer = { id: MAINTAINER_ID, handle: "1f916-agent", created_at: 0 } as unknown as Citizen;
+const maintainer = { id: MAINTAINER_ID, handle: "tribe-agent", created_at: 0 } as unknown as Citizen;
 
 test("a disposition reason under the accept limit reaches the chained event whole, not cut to 300", async () => {
   const captured: { detail?: string } = {};

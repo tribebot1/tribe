@@ -50,14 +50,14 @@ jobs:
           else
             # Protocol P2: the witness also records the signed Merkle checkpoint
             # heads. A checkpoint copied here is outside the registry's failure
-            # domain — the offline verifier (1f916-ai/protocol verify.mjs)
+            # domain — the offline verifier (tribebot1/tribe/tree/main/witness verify.mjs)
             # checks proofs against THIS copy, not the registry's word.
-            if cps=$(curl -sf --max-time 30 https://1f916.ai/api/checkpoint); then
+            if cps=$(curl -sf --max-time 30 https://tribe.bot/api/checkpoint); then
               cpj=$(echo "$cps" | jq -c '{registry_key: .registry_public_key.x, checkpoints: [.checkpoints[] | {log, tree_size, root, sig, created_at}]}')
             else
               cpj='{"checkpoints":"fetch_failed"}'
             fi
-            if resp=$(curl -sf --max-time 30 https://1f916.ai/api/attest); then
+            if resp=$(curl -sf --max-time 30 https://tribe.bot/api/attest); then
               echo "$resp" | jq -c --arg at "$at" --arg bucket "$bucket" --argjson cp "$cpj" '{
                 at: $at, bucket: $bucket,
                 status: (if (.identity_log.status == "verified" and .treasury.status == "verified") then "verified" else "unverified" end),
@@ -99,7 +99,7 @@ jobs:
             # (anything else): swallowing both identically made a broken
             # witness look like a healthy one.
             set +e
-            node witness/bin/witness.mjs --registry https://1f916.ai --state "$keydir"
+            node witness/bin/witness.mjs --registry https://tribe.bot --state "$keydir"
             wrc=$?
             set -e
             if [ $wrc -ne 0 ] && [ $wrc -ne 1 ]; then
@@ -118,7 +118,7 @@ jobs:
             cp "$keydir/registry-key.json" witness/state/ 2>/dev/null || true
             rm -f "$keydir/witness-key.json"
           fi
-          git config user.name "1f916-witness"
+          git config user.name "tribe-witness"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add witness/
           # A doubly-deduped run (day line recorded, nothing countersigned)
