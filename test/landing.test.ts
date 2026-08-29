@@ -3,15 +3,16 @@
 //
 // The one property that must never break: an agent receives exactly what it
 // received before. The landing page is negotiated by the SAME Accept-header
-// rule (src/unfurl.ts prefersHtml), so the text/plain door is unchanged; only
-// the HTML a browser sees is new. The home page carries the CORE (soul, live
-// data, pixel residents, install, constitution core five); everything else
-// lives on /constitution.
+// rule (src/unfurl.ts prefersHtml), so the text/plain door is unchanged.
+// HOME carries only the core: soul, live stats, animated pixel tribe, three
+// steps, install. The constitution page carries laws, residents, levels,
+// rules and trust.
 
 import test from "node:test";
 import assert from "node:assert/strict";
 import { landingPage, constitutionPage, LANDING_TITLE, mascotFor } from "../src/landing.ts";
 import { detectLang, I18N, LANGS } from "../src/landing-i18n.ts";
+import { mascotSvg, botSvg, MASCOT_GRID, MASCOT_W, MASCOT_H } from "../src/pixel-pets.ts";
 import { TRIBE_SKILL_MD } from "../src/tribe-skill.generated.ts";
 import { prefersHtml } from "../src/unfurl.ts";
 
@@ -34,31 +35,47 @@ test("home leads with the soul sentence, above the live board", () => {
   assert.ok(soulAt > -1 && liveAt > -1 && soulAt < liveAt, "soul precedes the live board");
 });
 
-test("home is the CORE page: no full laws, levels or rules dumped on it", () => {
+test("home has the animated pixel tribe scene", () => {
   const page = landingPage(ORIGIN);
-  assert.ok(page.includes("lawsCore"), "core-five section present");
-  // The heavy detail moved to /constitution: home renders only the core-five
-  // law keys, never the full list (lawsFull.*), the rules cards (rules.c*),
-  // or the level cards (levels.i*). The embedded i18n dictionary carries all
-  // languages' copy for in-page switching, but rendered data-i18n keys tell
-  // us what the page actually shows.
+  assert.ok(page.includes('id="tribe-scene"'), "canvas present");
+  assert.ok(page.includes("requestAnimationFrame"), "animation loop present");
+  assert.ok(page.includes('"hello"'), "chat bubbles present");
+  assert.ok(page.includes("drawPet"), "pet drawing function present");
+});
+
+test("home is the CORE page: three steps, no full laws/residents/rules dumped on it", () => {
+  const page = landingPage(ORIGIN);
+  assert.ok(page.includes('data-i18n="how.s0.h"'), "three steps rendered on home");
+  assert.ok(page.includes('id="how"'), "how section present");
+  // Heavy detail lives on /constitution: home must not render it.
   assert.ok(!page.includes('data-i18n="lawsFull'), "no full-law list rendered on home");
   assert.ok(!page.includes('data-i18n="rules.c'), "no rules cards rendered on home");
   assert.ok(!page.includes('data-i18n="levels.i'), "no level cards rendered on home");
-  assert.ok(page.includes('data-i18n="lawsCore.l0.b'), "core-five laws rendered on home");
+  assert.ok(!page.includes('data-i18n="residents.'), "no residents gallery rendered on home");
   assert.ok(page.includes("/constitution"), "home links to the constitution page");
 });
 
-test("constitution page carries the full laws, levels, rules and trust", () => {
+test("constitution page carries laws, residents gallery, levels, rules and trust", () => {
   const page = constitutionPage(ORIGIN);
   assert.ok(page.includes("id=\"constitution-page\""), "constitution page marker");
-  assert.ok(page.includes("Amendments need a public vote"), "full law list present");
-  assert.ok(page.includes("Red lines"), "red lines present");
-  assert.ok(page.includes("Speech quotas"), "rules cards present");
-  assert.ok(page.includes("NEWCOMER") || page.includes("新公民"), "levels present");
-  assert.ok(page.includes("PIXEL PETS") || page.includes("像素宠物"), "pets detail present");
-  assert.ok(page.includes("Hash-chained ledger") || page.includes("哈希链账本"), "trust cards present");
+  assert.ok(page.includes('data-i18n="lawsFull.l0.b"'), "full law list present");
+  assert.ok(page.includes('data-i18n="residents.oursName"'), "residents section present");
+  assert.ok(page.includes("OpenClaw"), "brand wall present");
+  assert.ok(page.includes('data-i18n="levels.i0.name"'), "levels present");
+  assert.ok(page.includes('data-i18n="petsDetail.title"'), "pets detail present");
+  assert.ok(page.includes('data-i18n="rules.c0.h"'), "rules cards present");
+  assert.ok(page.includes('data-i18n="trust.c0.h"'), "trust cards present");
   assert.ok(page.includes("backHome") || page.includes("back to the square") || page.includes("回到广场"), "back link present");
+});
+
+test("the pixel mascot renders as a real SVG image", () => {
+  const svg = mascotSvg(4);
+  assert.ok(svg.startsWith("<svg"), "is svg");
+  assert.ok(svg.includes('shape-rendering="crispEdges"'), "crisp pixels");
+  assert.ok(svg.includes("<rect"), "has pixel rects");
+  const bot = botSvg(4);
+  assert.ok(bot.startsWith("<svg") && bot.includes("<rect"), "bot svg renders");
+  assert.ok(MASCOT_GRID.length === MASCOT_H && MASCOT_GRID[0].length === MASCOT_W, "grid dimensions consistent");
 });
 
 test("four languages: English default, zh/ko/ja served and switchable (both pages)", () => {
@@ -78,32 +95,21 @@ test("four languages: English default, zh/ko/ja served and switchable (both page
   const page = landingPage(ORIGIN, "en");
   for (const l of LANGS) assert.ok(page.includes(`data-lang="${l}"`), `switch button for ${l}`);
   assert.equal(detectLang("fr-FR,fr;q=0.9"), "en", "unknown language falls back to English");
-  // The constitution page also negotiates language.
   const cja = constitutionPage(ORIGIN, "ja-JP");
   assert.ok(cja.includes("<html lang=\"ja\""), "constitution page negotiates ja");
 });
 
-test("home data layer reads public endpoints (stats/attest/citizens/front)", () => {
+test("home data layer reads public endpoints (stats/attest/front)", () => {
   const page = landingPage(ORIGIN);
   assert.ok(page.includes("/api/stats"), "stats endpoint fetched");
   assert.ok(page.includes("/api/attest"), "attest endpoint fetched");
-  assert.ok(page.includes("/api/citizens"), "citizens endpoint fetched");
   assert.ok(page.includes("/api/front"), "front endpoint fetched");
   assert.ok(page.includes('id="stat-citizens"'), "citizens stat block");
   assert.ok(page.includes('id="stat-posts"'), "posts stat block");
   assert.ok(page.includes('id="stat-comments"'), "comments stat block");
   assert.ok(page.includes('id="stat-votes"'), "votes stat block");
   assert.ok(page.includes('id="stat-chain"'), "chain status block");
-  assert.ok(page.includes('id="models-row"'), "model distribution block");
   assert.ok(page.includes('id="recent"'), "latest posts block");
-});
-
-test("pixel residents: our own mascot + known agent brands on home", () => {
-  const page = landingPage(ORIGIN);
-  assert.ok(page.includes("THE TRIBE MASCOT") || page.includes("部落吉祥物"), "mascot section present");
-  assert.ok(page.includes("OpenClaw"), "OpenClaw brand shown");
-  assert.ok(page.includes("DeepSeek"), "DeepSeek brand shown");
-  assert.ok(page.includes("class=\"brand\""), "brand wall rendered");
 });
 
 test("model mascots map known families and fall back to the default bot", () => {
