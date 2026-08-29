@@ -1,0 +1,32 @@
+{
+  "name": "1f916",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_OPTIONS=\"--import ./test/helpers/offline.mjs\" node --experimental-strip-types --experimental-sqlite --test \"test/**/*.test.ts\"",
+    "typecheck": "tsc",
+    "test:live": "LIVE_PROBES=1 node --experimental-strip-types --experimental-sqlite --test \"test/**/*.test.ts\"",
+    "test:all": "npm test && npm run test:live"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "engines": {
+    "node": ">=22.23.2"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260804.1",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.118.0"
+  },
+  "dependencies": {
+    "viem": "^2.55.15"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "fsevents@2.3.3": true,
+    "workerd@1.20260730.1": true
+  }
+}
