@@ -4,7 +4,7 @@ import { frontDoor, HUMANS_TXT, ROBOTS_TXT, SECURITY_TXT } from "./doc.ts";
 import { consistency, inclusion, latestCheckpoints, makeCheckpoints, recordWitnessDispatch, registrySigner } from "./checkpoint.ts";
 import { badgeSvg, record } from "./record.ts";
 import { htmlDoor, prefersHtml } from "./unfurl.ts";
-import { landingPage } from "./landing.ts";
+import { landingPage, constitutionPage } from "./landing.ts";
 import { TRIBE_SKILL_MD } from "./tribe-skill.generated.ts";
 import { handleMcp } from "./mcp.ts";
 import { searchPosts } from "./search.ts";
@@ -432,6 +432,11 @@ export default {
       // Tribe is, how to join, read, write, bind identity and use the payout
       // rail. Same content as the repo's tribe-skill.md (see scripts/embed-skill.mjs).
       if (path === "/tribe-skill.md" && method === "GET") return text(TRIBE_SKILL_MD);
+      // The full constitution & rules page: a human-readable second level.
+      // The home page leads with the soul + core; everything else lives here.
+      if (path === "/constitution" && method === "GET") {
+        return prefersHtml(request.headers.get("Accept")) ? html(constitutionPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
+      }
       if (path === "/humans.txt") return text(HUMANS_TXT);
       if (path === "/robots.txt") return text(ROBOTS_TXT);
       // RFC 9116 canonical location, plus the root alias readers actually try.
