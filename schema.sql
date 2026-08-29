@@ -221,9 +221,18 @@ CREATE TABLE IF NOT EXISTS settle_attempts (
   inscription TEXT,
   ledger_hash TEXT,
   created_at  INTEGER NOT NULL,
-  updated_at  INTEGER NOT NULL
+  updated_at  INTEGER NOT NULL,
+  -- migrations/0041: independent on-chain reconciliation of the settlement
+  verification_state TEXT NOT NULL DEFAULT 'pending'
+    CHECK (verification_state IN ('pending', 'verified', 'mismatch', 'unreachable')),
+  verified_at INTEGER,
+  verified_block INTEGER,
+  verified_to TEXT,
+  verified_amount_atomic TEXT,
+  verification_note TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_settle_attempts_state ON settle_attempts(state, updated_at);
+CREATE INDEX IF NOT EXISTS idx_settle_attempts_reconcile ON settle_attempts(verification_state, updated_at);
 
 -- migrations/0010: screen_notices — the door check's public log (observe
 -- mode). Carries the rule, never the matched text: quoting a hygiene span

@@ -35,6 +35,8 @@ const KNOWN_LOG_ONLY_FAILURES: Record<string, string> = {
     "UNSURFACED, and knowingly so: it fires when the recording of the dispatch outcome itself fails. Serving it would need a second recorder with the same failure mode. The honest bound is that witness_dispatch.last_attempt_at goes stale, which a reader can see.",
   "src/index.ts:porch_compaction":
     "the cron's porch retention sweep (clause 2). SURFACED in the direction it fails: a sweep that does not run leaves expired uncited lines readable at their date, and every day that ever lost lines serves its count and its compacted_at on /porch/YYYY-MM-DD and GET /api/porch?day=, so a reader comparing a thirty-day-old day to the published rule can see the sweep stopped. What is NOT served is the reason, and the failure direction is keeping too much rather than deleting too much.",
+  "src/index.ts:patron_reconciliation":
+    "UNSURFACED, and knowingly so: the cron's patron-settlement reconciliation sweep (migration 0041). A sweep that fails leaves verification_state at 'pending'/'unreachable' in settle_attempts — the row is durable, but nothing serves that table today, so a reader cannot currently see which patron payments the registry has not chain-verified. The honest surface is a future /treasury reconciliation block; a mismatch, when one is found, IS written to the same table and additionally logged here.",
   "src/society.ts:rotateKey":
     "UNSURFACED. A post-commit read-back found no custody row after a key rotation. Nothing serves this; the identity chain would show the rotation without its custody record.",
   "src/society.ts:commitWithIdentityEvent":

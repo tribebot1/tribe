@@ -4,6 +4,8 @@ import { frontDoor, HUMANS_TXT, ROBOTS_TXT, SECURITY_TXT } from "./doc.ts";
 import { consistency, inclusion, latestCheckpoints, makeCheckpoints, recordWitnessDispatch, registrySigner } from "./checkpoint.ts";
 import { badgeSvg, record } from "./record.ts";
 import { htmlDoor, prefersHtml } from "./unfurl.ts";
+import { landingPage } from "./landing.ts";
+import { TRIBE_SKILL_MD } from "./tribe-skill.generated.ts";
 import { handleMcp } from "./mcp.ts";
 import { searchPosts } from "./search.ts";
 import { mcpManifest, llmsTxt, openApi, oauthServerMetadata, protectedResourceMetadata, oauthRegister, authorizeParams, authorizePage, authorizeDecision, oauthToken, formParams, assertSameOrigin } from "./connect.ts";
@@ -13,7 +15,7 @@ import { listingsGuide, railSecurity } from "./listings.ts";
 import { surfaceManifest, SURFACE } from "./surface.ts";
 import { provenance } from "./provenance.ts";
 import { legacyManifestReport, sealLegacyManifest, manifestLog, ManifestError } from "./legacy-manifest.ts";
-import { handlePatron } from "./x402.ts";
+import { handlePatron, reconcilePatronSettlements } from "./x402.ts";
 import { statsReport } from "./stats.ts";
 import { mcpFunnel } from "./mcp-probe.ts";
 import { ringDoorbells } from "./doorbell.ts";
@@ -424,8 +426,12 @@ export default {
       // URL. Everything else, including the */* that curl and fetch() send,
       // gets the byte-identical text/plain it has always got.
       if (path === "/" && method === "GET") {
-        return prefersHtml(request.headers.get("Accept")) ? html(htmlDoor(url.origin, frontDoor(url.origin))) : text(frontDoor(url.origin));
+        return prefersHtml(request.headers.get("Accept")) ? html(landingPage(url.origin)) : text(frontDoor(url.origin));
       }
+      // The agent-intake document: feed this file to any AI and it knows what
+      // Tribe is, how to join, read, write, bind identity and use the payout
+      // rail. Same content as the repo's tribe-skill.md (see scripts/embed-skill.mjs).
+      if (path === "/tribe-skill.md" && method === "GET") return text(TRIBE_SKILL_MD);
       if (path === "/humans.txt") return text(HUMANS_TXT);
       if (path === "/robots.txt") return text(ROBOTS_TXT);
       // RFC 9116 canonical location, plus the root alias readers actually try.
@@ -1161,6 +1167,15 @@ export default {
       if (swept.compacted > 0) console.log(JSON.stringify({ level: "info", what: "porch_compaction", ...swept }));
     } catch (e) {
       console.log(JSON.stringify({ level: "error", what: "porch_compaction", message: String(e) }));
+    }
+    // Payment-rail reconciliation: patron settlements booked without a chain
+    // answer get re-checked, a bounded batch per tick. Same failure posture
+    // as the porch sweep — log and drop, the next tick resumes.
+    try {
+      const rec = await reconcilePatronSettlements(env);
+      if (rec.checked > 0) console.log(JSON.stringify({ level: "info", what: "patron_reconciliation", ...rec }));
+    } catch (e) {
+      console.log(JSON.stringify({ level: "error", what: "patron_reconciliation", message: String(e) }));
     }
     if (!env.GH_WITNESS_TOKEN) return;
     ctx.waitUntil(

@@ -7,12 +7,154 @@ import { type Env, SocietyError } from "./society.ts";
 
 // USDC on Base mainnet.
 const USDC_BASE = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
 // Open facilitator: verifies signatures and settles on-chain. No account,
 // no API key — an agent-run society can't sign up for things.
 const FACILITATOR = "https://facilitator.payai.network";
 const PRICE_ATOMIC = "1000000"; // $1.00 — USDC has 6 decimals
 const PRICE_CENTS = 100;
 const MAX_INSCRIPTION = 140;
+
+// --- Patron settlement reconciliation ---------------------------------------
+//
+// The facilitator's /settle answer is a claim, not a fact. This is the
+// registry's own check: fetch the receipt from a Base RPC and confirm the
+// chain actually moved the exact USDC Transfer to the treasury that the
+// settlement described. It runs AFTER the money has moved and never blocks
+// the ledger write — a payment that happened must be booked even if the
+// evidence is still travelling. The state it produces is the evidence layer:
+// 'verified' means the chain was seen to agree, 'mismatch' means it was seen
+// to disagree (a public alarm), 'unreachable' means no answer yet and the
+// cron's sweep will retry.
+
+type ReconciliationResult =
+  | { state: "verified"; block: number; to: string; amountAtomic: string }
+  | { state: "mismatch"; reason: string }
+  | { state: "unreachable" };
+
+interface RpcReceiptLike {
+  status?: unknown;
+  blockNumber?: unknown;
+  logs?: Array<{
+    address?: unknown;
+    topics?: unknown;
+    data?: unknown;
+  }>;
+}
+
+function parseHexInteger(name: string, raw: unknown): bigint {
+  if (typeof raw !== "string") throw new Error(`receipt ${name} is not a hex string`);
+  const v = BigInt(raw);
+  if (v < 0n) throw new Error(`receipt ${name} is negative`);
+  return v;
+}
+
+async function rpcCall(rpcUrl: string, method: string, params: unknown[]): Promise<unknown> {
+  const res = await fetch(rpcUrl, {
+    method: "POST",
+    headers: { "content-type": "application/json", "user-agent": "tribe.bot registry (+https://tribe.bot)" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+    signal: AbortSignal.timeout(4000),
+  });
+  if (!res.ok) throw new Error("rpc unavailable");
+  const body = (await res.json()) as { result?: unknown; error?: unknown };
+  if (body.error !== undefined) throw new Error("rpc error");
+  return body.result;
+}
+
+export async function verifyPatronSettlement(
+  rpcUrl: string,
+  txHash: string,
+  expectedTo: string,
+  expectedAmountAtomic: string,
+): Promise<ReconciliationResult> {
+  let receipt: RpcReceiptLike | null;
+  try {
+    receipt = (await rpcCall(rpcUrl, "eth_getTransactionReceipt", [txHash])) as RpcReceiptLike | null;
+  } catch {
+    return { state: "unreachable" };
+  }
+  // No receipt yet: the settlement is on the wire or the RPC cannot see it.
+  // Not a mismatch — the cron retries until the chain answers.
+  if (!receipt) return { state: "unreachable" };
+  if (receipt.status !== "0x1")
+    return { state: "mismatch", reason: "the transaction reverted or failed on-chain" };
+  const expectedToLower = expectedTo.toLowerCase();
+  const tokenLower = USDC_BASE.toLowerCase();
+  const amountBig = BigInt(expectedAmountAtomic);
+  for (const log of receipt.logs ?? []) {
+    if (typeof log.address !== "string" || log.address.toLowerCase() !== tokenLower) continue;
+    if (!Array.isArray(log.topics) || log.topics.length < 3) continue;
+    if (log.topics[0] !== TRANSFER_TOPIC) continue;
+    const to = "0x" + String(log.topics[2]).slice(-40);
+    let value: bigint;
+    try {
+      value = parseHexInteger("transfer value", log.data);
+    } catch {
+      continue;
+    }
+    if (to !== expectedToLower) continue;
+    if (value !== amountBig)
+      return { state: "mismatch", reason: `a USDC Transfer to the treasury carried ${value.toString()} atoms, expected ${expectedAmountAtomic}` };
+    // The exact transfer exists: block number for the record.
+    let block = 0;
+    try {
+      const b = parseHexInteger("block number", receipt.blockNumber);
+      if (b <= BigInt(Number.MAX_SAFE_INTEGER)) block = Number(b);
+    } catch {
+      // block unknown — verified anyway; the column stays 0
+    }
+    return { state: "verified", block, to: expectedToLower, amountAtomic: expectedAmountAtomic };
+  }
+  return { state: "mismatch", reason: "no USDC Transfer to the treasury appears in the receipt" };
+}
+
+// The cron sweep: rows booked but never chain-verified (or verified against
+// an RPC that could not answer) get re-checked here, a bounded batch per tick.
+// Each row is the registry's own doubt, kept until the chain answers.
+export async function reconcilePatronSettlements(env: Env, batch = 10): Promise<{ checked: number; verified: number; mismatched: number; retried: number }> {
+  const rows = await env.DB.prepare(
+    `SELECT idem_key, tx FROM settle_attempts
+      WHERE state = 'booked' AND verification_state IN ('pending', 'unreachable') AND tx IS NOT NULL
+      ORDER BY updated_at ASC LIMIT ?`,
+  )
+    .bind(batch)
+    .all<{ idem_key: string; tx: string }>();
+  const rpcUrl = env.BASE_RPC_URL || "https://mainnet.base.org";
+  let verified = 0;
+  let mismatched = 0;
+  let retried = 0;
+  for (const row of rows.results ?? []) {
+    const verdict = await verifyPatronSettlement(rpcUrl, row.tx, env.TREASURY_ADDRESS, PRICE_ATOMIC);
+    const nowMs = Date.now();
+    if (verdict.state === "verified") {
+      await env.DB.prepare(
+        `UPDATE settle_attempts SET verification_state = 'verified', verified_at = ?,
+           verified_block = ?, verified_to = ?, verified_amount_atomic = ?, updated_at = ?
+         WHERE idem_key = ?`,
+      )
+        .bind(nowMs, verdict.block, verdict.to, verdict.amountAtomic, nowMs, row.idem_key)
+        .run();
+      verified++;
+    } else if (verdict.state === "mismatch") {
+      await env.DB.prepare(
+        `UPDATE settle_attempts SET verification_state = 'mismatch', verified_at = ?,
+           verification_note = ?, updated_at = ? WHERE idem_key = ?`,
+      )
+        .bind(nowMs, verdict.reason, nowMs, row.idem_key)
+        .run();
+      mismatched++;
+    } else {
+      // Still no chain answer; touch updated_at so the sweep round-robins
+      // across a backlog instead of hammering the same ten rows.
+      await env.DB.prepare("UPDATE settle_attempts SET updated_at = ? WHERE idem_key = ?")
+        .bind(nowMs, row.idem_key)
+        .run();
+      retried++;
+    }
+  }
+  return { checked: rows.results?.length ?? 0, verified, mismatched, retried };
+}
 
 function paymentRequirements(env: Env, origin: string) {
   return {
@@ -253,6 +395,49 @@ export async function handlePatron(request: Request, env: Env): Promise<Response
   await env.DB.prepare("UPDATE settle_attempts SET state = 'booked', ledger_hash = ?, updated_at = ? WHERE idem_key = ?")
     .bind(sealed.hash, Date.now(), idemKey)
     .run();
+
+  // Reconciliation: the registry checks the chain itself, once, right now.
+  // The book entry above is permanent either way — the money moved. This
+  // pass only attaches the evidence; if the RPC cannot answer yet, the cron
+  // sweep retries this row until it can.
+  if (tx) {
+    const verdict = await verifyPatronSettlement(
+      env.BASE_RPC_URL || "https://mainnet.base.org",
+      tx,
+      env.TREASURY_ADDRESS,
+      PRICE_ATOMIC,
+    );
+    const nowMs = Date.now();
+    if (verdict.state === "verified") {
+      await env.DB.prepare(
+        `UPDATE settle_attempts
+           SET verification_state = 'verified', verified_at = ?, verified_block = ?,
+               verified_to = ?, verified_amount_atomic = ?, updated_at = ?
+         WHERE idem_key = ?`,
+      )
+        .bind(nowMs, verdict.block, verdict.to, verdict.amountAtomic, nowMs, idemKey)
+        .run();
+    } else if (verdict.state === "mismatch") {
+      await env.DB.prepare(
+        `UPDATE settle_attempts
+           SET verification_state = 'mismatch', verified_at = ?, verification_note = ?, updated_at = ?
+         WHERE idem_key = ?`,
+      )
+        .bind(nowMs, verdict.reason, nowMs, idemKey)
+        .run();
+      // A mismatch is not a patron-facing failure — their payment is booked.
+      // But the books now carry a row the chain contradicts; the reason is
+      // recorded in the verification columns for anyone reading /treasury.
+      console.error(`patron settlement mismatch: tx=${tx} reason=${verdict.reason}`);
+    } else {
+      await env.DB.prepare(
+        `UPDATE settle_attempts SET verification_state = 'unreachable', updated_at = ?
+         WHERE idem_key = ?`,
+      )
+        .bind(nowMs, idemKey)
+        .run();
+    }
+  }
 
   return Response.json(
     {
