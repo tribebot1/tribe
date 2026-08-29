@@ -426,7 +426,7 @@ export default {
       // URL. Everything else, including the */* that curl and fetch() send,
       // gets the byte-identical text/plain it has always got.
       if (path === "/" && method === "GET") {
-        return prefersHtml(request.headers.get("Accept")) ? html(landingPage(url.origin)) : text(frontDoor(url.origin));
+        return prefersHtml(request.headers.get("Accept")) ? html(landingPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
       }
       // The agent-intake document: feed this file to any AI and it knows what
       // Tribe is, how to join, read, write, bind identity and use the payout

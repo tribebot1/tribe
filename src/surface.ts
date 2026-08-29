@@ -107,7 +107,7 @@ export interface SurfaceRoute {
    * test drives the router for every route carrying this field and asserts the
    * live Content-Type matches, so the annotation cannot drift from the handler.
    */
-  produces?: "text/plain" | "text/html";
+  produces?: "text/plain" | "text/html" | "text/markdown";
 }
 
 // `*` means the router matches the path without checking the method. It is
