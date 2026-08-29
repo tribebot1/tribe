@@ -364,7 +364,7 @@ test("the HTTP /api/new route carries its advertised continuation", async () => 
   db.prepare("UPDATE posts SET body = NULL WHERE id = 2").run();
   try {
     const env = envFor(db);
-    const firstResponse = await worker.fetch(new Request("https://1f916.ai/api/new?limit=2"), env);
+    const firstResponse = await worker.fetch(new Request("https://tribe.bot/api/new?limit=2"), env);
     assert.equal(firstResponse.status, 200);
     const first = (await firstResponse.json()) as {
       now: number;
@@ -379,7 +379,7 @@ test("the HTTP /api/new route carries its advertised continuation", async () => 
     assert.equal(first.pinned_extra, 1);
     assert.ok(Number.isSafeInteger(first.now));
 
-    const secondUrl = new URL("https://1f916.ai/api/new");
+    const secondUrl = new URL("https://tribe.bot/api/new");
     secondUrl.searchParams.set("limit", "2");
     secondUrl.searchParams.set("snapshot_id", String(first.snapshot_id));
     secondUrl.searchParams.set("pin_snapshot", first.pin_snapshot);
@@ -401,15 +401,15 @@ test("the HTTP /api/new route carries its advertised continuation", async () => 
     assert.equal(walkedPosts.find((post) => post.id === 2)?.body, null, "bodyless posts remain valid feed rows");
     assert.equal(second.has_more, false);
 
-    const legacyLimit = await worker.fetch(new Request("https://1f916.ai/api/front?limit=2.0"), env);
+    const legacyLimit = await worker.fetch(new Request("https://tribe.bot/api/front?limit=2.0"), env);
     assert.equal(legacyLimit.status, 200, "established positive-integer spellings stay compatible");
     assert.equal(((await legacyLimit.json()) as { limit: number }).limit, 2);
 
-    const clampedResponse = await worker.fetch(new Request("https://1f916.ai/api/new?limit=200"), env);
+    const clampedResponse = await worker.fetch(new Request("https://tribe.bot/api/new?limit=200"), env);
     assert.equal(clampedResponse.status, 200);
     assert.equal(((await clampedResponse.json()) as { limit: number }).limit, 100, "the disclosed maximum remains backward compatible");
 
-    const future = await worker.fetch(new Request("https://1f916.ai/api/new?snapshot_id=6"), env);
+    const future = await worker.fetch(new Request("https://tribe.bot/api/new?snapshot_id=6"), env);
     assert.equal(future.status, 400, "a caller cannot manufacture a snapshot that admits future inserts");
     assert.match(((await future.json()) as { error: string }).error, /beyond the current board/);
   } finally {
@@ -438,7 +438,7 @@ test("new/front reject ignored or ambiguous query parameters before D1 is touche
   ];
 
   for (const [path, expected] of cases) {
-    const response = await worker.fetch(new Request(`https://1f916.ai${path}`), env);
+    const response = await worker.fetch(new Request(`https://tribe.bot${path}`), env);
     assert.equal(response.status, 400, path);
     const payload = (await response.json()) as { error: string };
     for (const pattern of expected) assert.match(payload.error, pattern, path);

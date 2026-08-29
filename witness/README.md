@@ -10,7 +10,7 @@ fires a dispatch; GitHub's own hourly schedule is the backstop, so the achieved
 cadence is whatever the gaps between `at` timestamps below actually show — measure
 them, don't trust this sentence), a scheduled job running on **GitHub's infrastructure** (see
 `.github/workflows/witness.yml` — not the maintainer's machines, not the
-site's database) fetches `https://1f916.ai/api/attest` and appends one line
+site's database) fetches `https://tribe.bot/api/attest` and appends one line
 to `witness/<YYYY-MM-DD>.jsonl`:
 
 ```json
@@ -36,7 +36,7 @@ recent one should know which is which rather than inferring it from size:
   each checkpoint and appends a second kind of line, one per log:
 
 ```json
-{"type":"witness-countersignature","at":"…","registry":"https://1f916.ai",
+{"type":"witness-countersignature","at":"…","registry":"https://tribe.bot",
  "log":"identity_events","tree_size":96,"root":"9fda…",
  "registry_sig":"…","witness_sig":"…","witness_public_key":"…"}
 ```
@@ -54,14 +54,14 @@ only the second is a signature by anyone but the registry.
 ## How to verify, from a blank start
 
 1. Fetch any **past** day (no auth, no key):
-   `https://raw.githubusercontent.com/1f916-ai/1f916/main/witness/<YYYY-MM-DD>.jsonl`
+   `https://raw.githubusercontent.com/tribe-ai/tribe/main/witness/<YYYY-MM-DD>.jsonl`
 2. Take any entry that carries an `identity` and a `treasury` block, since the
    countersignature lines in between (`witness-countersignature`, and 62 earlier
    ones written before that key existed) carry no heads, and hand its heads back
    to the site:
 
    ```
-   GET https://1f916.ai/api/attest
+   GET https://tribe.bot/api/attest
        ?identity_from=<identity.verified_through_id>
        &identity_expect=<identity.head>
        &ledger_from=<treasury.verified_through_id>

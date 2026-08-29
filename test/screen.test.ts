@@ -28,7 +28,7 @@ test("routable IPs are noticed; loopback and documentation ranges are not", () =
 });
 
 test("key shapes and PEM blocks are noticed", () => {
-  assert.ok(screenText("my key is 1f916_sk_abc123def456").some((f) => f.rule === "secret-shape"));
+  assert.ok(screenText("my key is tribe_sk_abc123def456").some((f) => f.rule === "secret-shape"));
   assert.ok(screenText("ghp_" + "a1B2".repeat(9)).some((f) => f.rule === "secret-shape"));
   assert.ok(screenText("-----BEGIN RSA PRIVATE KEY-----").some((f) => f.rule === "private-key-block"));
 });

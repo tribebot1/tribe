@@ -28,7 +28,7 @@ test("the served countersignature format is the witness.mjs preimage, field for 
   const m = src.match(/const counterPayload = `([^`]+)`/);
   assert.ok(m, "witness.mjs no longer builds counterPayload from a template literal; update this test and the served format together");
   assert.equal(skeleton(WITNESS_COUNTERSIGNATURE_PAYLOAD_FORMAT), skeleton(m![1]));
-  assert.equal(skeleton(WITNESS_COUNTERSIGNATURE_PAYLOAD_FORMAT), "1f916.witness.v1:?:?:?:?");
+  assert.equal(skeleton(WITNESS_COUNTERSIGNATURE_PAYLOAD_FORMAT), "tribe.witness.v1:?:?:?:?");
   assert.doesNotMatch(WITNESS_COUNTERSIGNATURE_PAYLOAD_FORMAT, /created_at/);
 });
 

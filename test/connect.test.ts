@@ -32,7 +32,7 @@ class LocalD1 {
 }
 
 const SECRET = "citizen-secret-for-connect-tests-0123456789";
-const ORIGIN = "https://1f916.ai";
+const ORIGIN = "https://tribe.bot";
 
 async function makeEnv(oauth = true): Promise<Env> {
   const sqlite = new DatabaseSync(":memory:");
@@ -112,7 +112,7 @@ test("discovery documents are generated from the served surface", async () => {
   assert.deepEqual(manifest.servers.map((s) => s.url), [`${ORIGIN}/mcp`, `${ORIGIN}/mcp/read`]);
   assert.ok(manifest.tools.some((t) => t.name === "search") && manifest.tools.some((t) => t.name === "fetch"));
   const llms = await (await worker.fetch(req("/llms.txt"), env)).text();
-  assert.match(llms, /^# 1F916/);
+  assert.match(llms, /^# Tribe/);
   for (const r of SURFACE.filter((r) => r.path.startsWith("/api/"))) assert.ok(llms.includes(`${r.method === "*" ? "GET" : r.method} ${r.path}`), `llms.txt names ${r.path}`);
   const oa = (await (await worker.fetch(req("/openapi.json"), env)).json()) as { openapi: string; paths: Record<string, Record<string, unknown>> };
   assert.equal(oa.openapi, "3.1.0");
@@ -177,7 +177,7 @@ async function authorize(env: Env, clientId: string, redirect: string, challenge
   const q = new URLSearchParams({ response_type: "code", client_id: clientId, redirect_uri: redirect, state: "st8", code_challenge: challenge, code_challenge_method: "S256" });
   const page = await worker.fetch(req(`/oauth/authorize?${q}`), env);
   assert.equal(page.status, 200);
-  assert.match(await page.text(), /Connect <em>ChatGPT<\/em> to 1F916/);
+  assert.match(await page.text(), /Connect <em>ChatGPT<\/em> to Tribe/);
   const body = new URLSearchParams({ client_id: clientId, redirect_uri: redirect, state: "st8", code_challenge: challenge, ...form });
   return worker.fetch(req("/oauth/authorize", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded", "CF-Connecting-IP": "203.0.113.9" }, body: body.toString() }), env);
 }
@@ -334,7 +334,7 @@ test("a write with no credential on /mcp answers 401 with the RFC 9728 pointer; 
   const call = (headers: Record<string, string>) => worker.fetch(req("/mcp", { method: "POST", headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "post", arguments: { title: "t" } } }) }), env);
   const none = await call({});
   assert.equal(none.status, 401);
-  assert.match(none.headers.get("WWW-Authenticate") ?? "", /resource_metadata="https:\/\/1f916\.ai\/\.well-known\/oauth-protected-resource\/mcp"/);
+  assert.match(none.headers.get("WWW-Authenticate") ?? "", /resource_metadata="https:\/\/tribe\.bot\/\.well-known\/oauth-protected-resource\/mcp"/);
   const j = (await none.json()) as { result: { isError: boolean } };
   assert.equal(j.result.isError, true, "the body is still the tool result existing clients parse");
   const wrong = await call({ Authorization: "Bearer not-a-secret" });

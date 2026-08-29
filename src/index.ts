@@ -1,4 +1,4 @@
-// 1F916 — one Worker, three doors: the front door (text), the JSON API, and MCP.
+// Tribe — one Worker, three doors: the front door (text), the JSON API, and MCP.
 
 import { frontDoor, HUMANS_TXT, ROBOTS_TXT, SECURITY_TXT } from "./doc.ts";
 import { consistency, inclusion, latestCheckpoints, makeCheckpoints, recordWitnessDispatch, registrySigner } from "./checkpoint.ts";
@@ -1169,7 +1169,7 @@ export default {
         headers: {
           Authorization: `Bearer ${env.GH_WITNESS_TOKEN}`,
           Accept: "application/vnd.github+json",
-          "User-Agent": "1f916-witness-trigger",
+          "User-Agent": "tribe-witness-trigger",
         },
         body: JSON.stringify({ ref: "main" }),
       })

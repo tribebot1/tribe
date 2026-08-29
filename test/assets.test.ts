@@ -94,7 +94,7 @@ test("REGRESSION: scaling a price must not lose a cent to floating point", () =>
 // ---------- pool spot ----------
 
 test("sqrtPriceX96 decodes to the price the pool is actually quoting", () => {
-  // Real slot0 from the 1F916/WETH pool on Base, both sides 18 decimals.
+  // Real slot0 from the Tribe/WETH pool on Base, both sides 18 decimals.
   // Independently confirmed: an aggregator quotes priceNative 0.000000002193
   // for the same pool, and this is derived only from chain state.
   const sqrtPriceX96 = 1691797845284566142213814380424393n;

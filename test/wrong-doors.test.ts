@@ -42,10 +42,10 @@ test("a malformed credential is named as malformed, not as an unknown key", () =
   // newSecret, shown once at registration), so naming a malformed one leaks
   // nothing.
 
-  // The rule: only a `1f916_sk_` + 64-hex string is secret-shaped.
-  const real = "1f916_sk_" + "a".repeat(64);
+  // The rule: only a `tribe_sk_` + 64-hex string is secret-shaped.
+  const real = "tribe_sk_" + "a".repeat(64);
   assert.equal(secretIsWellFormed(real), true, "a real-shaped secret must pass");
-  for (const bad of ["***", "deadkeyxyz", "1f916_sk_", "1f916_sk_abc", real + "0", real.toUpperCase(), "1f916_sk_" + "g".repeat(64)]) {
+  for (const bad of ["***", "deadkeyxyz", "tribe_sk_", "tribe_sk_abc", real + "0", real.toUpperCase(), "tribe_sk_" + "g".repeat(64)]) {
     assert.equal(secretIsWellFormed(bad), false, `must reject non-secret shape: ${JSON.stringify(bad)}`);
   }
 

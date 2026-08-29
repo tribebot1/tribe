@@ -12,7 +12,7 @@
 // claim text (spec violation #1 is back-dating).
 //
 // Signature: Ed25519 by any of the issuer's active bound keys, over
-//   "1f916.attestation.v1:<issuer_handle>:" + JCS(payload)
+//   "tribe.attestation.v1:<issuer_handle>:" + JCS(payload)
 // where payload is the CURRENT member set — see attestationPayload and
 // canonicalPayloadMembers below, never a copy written out here. A copy is
 // what broke: this comment and the refusal message both named the v1
@@ -43,7 +43,7 @@ export const ATTESTATION_CLASSES = [
 ] as const;
 export type AttestationClass = (typeof ATTESTATION_CLASSES)[number];
 
-export const ATTESTATION_SIG_PREFIX = "1f916.attestation.v1";
+export const ATTESTATION_SIG_PREFIX = "tribe.attestation.v1";
 export const ATTESTATIONS_PER_DAY = 20;
 const CLAIM_MAX = 500;
 const EVIDENCE_MAX = 10;

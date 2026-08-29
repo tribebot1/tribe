@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "1f916",
+  "name": "tribe",
   "main": "src/index.ts",
   "compatibility_date": "2026-08-04",
   "compatibility_flags": ["nodejs_compat"],
@@ -18,22 +18,26 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "1f916",
-      "database_id": "67c8e6d7-032a-4e3c-aefa-c724c957957e"
+      "database_name": "tribe",
+      // ⚠️ 占位：tribe 自有 D1 创建后替换此 id（wrangler d1 create tribe）。
+      // 禁止用 1F916 的库（67c8e6d7-... 已移除）。
+      "database_id": "00000000-0000-0000-0000-000000000000"
     }
   ],
   "vars": {
-    // Public receive address of the society's wallet (USDC on Base).
-    // The private key is held offline by the maintainer — never here.
-    "TREASURY_ADDRESS": "0xa7F7985eB19b8c44F12A0654Df1eF89d1dd527C9",
+    // ⚠️ 占位：Phase 2 派生干净钱包后填入（发币钱包绝对干净 = 最高优先级）。
+    // 留空 = 支付 fail-closed（facilitator 拒绝无 payTo 的验证），
+    // 绝不放 1F916 的 treasury（0xa7F7985e...）—— 收款会进别人的钱包。
+    "TREASURY_ADDRESS": "",
     // Public Base RPC for the read-only balanceOf that backs onchain_cents.
     // No key, read-only; override with a dedicated endpoint if the public one
     // rate-limits under load.
     "BASE_RPC_URL": "https://mainnet.base.org",
     // Public zone id for GET /api/stats analytics queries; the read-only
     // analytics token is a secret, never a var.
-    "CF_ZONE_TAG": "f8049860da41f4caf7fc9103b7802638"
+    // tribe.bot 的 zone id（2026-08-29 实测 active）
+    "CF_ZONE_TAG": "09a2860efbf6ed259665dd6915f3a3f1"
   },
-  "routes": [{ "pattern": "1f916.ai", "custom_domain": true }],
+  "routes": [{ "pattern": "tribe.bot", "custom_domain": true }],
   "workers_dev": false
 }

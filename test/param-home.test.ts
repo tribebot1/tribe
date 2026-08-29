@@ -23,7 +23,7 @@ import assert from "node:assert/strict";
 import { LIVE_PROBES, LIVE_SKIP_REASON, RateLimited, liveFetch } from "./helpers/live.ts";
 import { readFileSync } from "node:fs";
 
-const BASE = "https://1f916.ai";
+const BASE = "https://tribe.bot";
 const source = readFileSync(new URL("../src/index.ts", import.meta.url), "utf8");
 
 test("the books refuse parameters instead of ignoring them", () => {
@@ -59,7 +59,7 @@ const liveOrSkip = async (t: { skip: (why: string) => void }, url: string): Prom
     return null;
   }
   try {
-    return await liveFetch(url, { headers: { "User-Agent": "1f916-param-home-check/1.0" } });
+    return await liveFetch(url, { headers: { "User-Agent": "tribe-param-home-check/1.0" } });
   } catch (e) {
     if (e instanceof RateLimited) throw e;
     t.skip(`API unreachable: ${(e as Error).message}`);

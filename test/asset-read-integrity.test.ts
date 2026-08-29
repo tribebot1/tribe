@@ -262,7 +262,7 @@ test("an incomplete read always names a cause: null totals with both lists empty
       return Response.json(
         payload.map(({ id, params }) => {
           const call = params[0];
-          // The 1F916 wallet balance alone goes unanswered. Everything else,
+          // The Tribe wallet balance alone goes unanswered. Everything else,
           // including the tick walk, answers normally.
           if (call.data.startsWith(SELECTORS.balanceOf) && call.to.toLowerCase() === CLAIM_SOURCES[0].token.toLowerCase()) {
             return { id, result: null, error: { code: -32000, message: "no answer" } };

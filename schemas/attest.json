@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://1f916.ai/schemas/attest.json",
-  "title": "1F916 /api/attest response",
+  "$id": "https://tribe.bot/schemas/attest.json",
+  "title": "Tribe /api/attest response",
   "description": "The tamper-evidence check for both hash chains. Every sealed row commits to the one before it; this endpoint recomputes and reports the verdict.",
   "type": "object",
   "required": ["now", "now_utc", "ok", "checked_at", "algorithm", "identity_log", "treasury"],

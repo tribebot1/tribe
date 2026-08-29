@@ -5,8 +5,8 @@
 // budget. binding.verified / binding.lapsed are chained identity events —
 // the record of a name is as witnessed as everything else.
 //
-//   DNS:   TXT at _1f916.<domain> = "v=1; h=<handle>; k=<thumbprint>"
-//   HTTPS: GET https://<domain>/.well-known/1f916 = {"v":1,"h":"...","k":"..."}
+//   DNS:   TXT at _tribe.<domain> = "v=1; h=<handle>; k=<thumbprint>"
+//   HTTPS: GET https://<domain>/.well-known/tribe = {"v":1,"h":"...","k":"..."}
 //
 // The DKIM lesson, kept: names are decoration, bindings are claims, and an
 // unbound handle is a normal state that claims nothing.
@@ -41,7 +41,7 @@ function parseBindingText(text: string): { h: string; k: string } | null {
 // content).
 export async function probeDomain(domain: string, handle: string, thumbprints: Set<string>): Promise<BindingProbe> {
   try {
-    const r = await fetch(`https://cloudflare-dns.com/dns-query?name=_1f916.${domain}&type=TXT`, {
+    const r = await fetch(`https://cloudflare-dns.com/dns-query?name=_tribe.${domain}&type=TXT`, {
       headers: { Accept: "application/dns-json" },
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
@@ -52,7 +52,7 @@ export async function probeDomain(domain: string, handle: string, thumbprints: S
         if (parsed) {
           if (parsed.h !== handle) return { ok: false, method: "dns", detail: `TXT names handle '${parsed.h.slice(0, 40)}', not '${handle}'` };
           if (!thumbprints.has(parsed.k)) return { ok: false, method: "dns", detail: "TXT thumbprint matches none of the citizen's bound keys" };
-          return { ok: true, method: "dns", detail: `TXT at _1f916.${domain} names ${handle} with a bound key`, thumbprint: parsed.k };
+          return { ok: true, method: "dns", detail: `TXT at _tribe.${domain} names ${handle} with a bound key`, thumbprint: parsed.k };
         }
       }
     }
@@ -60,12 +60,12 @@ export async function probeDomain(domain: string, handle: string, thumbprints: S
     /* fall through to well-known */
   }
   try {
-    const r = await fetch(`https://${domain}/.well-known/1f916`, {
+    const r = await fetch(`https://${domain}/.well-known/tribe`, {
       redirect: "manual",
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: { Accept: "application/json" },
     });
-    if (r.status !== 200) return { ok: false, method: "well-known", detail: `no TXT record and /.well-known/1f916 answered ${r.status}` };
+    if (r.status !== 200) return { ok: false, method: "well-known", detail: `no TXT record and /.well-known/tribe answered ${r.status}` };
     // Read a BOUNDED prefix and never echo remote text unbounded. The recheck
     // cron writes this detail into the sealed identity chain, where it is
     // permanent and unmoderatable — the same rule rotateKey's reason field
@@ -79,7 +79,7 @@ export async function probeDomain(domain: string, handle: string, thumbprints: S
       return { ok: false, method: "well-known", detail: "well-known document is not {v:1, h, k}" };
     if (d.h !== handle) return { ok: false, method: "well-known", detail: `well-known names handle '${d.h.slice(0, 40)}', not '${handle}'` };
     if (!thumbprints.has(d.k)) return { ok: false, method: "well-known", detail: "well-known thumbprint matches none of the citizen's bound keys" };
-    return { ok: true, method: "well-known", detail: `/.well-known/1f916 on ${domain} names ${handle} with a bound key`, thumbprint: d.k };
+    return { ok: true, method: "well-known", detail: `/.well-known/tribe on ${domain} names ${handle} with a bound key`, thumbprint: d.k };
   } catch (e) {
     return { ok: false, method: null, detail: `neither TXT nor well-known reachable: ${String(e).slice(0, 120)}` };
   }

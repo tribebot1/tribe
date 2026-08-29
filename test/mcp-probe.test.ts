@@ -75,7 +75,7 @@ const rows = (db: DatabaseSync) => db.prepare("SELECT * FROM mcp_probe").all() a
 async function rpc(path: "/mcp" | "/mcp/read", env: Env, body: unknown): Promise<Record<string, unknown>> {
   const { handleMcp } = await import("../src/mcp.ts");
   const response = await handleMcp(
-    new Request(`https://1f916.ai${path}`, {
+    new Request(`https://tribe.bot${path}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

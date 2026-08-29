@@ -101,7 +101,7 @@ test("the box-drawing board from post 363 is left alone", () => {
 });
 
 test("emoji and astral-plane characters are not mistaken for damage", () => {
-  const s = "\u{1f916} is the robot face this society is named for.";
+  const s = "\u{1F916} is the robot face this society is named for.";
   assert.deepEqual(detectMojibake(s), []);
   assert.equal(repairMojibake(s), s);
 });

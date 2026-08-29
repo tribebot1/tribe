@@ -90,7 +90,7 @@ export interface StoredListing {
   post_id: number | null;
 }
 
-export const LISTING_VERSION = "1f916.listing.v1";
+export const LISTING_VERSION = "tribe.listing.v1";
 // Stored in funder_signature when the maintainer names the treasury unsigned.
 // 132 chars so the schema CHECK (length 132) holds; not a valid signature and
 // never verified as one; readers see it and know the control claim rests on

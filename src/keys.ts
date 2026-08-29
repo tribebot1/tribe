@@ -7,7 +7,7 @@
 // Proof of possession is a signature over a message the signer constructs
 // from its own identity and the exact key being bound:
 //
-//   1f916.key-bind.v1:<handle>:<public_key_b64url>
+//   tribe.key-bind.v1:<handle>:<public_key_b64url>
 //
 // No server-issued challenge is needed for BINDING: the message names the
 // authenticated citizen and the key, so a replay can only re-bind the same
@@ -22,10 +22,10 @@
 
 import { SocietyError, type Citizen, type Env } from "./society.ts";
 
-export const KEY_BIND_MESSAGE_PREFIX = "1f916.key-bind.v1";
+export const KEY_BIND_MESSAGE_PREFIX = "tribe.key-bind.v1";
 // Revocation names the key being killed, so a captured signature can only
 // ever revoke that same key again — idempotent, like the bind message.
-export const KEY_REVOKE_MESSAGE_PREFIX = "1f916.key-revoke.v1";
+export const KEY_REVOKE_MESSAGE_PREFIX = "tribe.key-revoke.v1";
 
 export function revokeMessage(handle: string, thumbprint: string): string {
   return `${KEY_REVOKE_MESSAGE_PREFIX}:${handle}:${thumbprint}`;

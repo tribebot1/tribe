@@ -33,7 +33,7 @@ const societySrc = readFileSync(join(ROOT, "src/society.ts"), "utf8");
 const docketSrc = readFileSync(join(ROOT, "src/docket.ts"), "utf8");
 
 test("the ring carries no content and no counts", () => {
-  const body = { type: "1f916.doorbell" as const, event_id: 6491, cursor: 6491, sent_at: 1786586000000 };
+  const body = { type: "tribe.doorbell" as const, event_id: 6491, cursor: 6491, sent_at: 1786586000000 };
   const parsed = JSON.parse(canonicalRing(body));
   assert.deepEqual(Object.keys(parsed).sort(), ["cursor", "event_id", "sent_at", "type"]);
   // The three things that must never appear. A body pasted into a waking
@@ -44,9 +44,9 @@ test("the ring carries no content and no counts", () => {
 });
 
 test("the canonical form is stable, so a verifier reproduces the hash without guessing", async () => {
-  const a = { type: "1f916.doorbell" as const, event_id: 1, cursor: 1, sent_at: 2 };
+  const a = { type: "tribe.doorbell" as const, event_id: 1, cursor: 1, sent_at: 2 };
   // Same values, different insertion order. The signed bytes must not care.
-  const b = { sent_at: 2, cursor: 1, event_id: 1, type: "1f916.doorbell" as const };
+  const b = { sent_at: 2, cursor: 1, event_id: 1, type: "tribe.doorbell" as const };
   assert.equal(canonicalRing(a), canonicalRing(b));
   assert.equal(await sha256Hex(canonicalRing(a)), await sha256Hex(canonicalRing(b)));
 });
@@ -56,7 +56,7 @@ test("a ring signed with the wrong key does not verify", async () => {
   // sends. A receiver that follows the published rule rejects this.
   const real = generateKeyPairSync("ed25519");
   const impostor = generateKeyPairSync("ed25519");
-  const body = { type: "1f916.doorbell" as const, event_id: 42, cursor: 42, sent_at: 7 };
+  const body = { type: "tribe.doorbell" as const, event_id: 42, cursor: 42, sent_at: 7 };
   const message = Buffer.from(doorbellMessage("registry-key", "some-citizen", 42, await sha256Hex(canonicalRing(body))));
 
   const good = edSign(null, message, real.privateKey);
@@ -83,7 +83,7 @@ test("the url gate refuses the shapes that would aim this registry inward", () =
   ]) {
     assert.throws(() => validateDoorbellUrl(bad), `must refuse ${bad}`);
   }
-  assert.equal(validateDoorbellUrl("https://agent.example.com/1f916"), "https://agent.example.com/1f916");
+  assert.equal(validateDoorbellUrl("https://agent.example.com/tribe"), "https://agent.example.com/tribe");
 });
 
 test("the hostname check is documented as depth rather than as the gate", () => {
@@ -172,10 +172,10 @@ test("a caller-owned key cannot activate an uncooperative callback URL", async (
 
     // This is the proof the vulnerable flow accepted directly from the caller.
     // It proves the citizen has their key, but says nothing about the victim URL.
-    const callerProof = edSign(null, Buffer.from(`1f916.doorbell-verify.v1:ringer:${pending.challenge}`), pair.privateKey).toString("base64url");
+    const callerProof = edSign(null, Buffer.from(`tribe.doorbell-verify.v1:ringer:${pending.challenge}`), pair.privateKey).toString("base64url");
     await assert.rejects(
       () => (verifyDoorbell as unknown as (env: typeof env, citizen: Citizen, body: { signature: string }) => Promise<unknown>)(env, citizen, { signature: callerProof }),
-      /endpoint did not return X-1f916-Doorbell-Proof/,
+      /endpoint did not return X-tribe-Doorbell-Proof/,
     );
     assert.equal((db.prepare("SELECT status FROM doorbells WHERE citizen_id = 7").get() as { status: string }).status, "pending");
     assert.equal(requests.length, 1, "verification obtains proof from the stored endpoint, not its API caller");

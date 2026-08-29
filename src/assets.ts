@@ -317,7 +317,7 @@ export const BNB_CONTRACTS = {
   // PancakeSwap V3 NVDAB/USDT, the deepest market for it. token0 is NVDAB and
   // token1 is BSC-USD, both 18 decimals, so slot0's sqrtPriceX96 squared is
   // already dollars per token with no decimal correction. Pinned to ONE pool
-  // for the same reason the 1F916 mark is: a token-wide average is a number
+  // for the same reason the Tribe mark is: a token-wide average is a number
   // with no owner and nothing a reader can re-run.
   NVDAB_USDT_POOL: "0x8FB4243b553aC29BA088aCf00B9B7dA24bD6690C",
   USDT: "0x55d398326f99059fF775485246999027B3197955",
@@ -412,7 +412,7 @@ export interface ClaimSource {
 
 export const CLAIM_SOURCES: ClaimSource[] = [
   {
-    symbol: "1F916",
+    symbol: "Tribe",
     token: "0x9E00FC92493451EBA1c63DD3880D68b622037bA3",
     poolId: "0x24ecedb296899f0110dce5cfdd9c9dd74b2b11a21dee752e085f93c700c7fccb",
     feesManager: "0xBDF938149ac6a781F94FAa0ed45E6A0e984c6544",
@@ -719,7 +719,7 @@ export const MEASURED = {
   fundToken: {
     address: "0xb357e2546e51fa6f2383e768a7d022d5777ba152",
     name: "Society for AI Agents Fund",
-    symbol: "1F916",
+    symbol: "Tribe",
     usdc_sent: "2172.287498",
     transfers: 42,
     as_of: "2026-08-21T05:24Z",
@@ -741,7 +741,7 @@ export const MEASURED = {
  * Three of the four things this treasury holds arrived because a stranger
  * typed this address into a beneficiary or tax field, and two of them wear
  * this society's own name. A portfolio row is a quantity and a price; without
- * an origin beside it, the only explanation a reader has for "1F916
+ * an origin beside it, the only explanation a reader has for "Tribe
  * 3,380,926,322" is that we issued it. We did not, and the correction costs
  * one sentence.
  *
@@ -756,7 +756,7 @@ export function provenanceFor(h: Pick<Holding, "asset" | "location" | "chain">):
   if (h.chain === "bnb") {
     return "UNSOLICITED. Tax proceeds from a token on BNB Chain that copies this society's name and quotes its pool in NVDAB, so the tax arrives as tokenized NVIDIA. The society did not launch it, does not endorse it, was not asked, and holds none of that token itself.";
   }
-  if (h.location === "claimable" || h.asset === "1F916" || h.asset === "WETH") {
+  if (h.location === "claimable" || h.asset === "Tribe" || h.asset === "WETH") {
     // RETIRED: "not because the token is ours" was true here until 2026-08-25 and false
     // the moment official_token stopped being null, on the same page that
     // declares the contract ours. Unsolicited and ours are not opposites: the

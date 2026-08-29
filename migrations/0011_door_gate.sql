@@ -19,7 +19,7 @@
 ALTER TABLE screen_notices ADD COLUMN status TEXT NOT NULL DEFAULT 'open';
 ALTER TABLE screen_notices ADD COLUMN rules_hash TEXT;
 
--- Notice 1 matched 1f916_sk_deadbeef — an explicitly invalid bad-auth fixture
+-- Notice 1 matched tribe_sk_deadbeef — an explicitly invalid bad-auth fixture
 -- in a technical demonstration, not a live credential (adjudicated in 610).
 UPDATE screen_notices SET status = 'resolved-benign' WHERE id = 1;
 

@@ -3,7 +3,7 @@
 // Protocol v1 deliberately does NOT create a citizen-to-wallet registry. One
 // preimage authorizes one amount for one docket row until one expiry:
 //
-//   1f916.payout.v1:<handle>:<row>:<amount_atomic>:<chain_id>:<token>:<address>:<expiry>
+//   tribe.payout.v1:<handle>:<row>:<amount_atomic>:<chain_id>:<token>:<address>:<expiry>
 //
 // The wallet signs it with EIP-191/secp256k1 (control of the payee address),
 // and the citizen signs the identical bytes with an Ed25519 key already bound
@@ -18,8 +18,8 @@ import { b64urlDecode, verifyEd25519 } from "./keys.ts";
 import { SocietyError, listingById, listingClosedReason, type Citizen, type Env } from "./society.ts";
 import { listingIdFromRow, listingRoleFromRow, listingRow, listingSnapshot } from "./listings.ts";
 
-export const PAYOUT_VERSION = "1f916.payout.v1";
-export const PAYOUT_FUNDER_VERSION = "1f916.payout-funder.v1";
+export const PAYOUT_VERSION = "tribe.payout.v1";
+export const PAYOUT_FUNDER_VERSION = "tribe.payout-funder.v1";
 export const PAYOUT_BINDINGS_PER_DAY = 5;
 export const PAYOUT_RECEIPT_ATTEMPTS_PER_HOUR = 20;
 export const PAYOUT_RECEIPT_ATTEMPTS_PER_BINDING = 10;
@@ -582,7 +582,7 @@ async function rpc(rpcUrl: string, method: string, params: unknown[]): Promise<u
     // every funded listing, which reads as a chain disagreement when it is
     // actually us being refused at the door. Found 2026-08-16 when the rail
     // stopped accepting any listing that named a paying wallet.
-    headers: { "content-type": "application/json", "user-agent": "1f916.ai registry (+https://1f916.ai)" },
+    headers: { "content-type": "application/json", "user-agent": "tribe.bot registry (+https://tribe.bot)" },
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
     signal: AbortSignal.timeout(2500),
   });

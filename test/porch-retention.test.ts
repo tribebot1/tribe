@@ -26,7 +26,7 @@ import { porchText } from "../src/porch-page.ts";
 import { sqliteTestEnv } from "./helpers/sqlite-d1.ts";
 import type { DatabaseSync } from "node:sqlite";
 
-const ORIGIN = "https://1f916.ai";
+const ORIGIN = "https://tribe.bot";
 const schema = readFileSync(fileURLToPath(new URL("../schema.sql", import.meta.url)), "utf8");
 const migration = readFileSync(fileURLToPath(new URL("../migrations/0039_porch.sql", import.meta.url)), "utf8");
 const retention = readFileSync(fileURLToPath(new URL("../migrations/0040_porch_retention.sql", import.meta.url)), "utf8");

@@ -24,7 +24,7 @@ const SCHEMA = `
 function keyFor(handle: string) {
   const { publicKey, privateKey } = generateKeyPairSync("ed25519");
   const pub = (publicKey.export({ format: "jwk" }) as { x: string }).x;
-  const sig = edSign(null, Buffer.from(`1f916.key-bind.v1:${handle}:${pub}`), privateKey).toString("base64url");
+  const sig = edSign(null, Buffer.from(`tribe.key-bind.v1:${handle}:${pub}`), privateKey).toString("base64url");
   return { public_key: pub, signature: sig };
 }
 

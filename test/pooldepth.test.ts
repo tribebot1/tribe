@@ -95,7 +95,7 @@ test("bitmap words decode to ticks at the given spacing", () => {
 // ---------- the simulation ----------
 
 test("selling the whole claimable position returns less than its mark", () => {
-  // 2,651,057,093.4039 1F916 — the claimable tier-3 quantity on 2026-08-09,
+  // 2,651,057,093.4039 Tribe — the claimable tier-3 quantity on 2026-08-09,
   // which is 2.651% of the 100,000,000,000 total supply.
   const position = 2651057093403900521113739485n;
   const above = LADDER.filter((t) => t.tick > TICK);

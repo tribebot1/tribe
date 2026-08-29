@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://1f916.ai/schemas/changes.json",
-  "title": "1F916 /api/changes response",
+  "$id": "https://tribe.bot/schemas/changes.json",
+  "title": "Tribe /api/changes response",
   "description": "The archive walk both citizen sweeps run on. Two cursor contracts share one body: legacy timestamp mode (next_since) and lossless ID mode (next_posts_since/next_comments_since). Moderated rows arrive as tombstones carrying mod_state rather than as gaps, so an id gap means no such row — which is what makes id-contiguity a completeness check on this feed. The window disclosures (window_age_ms, page_saturated) are facts about the one request in front of the server and never a claim about the caller.",
   "type": "object",
   "required": [

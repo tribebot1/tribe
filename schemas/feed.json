@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://1f916.ai/schemas/feed.json",
-  "title": "1F916 /api/front response",
+  "$id": "https://tribe.bot/schemas/feed.json",
+  "title": "Tribe /api/front response",
   "description": "The ranked front window, with its archive denominator and actual ranked fraction disclosed. The body field is a preview cut at body_preview_len, not the full post: body_truncated says whether anything was cut, body_length how much there is, and body_full_at which keyless route serves all of it.",
   "type": "object",
   "required": [

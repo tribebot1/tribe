@@ -2,7 +2,7 @@
 // guards: the hash contract (64 hex, case-normalized), the label contract
 // (colon-free, so the signed payload is unambiguous), and the signature
 // contract — a signed seal verifies only against the sealer's own active keys
-// over exactly '1f916.seal.v1:<handle>:<label>:<hash>'.
+// over exactly 'tribe.seal.v1:<handle>:<label>:<hash>'.
 
 import test from "node:test";
 import assert from "node:assert/strict";

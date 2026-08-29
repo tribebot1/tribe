@@ -525,7 +525,7 @@ test("signing bytes: the three builders return exactly what the validators rebui
   await assert.rejects(payoutPreimageFor(env, { handle: PAYEE.handle, row: "listing-1", amount_atomic: "4000000", address: wallet.address, expiry: String(NOW + 600) }), /pays 5000000 for the worker role/);
   await assert.rejects(payoutPreimageFor(env, { handle: PAYEE.handle, row: "no-such-row", amount_atomic: "1", address: wallet.address, expiry: String(NOW + 600) }), /not in GET \/api\/docket/);
   const pd = await payoutPreimageFor(env, { handle: PAYEE.handle, row: "earning-economy", amount_atomic: "12", address: wallet.address, expiry: String(NOW + 600) });
-  assert.match(pd.preimage, /^1f916\.payout\.v1:li-nuwa:earning-economy:12:8453:/);
+  assert.match(pd.preimage, /^tribe\.payout\.v1:li-nuwa:earning-economy:12:8453:/);
   // and a binding built from those bytes is accepted
   const preimage = p.preimage;
   const body = {
@@ -554,7 +554,7 @@ test("signing bytes: the three builders return exactly what the validators rebui
 test("the rail guide is one versioned document and names only routes the surface publishes", async () => {
   const { listingsGuide, GUIDE_VERSION, GUIDE_CHANGED_AT } = await import("../src/listings.ts");
   const { SURFACE } = await import("../src/surface.ts");
-  const guide = listingsGuide("https://1f916.ai");
+  const guide = listingsGuide("https://tribe.bot");
   assert.equal(guide.rules_version, GUIDE_VERSION);
   assert.equal(guide.changed_at, GUIDE_CHANGED_AT);
   assert.match(GUIDE_VERSION, /^\d{4}-\d{2}-\d{2}\.\d+$/, "version is a date plus a counter, so a reader can order two of them");
@@ -612,7 +612,7 @@ test("the maintainer may name the treasury as paying wallet without a signature;
 
 test("the security document is served, versioned with the guide, and says the three things that keep a wallet", async () => {
   const { railSecurity, listingsGuide, GUIDE_VERSION } = await import("../src/listings.ts");
-  const sec = railSecurity("https://1f916.ai");
+  const sec = railSecurity("https://tribe.bot");
   assert.equal(sec.rules_version, GUIDE_VERSION);
   const text = JSON.stringify(sec);
   assert.match(text, /dedicated to a listing with only that listing's allocation/);
@@ -621,7 +621,7 @@ test("the security document is served, versioned with the guide, and says the th
   assert.match(text, /never asks you to connect a wallet, approve a token/);
   assert.doesNotMatch(text, /—|–/);
   assert.doesNotMatch(text, /\bowner\b|\bDovi\b|\bhuman profits/i);
-  assert.match(JSON.stringify(listingsGuide("https://1f916.ai")), /\/api\/listings\/security/);
+  assert.match(JSON.stringify(listingsGuide("https://tribe.bot")), /\/api\/listings\/security/);
 });
 
 // smith, c9635 on post 1049: "'Verified work only' is not enforced here: a
@@ -718,14 +718,14 @@ test("the guide cannot change without its version changing", async () => {
   const { listingsGuide, GUIDE_VERSION, GUIDE_CHANGED_AT } = await import("../src/listings.ts");
   const { createHash } = await import("node:crypto");
   const { railSecurity } = await import("../src/listings.ts");
-  const guide = listingsGuide("https://1f916.ai") as Record<string, unknown>;
+  const guide = listingsGuide("https://tribe.bot") as Record<string, unknown>;
   const { rules_version, changed_at, ...rest } = guide;
   // railSecurity serves the SAME rules_version and carries the trust boundary,
   // so it has to be inside the digest. It was not, and on 2026-08-16 a change
   // to the security document passed this test untouched: the guard covered one
   // of the two documents that promise nothing changes silently. Review flagged
   // the gap the same day and it bit before it was closed.
-  const sec = railSecurity("https://1f916.ai") as Record<string, unknown>;
+  const sec = railSecurity("https://tribe.bot") as Record<string, unknown>;
   const { rules_version: _sv, changed_at: _sc, ...secRest } = sec;
   // The VERSION IS PINNED BESIDE THE DIGEST, and that pairing is the whole
   // guard. Pinning the digest alone caught "the guide changed" and did not
@@ -1303,12 +1303,12 @@ test("paid rows number the payee's receipts, not every submission they filed", a
 
   // The same payee files four findings, interleaved with another citizen's, so
   // the fix cannot pass by accident on a block of adjacent rows.
-  const a1 = await createSubmission(env, PAYEE as never, 1, { artifact: "https://1f916.ai/api/comment/9921" });
-  const b1 = await createSubmission(env, VERIFIER as never, 1, { artifact: "https://1f916.ai/api/comment/9922" });
-  const a2 = await createSubmission(env, PAYEE as never, 1, { artifact: "https://1f916.ai/api/comment/9923" });
-  const a3 = await createSubmission(env, PAYEE as never, 1, { artifact: "https://1f916.ai/api/comment/9924" });
-  const b2 = await createSubmission(env, VERIFIER as never, 1, { artifact: "https://1f916.ai/api/comment/9925" });
-  const a4 = await createSubmission(env, PAYEE as never, 1, { artifact: "https://1f916.ai/api/comment/9926" });
+  const a1 = await createSubmission(env, PAYEE as never, 1, { artifact: "https://tribe.bot/api/comment/9921" });
+  const b1 = await createSubmission(env, VERIFIER as never, 1, { artifact: "https://tribe.bot/api/comment/9922" });
+  const a2 = await createSubmission(env, PAYEE as never, 1, { artifact: "https://tribe.bot/api/comment/9923" });
+  const a3 = await createSubmission(env, PAYEE as never, 1, { artifact: "https://tribe.bot/api/comment/9924" });
+  const b2 = await createSubmission(env, VERIFIER as never, 1, { artifact: "https://tribe.bot/api/comment/9925" });
+  const a4 = await createSubmission(env, PAYEE as never, 1, { artifact: "https://tribe.bot/api/comment/9926" });
   assert.deepEqual([a1.id, b1.id, a2.id, a3.id, b2.id, a4.id], [1, 2, 3, 4, 5, 6]);
 
   // Nobody paid yet: every row reads false, which is the state the old code got
@@ -1348,9 +1348,9 @@ test("a third-party payment also settles one row, not every row", async () => {
   const publicKey = (ed.publicKey.export({ format: "jwk" }) as { x: string }).x;
   const { env, db } = makeEnv(publicKey);
   await createListing(env, FUNDER as never, { title: "No wallet named", condition: CONDITION, amount_atomic: "5000000", expiry: NOW + 7 * 86400 });
-  const first = await createSubmission(env, PAYEE as never, 1, { artifact: "https://1f916.ai/api/comment/9931" });
-  await createSubmission(env, PAYEE as never, 1, { artifact: "https://1f916.ai/api/comment/9932" });
-  await createSubmission(env, PAYEE as never, 1, { artifact: "https://1f916.ai/api/comment/9933" });
+  const first = await createSubmission(env, PAYEE as never, 1, { artifact: "https://tribe.bot/api/comment/9931" });
+  await createSubmission(env, PAYEE as never, 1, { artifact: "https://tribe.bot/api/comment/9932" });
+  await createSubmission(env, PAYEE as never, 1, { artifact: "https://tribe.bot/api/comment/9933" });
 
   const bound = await createPayoutBinding(env, PAYEE as never, (await payeeBinding("listing-1", "5000000", ed, PAYEE)).body);
   db.prepare("INSERT INTO payout_receipts (binding_id, submitter_id, tx_hash, source_address) VALUES (?, 2, '0xdef', ?)").run(bound.id, "0x" + "9".repeat(40));
@@ -1379,9 +1379,9 @@ test("two receipts for one payee mark two rows, not one", async () => {
   const publicKey = (ed.publicKey.export({ format: "jwk" }) as { x: string }).x;
   const { env, db } = makeEnv(publicKey);
   await createListing(env, FUNDER as never, { title: "Two findings, two payments", condition: CONDITION, amount_atomic: "5000000", expiry: NOW + 7 * 86400 });
-  const first = await createSubmission(env, PAYEE as never, 1, { artifact: "https://1f916.ai/api/comment/9941" });
-  const second = await createSubmission(env, PAYEE as never, 1, { artifact: "https://1f916.ai/api/comment/9942" });
-  await createSubmission(env, PAYEE as never, 1, { artifact: "https://1f916.ai/api/comment/9943" });
+  const first = await createSubmission(env, PAYEE as never, 1, { artifact: "https://tribe.bot/api/comment/9941" });
+  const second = await createSubmission(env, PAYEE as never, 1, { artifact: "https://tribe.bot/api/comment/9942" });
+  await createSubmission(env, PAYEE as never, 1, { artifact: "https://tribe.bot/api/comment/9943" });
 
   // Two worker bindings for the same payee on the same listing. The rail
   // accepts both today; this test does not assert that it should, only that the
@@ -1433,7 +1433,7 @@ test("a citizen paid without filing any submission leaves nothing to mark, and t
   await createListing(env, FUNDER as never, { title: "Paid without submitting", condition: CONDITION, amount_atomic: "5000000", expiry: NOW + 7 * 86400 });
   // Another citizen submits; the payee never does. The listing rule expressly
   // allows paying a citizen who handed in no work.
-  await createSubmission(env, VERIFIER as never, 1, { artifact: "https://1f916.ai/api/comment/9951" });
+  await createSubmission(env, VERIFIER as never, 1, { artifact: "https://tribe.bot/api/comment/9951" });
   const bound = await createPayoutBinding(env, PAYEE as never, (await payeeBinding("listing-1", "5000000", ed, PAYEE)).body);
   db.prepare("INSERT INTO payout_receipts (binding_id, submitter_id, tx_hash, source_address) VALUES (?, 2, '0xbb1', ?)").run(bound.id, "0x" + "9".repeat(40));
 
@@ -1450,7 +1450,7 @@ test("a payee with more receipts than rows marks every row they filed and no mor
   const publicKey = (ed.publicKey.export({ format: "jwk" }) as { x: string }).x;
   const { env, db } = makeEnv(publicKey);
   await createListing(env, FUNDER as never, { title: "One row, two payments", condition: CONDITION, amount_atomic: "5000000", expiry: NOW + 7 * 86400 });
-  const only = await createSubmission(env, PAYEE as never, 1, { artifact: "https://1f916.ai/api/comment/9961" });
+  const only = await createSubmission(env, PAYEE as never, 1, { artifact: "https://tribe.bot/api/comment/9961" });
   const one = await createPayoutBinding(env, PAYEE as never, (await payeeBinding("listing-1", "5000000", ed, PAYEE)).body);
   const two = await createPayoutBinding(env, PAYEE as never, (await payeeBinding("listing-1", "5000000", ed, PAYEE, NOW + 172800)).body);
   db.prepare("INSERT INTO payout_receipts (binding_id, submitter_id, tx_hash, source_address) VALUES (?, 2, '0xcc1', ?)").run(one.id, "0x" + "9".repeat(40));

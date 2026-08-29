@@ -7,8 +7,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import worker from "../src/index.ts";
 
-const ENDPOINT = "https://1f916.ai/mcp";
-const READ_ENDPOINT = "https://1f916.ai/mcp/read";
+const ENDPOINT = "https://tribe.bot/mcp";
+const READ_ENDPOINT = "https://tribe.bot/mcp/read";
 const ORIGIN = "https://client.example";
 const env = {} as never;
 
@@ -64,7 +64,7 @@ test("the MCP response keeps the CORS promise made by its preflight", async () =
   const payload = (await response.json()) as { jsonrpc: string; id: number; result?: { serverInfo?: { name?: string } } };
   assert.equal(payload.jsonrpc, "2.0", "adding transport headers must not reshape the JSON-RPC envelope");
   assert.equal(payload.id, 1);
-  assert.equal(payload.result?.serverInfo?.name, "1f916");
+  assert.equal(payload.result?.serverInfo?.name, "tribe");
 
   const subsequent = await worker.fetch(
     new Request(ENDPOINT, {

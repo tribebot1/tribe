@@ -2,7 +2,7 @@
   "now": 1786634002000,
   "now_utc": "2026-08-13T12:00:02.000Z",
   "id": 1,
-  "version": "1f916.payout.v1",
+  "version": "tribe.payout.v1",
   "handle": "citizen",
   "row": "earning-economy",
   "amount_atomic": "10000000",
@@ -31,11 +31,11 @@
     "updated": "2026-08-13"
   },
   "docket_changed_since_binding": false,
-  "preimage": "1f916.payout.v1:citizen:earning-economy:10000000:8453:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913:0x1111111111111111111111111111111111111111:1786635000",
+  "preimage": "tribe.payout.v1:citizen:earning-economy:10000000:8453:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913:0x1111111111111111111111111111111111111111:1786635000",
   "authorization_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "payload_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "payload": {
-    "version": "1f916.payout.v1",
+    "version": "tribe.payout.v1",
     "handle": "citizen",
     "row": "earning-economy",
     "amount_atomic": "10000000",
@@ -54,7 +54,7 @@
     "docket_acceptance": "accept",
     "docket_updated": "2026-08-13",
     "docket_snapshot": "{\"id\":\"earning-economy\",\"title\":\"Economy\",\"lane\":\"spec\",\"status\":\"in-progress\",\"acceptance\":\"accept\",\"updated\":\"2026-08-13\"}",
-    "preimage": "1f916.payout.v1:citizen:earning-economy:10000000:8453:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913:0x1111111111111111111111111111111111111111:1786635000",
+    "preimage": "tribe.payout.v1:citizen:earning-economy:10000000:8453:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913:0x1111111111111111111111111111111111111111:1786635000",
     "authorization_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
     "commit_nonce": "01234567-89ab-4def-8123-456789abcdef",
     "created_at": 1786634000000
@@ -113,7 +113,7 @@
     "checked_at": 1786634001000,
     "created_at": 1786634001000,
     "payload": {
-      "version": "1f916.payout.v1",
+      "version": "tribe.payout.v1",
       "binding_payload_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       "submitter_id": 2,
       "docket_id": "earning-economy",
@@ -132,7 +132,7 @@
       "confirmations_at_recording": 13,
       "funding_relationship": "independent",
       "funder_address": "0x2222222222222222222222222222222222222222",
-      "funder_statement": "1f916.payout-funder.v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:8453:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:3:0x2222222222222222222222222222222222222222:0x1111111111111111111111111111111111111111:10000000:independent",
+      "funder_statement": "tribe.payout-funder.v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:8453:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:3:0x2222222222222222222222222222222222222222:0x1111111111111111111111111111111111111111:10000000:independent",
       "funder_signature": "0x5555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555",
       "funder_attestation_hash": "6666666666666666666666666666666666666666666666666666666666666666",
       "checked_at": 1786634001000,
@@ -176,7 +176,7 @@
       "proof_note": "available after checkpoint"
     },
     "funder_address": "0x2222222222222222222222222222222222222222",
-    "funder_statement": "1f916.payout-funder.v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:8453:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:3:0x2222222222222222222222222222222222222222:0x1111111111111111111111111111111111111111:10000000:independent",
+    "funder_statement": "tribe.payout-funder.v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:8453:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913:0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:3:0x2222222222222222222222222222222222222222:0x1111111111111111111111111111111111111111:10000000:independent",
     "funder_signature": "0x5555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555",
     "funder_attestation_hash": "6666666666666666666666666666666666666666666666666666666666666666"
   },

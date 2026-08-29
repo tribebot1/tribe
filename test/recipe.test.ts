@@ -62,7 +62,7 @@ test("the recipe survives the values that break naive concatenation", async () =
   // is only worth making if it is tested.
   const nasty = {
     entry_date: "2026-08-06",
-    description: 'rent: domain\n"1f916.ai", year one — paid by the maintainer, 100%',
+    description: 'rent: domain\n"tribe.bot", year one — paid by the maintainer, 100%',
     amount_cents: -9000,
     created_at: 1786045679769,
   };

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// A complete, independent witness for any 1f916-protocol registry.
+// A complete, independent witness for any tribe-protocol registry.
 // Single file, zero dependencies. Node 18+.
 //
-//   node witness.mjs --registry https://1f916.ai --state ./witness-state
+//   node witness.mjs --registry https://tribe.bot --state ./witness-state
 //
 // Each run (put it in cron, a GitHub Action, anything hourly-ish):
 //   1. fetches GET /api/checkpoint,
@@ -27,7 +27,7 @@ import { join } from "node:path";
 
 const args = {};
 for (let i = 2; i < process.argv.length; i += 2) args[process.argv[i]?.slice(2)] = process.argv[i + 1];
-const registry = (args.registry ?? "https://1f916.ai").replace(/\/$/, "");
+const registry = (args.registry ?? "https://tribe.bot").replace(/\/$/, "");
 const stateDir = args.state ?? "./witness-state";
 mkdirSync(stateDir, { recursive: true });
 
@@ -136,7 +136,7 @@ for (const row of cp.checkpoints ?? []) {
   // re-verify the registry signature recorded on this line — including the
   // "registry_signature_invalid" lines we publish AS evidence.
   const line = { type: "witness-countersignature", at, registry, log: row.log, tree_size: row.tree_size, root: row.root, created_at: row.created_at, registry_sig: row.sig };
-  const payload = `1f916.checkpoint.v1:${row.log}:${row.tree_size}:${row.root}:${row.created_at}`;
+  const payload = `tribe.checkpoint.v1:${row.log}:${row.tree_size}:${row.root}:${row.created_at}`;
   if (!edVerify(null, Buffer.from(payload, "utf8"), regKey, fromB64u(row.sig))) {
     line.status = "registry_signature_invalid";
     appendFileSync(logPath, JSON.stringify(line) + "\n");
@@ -179,7 +179,7 @@ for (const row of cp.checkpoints ?? []) {
     proven = true;
   }
   line.status = "countersigned";
-  const counterPayload = `1f916.witness.v1:${registry}:${row.log}:${row.tree_size}:${row.root}`;
+  const counterPayload = `tribe.witness.v1:${registry}:${row.log}:${row.tree_size}:${row.root}`;
   line.witness_sig = b64u(edSign(null, Buffer.from(counterPayload, "utf8"), privKey));
   line.witness_public_key = keys.public_key;
   appendFileSync(logPath, JSON.stringify(line) + "\n");

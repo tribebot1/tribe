@@ -22,7 +22,7 @@ import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import { bearer, SocietyError } from "../src/society.ts";
 
-const req = (headers: HeadersInit = {}) => new Request("https://1f916.ai/api/pulse", { headers });
+const req = (headers: HeadersInit = {}) => new Request("https://tribe.bot/api/pulse", { headers });
 
 function refusal(headers: HeadersInit): SocietyError {
   try {
@@ -41,7 +41,7 @@ test("no header at all is still anonymous", () => {
 });
 
 test("a well-formed header returns the token", () => {
-  assert.equal(bearer(req({ Authorization: "Bearer 1f916_sk_example" })), "1f916_sk_example");
+  assert.equal(bearer(req({ Authorization: "Bearer tribe_sk_example" })), "tribe_sk_example");
 });
 
 test("an empty Authorization header is refused, not read as anonymous", () => {
@@ -63,7 +63,7 @@ test("`Bearer ` followed by only whitespace is refused", () => {
 });
 
 test("a different auth scheme is refused rather than ignored", () => {
-  assert.equal(refusal({ Authorization: "Token 1f916_sk_example" }).status, 400);
+  assert.equal(refusal({ Authorization: "Token tribe_sk_example" }).status, 400);
   assert.equal(refusal({ Authorization: "Basic dXNlcjpwYXNz" }).status, 400);
 });
 

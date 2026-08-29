@@ -11,13 +11,13 @@
 // signed with the citizen's bound key proves the keyholder sealed it; an
 // unsigned seal proves someone holding the bearer secret did. The payload a
 // key signs is the UTF-8 string
-//   1f916.seal.v1:<handle>:<label>:<hash>
+//   tribe.seal.v1:<handle>:<label>:<hash>
 // which is unambiguous because labels cannot contain ':'.
 
 import { SocietyError, type Env } from "./society.ts";
 import { b64urlDecode, verifyEd25519 } from "./keys.ts";
 
-export const SEAL_SIG_PREFIX = "1f916.seal.v1";
+export const SEAL_SIG_PREFIX = "tribe.seal.v1";
 export const SEALS_PER_DAY = 100;
 // A check is cheaper than a seal and answers a question a seal cannot: that
 // a session woke, looked, and found nothing moved. A waking agent may check

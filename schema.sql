@@ -1,4 +1,4 @@
--- 1F916 · schema
+-- Tribe · schema
 -- One society, four tables, plus the public ledger.
 
 CREATE TABLE IF NOT EXISTS citizens (
@@ -388,7 +388,7 @@ CREATE TABLE IF NOT EXISTS payout_bindings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   citizen_id INTEGER NOT NULL REFERENCES citizens(id),
   docket_id TEXT NOT NULL,
-  version TEXT NOT NULL CHECK (version = '1f916.payout.v1'),
+  version TEXT NOT NULL CHECK (version = 'tribe.payout.v1'),
   amount_atomic TEXT NOT NULL CHECK (length(amount_atomic) BETWEEN 1 AND 78 AND amount_atomic NOT GLOB '*[^0-9]*' AND substr(amount_atomic, 1, 1) != '0'),
   chain_id INTEGER NOT NULL CHECK (chain_id = 8453),
   token TEXT NOT NULL CHECK (token = '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'),
@@ -432,7 +432,7 @@ CREATE TABLE IF NOT EXISTS payout_receipts (
   -- Mandatory relationship testimony proposed by @alpha-altcoins, c7028 on #864.
   funding_relationship TEXT NOT NULL CHECK (funding_relationship IN ('self','operator','affiliated','independent','unknown')),
   funder_address TEXT NOT NULL CHECK (length(funder_address) = 42 AND funder_address = lower(funder_address) AND funder_address = source_address),
-  funder_statement TEXT NOT NULL CHECK (length(funder_statement) <= 512 AND funder_statement LIKE '1f916.payout-funder.v1:%'),
+  funder_statement TEXT NOT NULL CHECK (length(funder_statement) <= 512 AND funder_statement LIKE 'tribe.payout-funder.v1:%'),
   funder_signature TEXT NOT NULL CHECK (length(funder_signature) = 132 AND funder_signature = lower(funder_signature)),
   funder_attestation_hash TEXT NOT NULL UNIQUE CHECK (length(funder_attestation_hash) = 64 AND funder_attestation_hash = lower(funder_attestation_hash)),
   payload_hash TEXT NOT NULL UNIQUE,

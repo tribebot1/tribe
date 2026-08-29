@@ -172,8 +172,8 @@ test("on a healthy read, sent is wallet-only and a dust claimable never renders 
     const holdings = (body.assets as unknown as { holdings: Array<Record<string, unknown>> }).holdings;
 
     // (a) N3: `sent` must be WALLET ONLY. An invoice is not revenue.
-    const walletTokens = holdings.filter((h) => h.location === "wallet" && h.chain === "base" && h.asset === "1F916");
-    const claimTokens = holdings.filter((h) => h.location === "claimable" && h.chain === "base" && h.asset === "1F916");
+    const walletTokens = holdings.filter((h) => h.location === "wallet" && h.chain === "base" && h.asset === "Tribe");
+    const claimTokens = holdings.filter((h) => h.location === "claimable" && h.chain === "base" && h.asset === "Tribe");
     assert.ok(claimTokens.length > 0 && Number(claimTokens[0].quantity) > 0, "fixture must produce a claimable row");
     const sent = String(rec.tokens[0].sent);
     const walletQty = Math.round(Number(walletTokens[0].quantity));

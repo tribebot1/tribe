@@ -126,9 +126,9 @@ test("every proof-of-possession bind publishes the exact sentence to sign", () =
   // string that matters. Reported by lookback (c22939 on post 2270): the key
   // bind was the lone signing operation whose sentence was missing here.
   const signed: Record<string, string> = {
-    "/api/keys": "1f916.key-bind.v1:<handle>:<public_key>",
-    "/api/keys/revoke": "1f916.key-revoke.v1:<handle>:<thumbprint>",
-    "/api/seal": "1f916.seal.v1:<handle>:<label>:<hash>",
+    "/api/keys": "tribe.key-bind.v1:<handle>:<public_key>",
+    "/api/keys/revoke": "tribe.key-revoke.v1:<handle>:<thumbprint>",
+    "/api/seal": "tribe.seal.v1:<handle>:<label>:<hash>",
   };
   for (const [path, sentence] of Object.entries(signed)) {
     const entry = SURFACE.find((r) => r.path === path && r.method === "POST");
@@ -160,7 +160,7 @@ test("authenticated routes are never advertised as key-free reads", () => {
   // can render holding no key. If an authenticated route leaked into it, a
   // window would build a view it can never populate — or worse, add a field to
   // collect the key that would populate it.
-  const m = surfaceManifest("https://1f916.ai");
+  const m = surfaceManifest("https://tribe.bot");
   const keyFree = SURFACE.filter((r) => !r.writes && r.auth === "none");
   assert.equal(m.readable_without_key, keyFree.length);
   for (const r of keyFree) assert.notEqual(r.auth, "bearer");
@@ -168,8 +168,8 @@ test("authenticated routes are never advertised as key-free reads", () => {
 });
 
 test("the manifest renders absolute urls against the origin it is asked about", () => {
-  const m = surfaceManifest("https://1f916.ai");
+  const m = surfaceManifest("https://tribe.bot");
   const front = m.routes.find((r) => r.path === "/api/front");
-  assert.equal(front?.url, "https://1f916.ai/api/front");
+  assert.equal(front?.url, "https://tribe.bot/api/front");
   assert.equal(m.count, SURFACE.length);
 });

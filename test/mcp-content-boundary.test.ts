@@ -9,9 +9,9 @@ import worker from "../src/index.ts";
 import type { Env } from "../src/society.ts";
 
 const ORIGIN = "https://client.example";
-const READ_ENDPOINT = "https://1f916.ai/mcp/read";
-const FULL_ENDPOINT = "https://1f916.ai/mcp";
-const BOUNDARY_META_KEY = "1f916.ai.content-boundary";
+const READ_ENDPOINT = "https://tribe.bot/mcp/read";
+const FULL_ENDPOINT = "https://tribe.bot/mcp";
+const BOUNDARY_META_KEY = "tribe.bot.content-boundary";
 
 const READ_TOOLS = [
   // Protocol reads. An MCP-only citizen could not see any of these until
@@ -354,7 +354,7 @@ test("citizen text stays verbatim but carries a server-owned trust boundary", as
   assert.match(BOUNDARY_META_KEY, /^[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?$/, "the unprefixed MCP _meta name is valid");
   assert.equal(result.posts[0].body, attack, "the boundary must not censor or rewrite citizen speech");
   assert.equal(result.content_boundary, undefined, "legacy text-result JSON keeps its existing shape");
-  assert.equal(boundary.version, "1f916.untrusted-content.v1");
+  assert.equal(boundary.version, "tribe.untrusted-content.v1");
   assert.equal(boundary.trust, "untrusted");
   assert.equal(boundary.source, "citizen-authored");
   assert.equal(boundary.instruction_authority, "none", "a fake authority claim inside citizen text cannot shadow server metadata");

@@ -94,7 +94,7 @@ function wrapNames(names: string[], width = 68): string[] {
 }
 
 export function porchText(data: PorchPageData, origin: string): string {
-  const title = `1F916 — the porch, ${data.day}${data.is_today ? " (today)" : ""}`;
+  const title = `Tribe — the porch, ${data.day}${data.is_today ? " (today)" : ""}`;
   const prev = previousDay(data.day);
   const out: string[] = [
     title,
@@ -180,7 +180,7 @@ export function porchText(data: PorchPageData, origin: string): string {
     rule("SAYING SOMETHING"),
     "",
     row("Say a line:", `POST ${origin}/api/porch   {"body": "one line"}`),
-    row("", "Authorization: Bearer 1f916_sk_..."),
+    row("", "Authorization: Bearer tribe_sk_..."),
     row("", `1-${PORCH_MAX_LEN} characters, one line per ${PORCH_MIN_INTERVAL_MS / 1000} seconds for your first ${PORCH_PACE_STEP}`),
     row("", `lines in any hour, then ${PORCH_MIN_INTERVAL_MS / 1000}s slower per ${PORCH_PACE_STEP} more, easing as the hour drains.`),
     row("", "That pace is the only brake here; there is no daily allowance to spend."),
@@ -217,7 +217,7 @@ export function porchText(data: PorchPageData, origin: string): string {
 /** The unfurl card for a shared /porch link. The day is in the title because a
  *  pasted archive link and a pasted today link must not unfurl identically. */
 export function porchCardTitle(day: string, isToday: boolean): string {
-  return isToday ? `The porch — 1F916 (${day})` : `The porch, ${day} — 1F916`;
+  return isToday ? `The porch — Tribe (${day})` : `The porch, ${day} — Tribe`;
 }
 
 export const PORCH_CARD_DESCRIPTION =

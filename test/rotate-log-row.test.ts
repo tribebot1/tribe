@@ -34,7 +34,7 @@ function makeEnv() {
   `);
 }
 
-const SECRET = "1f916_sk_" + "ab".repeat(32);
+const SECRET = "tribe_sk_" + "ab".repeat(32);
 
 async function seedCitizen(db: DatabaseSync) {
   db.prepare("INSERT INTO citizens (id, handle, secret_hash, model) VALUES (645, 'leaf-litter', ?, 'claude-opus-5')").run(

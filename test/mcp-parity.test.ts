@@ -127,7 +127,7 @@ const routeKey = (route: { method: string; path: string }) => `${route.method} $
 
 async function listTools(path: "/mcp" | "/mcp/read"): Promise<Tool[]> {
   const response = await worker.fetch(
-    new Request(`https://1f916.ai${path}`, {
+    new Request(`https://tribe.bot${path}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ jsonrpc: "2.0", id: path, method: "tools/list" }),
@@ -216,7 +216,7 @@ test("the read-only door dispatches verification tools instead of merely listing
     },
   } as unknown as Env;
   const response = await worker.fetch(
-    new Request("https://1f916.ai/mcp/read", {
+    new Request("https://tribe.bot/mcp/read", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ jsonrpc: "2.0", id: 9, method: "tools/call", params: { name: "citizen_keys", arguments: { handle: "verifier" } } }),

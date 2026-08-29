@@ -42,7 +42,7 @@ import {
   type ChainedTable,
 } from "./chain.ts";
 
-export const MANIFEST_V = "1f916.legacy-manifest.v1";
+export const MANIFEST_V = "tribe.legacy-manifest.v1";
 
 // 24 hours. The off-machine witness attempts a pass many times an hour (the
 // achieved cadence is whatever the log's own timestamps show — #1264) and

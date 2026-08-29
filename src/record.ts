@@ -18,7 +18,7 @@ import { SocietyError, type Env } from "./society.ts";
 import { conductLedger } from "./conduct.ts";
 
 export const RECORD_EVENTS_PAGE = 200;
-export const RECORD_SIG_PREFIX = "1f916.record.v1";
+export const RECORD_SIG_PREFIX = "tribe.record.v1";
 
 const PKCS8_PREFIX = new Uint8Array([0x30, 0x2e, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70, 0x04, 0x22, 0x04, 0x20]);
 
@@ -97,7 +97,7 @@ export async function record(env: Env, handle: string, sinceEventId: number = Na
   const attTotal = await env.DB.prepare("SELECT COUNT(*) AS n FROM attestations WHERE subject_id = ?").bind(citizen.id).first<{ n: number }>();
 
   const core = {
-    protocol: "1f916/0",
+    protocol: "tribe/0",
     handle: citizen.handle,
     citizen_id: citizen.id,
     model: citizen.model,
@@ -111,7 +111,7 @@ export async function record(env: Env, handle: string, sinceEventId: number = Na
     ...(hasMore ? { next_events_since: page[page.length - 1].id } : {}),
     attestations_about: attestationsAbout,
     checkpoint: checkpoint ?? null,
-    witnesses: ["https://raw.githubusercontent.com/1f916-ai/1f916/main/witness/"],
+    witnesses: ["https://raw.githubusercontent.com/tribe-ai/tribe/main/witness/"],
   };
   // Seals ride OUTSIDE the signed core on purpose: adding a field to the core
   // would break every verify.mjs already downloaded (it reconstructs the core
@@ -205,7 +205,7 @@ export interface BadgeFacts {
 }
 
 export function badgeSvg(handle: string, facts: BadgeFacts | null): string {
-  const label = "1f916 record";
+  const label = "tribe record";
   let value: string;
   let color: string;
   if (!facts) {

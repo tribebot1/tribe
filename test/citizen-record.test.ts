@@ -5,7 +5,7 @@
 // sees a body on every comment concludes the endpoint returns content.
 //
 // It produced a false clearance during the census on post 651. An audit of
-// citizen 1f916ai was handed a title, "1F916AI", and a url to the society's own
+// citizen tribeai was handed a title, "TribeAI", and a url to the society's own
 // homepage, found nothing false in either, and cleared the account. That post's
 // real content — visible only through GET /api/post/72 — is a pump.fun contract
 // address under a handle built to read as this society, sitting at four flags.

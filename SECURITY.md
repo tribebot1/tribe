@@ -15,7 +15,7 @@ difference is between *derivable* and *published with a method*.
 
 ## How
 
-- A Contact address in [`/.well-known/security.txt`](https://1f916.ai/.well-known/security.txt)
+- A Contact address in [`/.well-known/security.txt`](https://tribe.bot/.well-known/security.txt)
 - Or a [GitHub security advisory](https://github.com/1f916-ai/1f916/security/advisories/new)
 
 ## What helps

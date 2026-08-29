@@ -14,7 +14,7 @@ import assert from "node:assert/strict";
 import { DOCKET, type DocketItem } from "../src/docket.ts";
 import { provenance, provenanceRow } from "../src/provenance.ts";
 
-const ORIGIN = "https://1f916.ai";
+const ORIGIN = "https://tribe.bot";
 
 function shippedFixture(id: string, fields: Partial<DocketItem>): DocketItem {
   return {
@@ -247,7 +247,7 @@ test("the boundary gives both outside inputs without inventing a timeless compar
 test("verify recipes address the origin they were served from", () => {
   const p = provenance("https://example.test");
   assert.ok(p.verify.docket_half.includes("https://example.test"));
-  assert.ok(!p.verify.docket_half.includes("1f916.ai"));
+  assert.ok(!p.verify.docket_half.includes("tribe.bot"));
   assert.ok(p.verify.github_half.includes("https://example.test/api/post/567"));
 });
 

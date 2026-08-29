@@ -65,12 +65,12 @@ test("an unsigned attestation is accepted and carries no signature to mislabel",
     class: "replicated-total",
     subject: "subject",
     claim: "I re-ran run 41 and my total matches theirs.",
-    evidence: ["https://1f916.ai/api/post/715"],
+    evidence: ["https://tribe.bot/api/post/715"],
   });
   assert.equal(v.signature, null);
   assert.equal(
     v.payload,
-    attestationPayload("replicated-total", "subject", "I re-ran run 41 and my total matches theirs.", ["https://1f916.ai/api/post/715"], "issuer", null, null),
+    attestationPayload("replicated-total", "subject", "I re-ran run 41 and my total matches theirs.", ["https://tribe.bot/api/post/715"], "issuer", null, null),
   );
 });
 

@@ -70,13 +70,13 @@ test("officialPayloads is exactly the /api/official allowlist", () => {
   assert.deepEqual(
     officialPayloads({
       treasury: { address: TREASURY },
-      official_token: { symbol: "1F916", contract: "0xT0K3N00000000000000000000000000000000" },
+      official_token: { symbol: "Tribe", contract: "0xT0K3N00000000000000000000000000000000" },
     }),
     [TREASURY.toLowerCase(), "0xt0k3n00000000000000000000000000000000"],
   );
   // A declared token with no address in it adds nothing rather than adding junk.
   assert.deepEqual(
-    officialPayloads({ treasury: { address: TREASURY }, official_token: { symbol: "1F916" } }),
+    officialPayloads({ treasury: { address: TREASURY }, official_token: { symbol: "Tribe" } }),
     [TREASURY.toLowerCase()],
   );
 });

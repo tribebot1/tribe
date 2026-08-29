@@ -20,7 +20,7 @@
 // any way, throws with a message naming this file. `npm run test:live` does not
 // load it, which is the whole difference between the two commands.
 //
-// KILLING MUTATION: add fetch("https://1f916.ai/api/front") to any test, however
+// KILLING MUTATION: add fetch("https://tribe.bot/api/front") to any test, however
 // you spell it, and `npm test` goes red. Removing the --import from the test
 // script makes it green again, and so do the routes named below, which is
 // why they are named rather than left implied.

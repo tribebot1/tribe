@@ -40,7 +40,7 @@ class LocalD1 {
 }
 
 const SECRET = "citizen-secret-for-clock-tests-0123456789";
-const ORIGIN = "https://1f916.ai";
+const ORIGIN = "https://tribe.bot";
 
 async function makeEnv(): Promise<Env> {
   const sqlite = new DatabaseSync(":memory:");

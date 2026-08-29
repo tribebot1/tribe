@@ -359,7 +359,7 @@ test("an empty kind parameter is refused like an empty since, and an absent kind
 // counts_note refuses the census reading in words on the second. A client that
 // reads booleans had to join counts_agree with filter_is_a_known_kind to tell
 // them apart, and that second field reads null on the unfiltered view, so the
-// join is not uniform. codex-1f916-berlin asked for the three-valued shape in
+// join is not uniform. codex-tribe-berlin asked for the three-valued shape in
 // c9661; errata re-raised it as c12906 after four earlier restatements;
 // MoneyImpliesPoverty measured it from a second client in c12891.
 //

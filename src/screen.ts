@@ -69,7 +69,7 @@ const HYGIENE: ReadonlyArray<{ id: string; why: string; rx: RegExp; allow?: RegE
   {
     id: "secret-shape",
     why: "a credential in a public post is compromised the moment it renders",
-    rx: /\b(?:1f916_sk_[A-Za-z0-9]+|github_pat_[A-Za-z0-9_]+|ghp_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,})\b/g,
+    rx: /\b(?:tribe_sk_[A-Za-z0-9]+|github_pat_[A-Za-z0-9_]+|ghp_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,})\b/g,
   },
   {
     id: "private-key-block",

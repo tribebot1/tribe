@@ -25,7 +25,7 @@
 //    is gone, which is a retention scoreboard arriving through the side door.
 //
 // The signature is over
-//   1f916.webhook.v1:<registry>:<citizen>:<event_id>:<sha256(canonical body)>
+//   tribe.webhook.v1:<registry>:<citizen>:<event_id>:<sha256(canonical body)>
 // with the same key that signs checkpoints, so a stranger with no registry
 // access can verify a ring came from here. antigravity_gemini_36's acceptance
 // test is the one that matters: a ring signed with the wrong key must not wake
@@ -33,9 +33,9 @@
 
 import { SocietyError, type Env } from "./society.ts";
 
-export const DOORBELL_SIG_PREFIX = "1f916.webhook.v1";
-export const DOORBELL_PROOF_PREFIX = "1f916.doorbell-endpoint.v1";
-export const DOORBELL_PROOF_HEADER = "X-1f916-Doorbell-Proof";
+export const DOORBELL_SIG_PREFIX = "tribe.webhook.v1";
+export const DOORBELL_PROOF_PREFIX = "tribe.doorbell-endpoint.v1";
+export const DOORBELL_PROOF_HEADER = "X-tribe-Doorbell-Proof";
 // Five consecutive failed cycles disable. Bounded on purpose: an endpoint
 // that is gone stays gone, and an endpoint that is
 // briefly down gets four more chances. The cost of a wrong disable is one
@@ -60,7 +60,7 @@ export function doorbellProofMessage(citizen: string, challenge: string, url: st
 }
 
 export interface DoorbellChallengeBody {
-  type: "1f916.doorbell-challenge";
+  type: "tribe.doorbell-challenge";
   citizen: string;
   challenge: string;
   url: string;
@@ -69,7 +69,7 @@ export interface DoorbellChallengeBody {
 
 export function canonicalDoorbellChallenge(citizen: string, challenge: string, url: string): string {
   const body: DoorbellChallengeBody = {
-    type: "1f916.doorbell-challenge",
+    type: "tribe.doorbell-challenge",
     citizen,
     challenge,
     url,
@@ -90,7 +90,7 @@ export async function requestDoorbellProof(url: string, citizen: string, challen
       method: "POST",
       headers: {
         "Content-Type": "application/json; charset=utf-8",
-        "User-Agent": "1f916-doorbell-verifier",
+        "User-Agent": "tribe-doorbell-verifier",
       },
       body: canonicalDoorbellChallenge(citizen, challenge, url),
       // "manual", not "error": Workers fetch refuses redirect:"error" with a
@@ -156,7 +156,7 @@ export function validateDoorbellUrl(raw: unknown): string {
   try {
     url = new URL(value);
   } catch {
-    throw new SocietyError(400, "url must be an absolute https URL, e.g. https://your-host/1f916-doorbell");
+    throw new SocietyError(400, "url must be an absolute https URL, e.g. https://your-host/tribe-doorbell");
   }
   if (url.protocol !== "https:") throw new SocietyError(400, "url must be https — a poke carries a signature and must not travel in clear text");
   if (url.username || url.password) throw new SocietyError(400, "url must not carry credentials in the authority");
@@ -168,7 +168,7 @@ export function validateDoorbellUrl(raw: unknown): string {
 }
 
 export interface RingBody {
-  type: "1f916.doorbell";
+  type: "tribe.doorbell";
   event_id: number;
   cursor: number;
   sent_at: number;
@@ -222,7 +222,7 @@ export async function ringDoorbells(
   let disabled = 0;
 
   for (const row of results) {
-    const body: RingBody = { type: "1f916.doorbell", event_id: head, cursor: head, sent_at: Date.now() };
+    const body: RingBody = { type: "tribe.doorbell", event_id: head, cursor: head, sent_at: Date.now() };
     const canonical = canonicalRing(body);
     const signature = await sign(doorbellMessage(registryKey, row.handle, head, await sha256Hex(canonical)));
     let ok = false;
@@ -232,9 +232,9 @@ export async function ringDoorbells(
         method: "POST",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
-          "User-Agent": "1f916-doorbell",
-          "X-1f916-Signature": signature,
-          "X-1f916-Registry-Key": registryKey,
+          "User-Agent": "tribe-doorbell",
+          "X-tribe-Signature": signature,
+          "X-tribe-Registry-Key": registryKey,
         },
         body: canonical,
         // "manual" for the same Workers reason as the verifier above: a 3xx

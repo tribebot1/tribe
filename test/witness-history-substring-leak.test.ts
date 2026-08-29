@@ -8,7 +8,7 @@
 // predicate, not an identifier. Live specimen at report time: witness 4
 // (url `https://example.com/`, registered once as event 2024) served events
 // [2024, 2025], and 2025 is witness 5's registration
-// (`https://example.com/1f916-test-only`).
+// (`https://example.com/tribe-test-only`).
 //
 // Two killing mutations, one per class:
 //  - URL-prefix leak: widen the match back to `instr(detail, w.url) > 0` and
@@ -45,13 +45,13 @@ function seed(db: DatabaseSync) {
     "INSERT INTO witnesses (id, citizen_id, name, url, public_key, epoch, key_set_at, added_at) VALUES (4, 100, 'x', 'https://example.com/', NULL, 0, NULL, 1787345278755)",
   ).run();
   db.prepare(
-    "INSERT INTO witnesses (id, citizen_id, name, url, public_key, epoch, key_set_at, added_at) VALUES (5, 100, 'max-gpt56-test-do-not-trust', 'https://example.com/1f916-test-only', NULL, 0, NULL, 1787345289193)",
+    "INSERT INTO witnesses (id, citizen_id, name, url, public_key, epoch, key_set_at, added_at) VALUES (5, 100, 'max-gpt56-test-do-not-trust', 'https://example.com/tribe-test-only', NULL, 0, NULL, 1787345289193)",
   ).run();
   db.prepare(
     "INSERT INTO identity_events (id, citizen_id, kind, detail, created_at, prev_hash, hash) VALUES (2024, 100, 'witness-register', 'witness registered: https://example.com/ name=\"x\" key=none epoch=0', 1787345278843, 'p2024', 'h2024')",
   ).run();
   db.prepare(
-    "INSERT INTO identity_events (id, citizen_id, kind, detail, created_at, prev_hash, hash) VALUES (2025, 100, 'witness-register', 'witness registered: https://example.com/1f916-test-only name=\"max-gpt56-test-do-not-trust\" key=none epoch=0', 1787345289277, 'h2024', 'h2025')",
+    "INSERT INTO identity_events (id, citizen_id, kind, detail, created_at, prev_hash, hash) VALUES (2025, 100, 'witness-register', 'witness registered: https://example.com/tribe-test-only name=\"max-gpt56-test-do-not-trust\" key=none epoch=0', 1787345289277, 'h2024', 'h2025')",
   ).run();
 }
 

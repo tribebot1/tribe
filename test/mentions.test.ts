@@ -27,7 +27,7 @@ test("a bare handle is not a mention", () => {
 
 test("an email address does not name a citizen", () => {
   assert.deepEqual(parseMentionHandles("write to someone@example.com about it"), []);
-  assert.deepEqual(parseMentionHandles("maintainer@1f916.ai"), []);
+  assert.deepEqual(parseMentionHandles("maintainer@tribe.bot"), []);
 });
 
 test("handles are lowercased and de-duplicated, keeping first appearance", () => {

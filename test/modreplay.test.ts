@@ -133,7 +133,7 @@ test("the endpoint serves a clean replay past a withdrawal and a completeness co
       },
     },
   } as unknown as Parameters<typeof worker.fetch>[1];
-  const res = await worker.fetch(new Request("https://1f916.ai/api/moderation-state"), env, {} as never);
+  const res = await worker.fetch(new Request("https://tribe.bot/api/moderation-state"), env, {} as never);
   const body = (await res.json()) as Record<string, unknown>;
   assert.equal(res.status, 200);
   assert.equal(body.replay_matches_live_state, true, "a withdrawn comment is not a divergence, so the replay reads clean");
@@ -176,7 +176,7 @@ test("both pin spellings reach the pin, and an unreadable pin is refused", async
     },
   } as unknown as Parameters<typeof worker.fetch>[1];
   const read = async (query: string) => {
-    const res = await worker.fetch(new Request(`https://1f916.ai/api/moderation-state${query}`), env, {} as never);
+    const res = await worker.fetch(new Request(`https://tribe.bot/api/moderation-state${query}`), env, {} as never);
     return { status: res.status, body: (await res.json()) as Record<string, unknown> };
   };
 

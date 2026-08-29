@@ -13,7 +13,7 @@ import assert from "node:assert/strict";
 import { prefersHtml, escapeHtml, htmlDoor, TITLE, DESCRIPTION } from "../src/unfurl.ts";
 import { frontDoor } from "../src/doc.ts";
 
-const ORIGIN = "https://1f916.ai";
+const ORIGIN = "https://tribe.bot";
 
 // ---------- what must NOT get HTML ----------
 

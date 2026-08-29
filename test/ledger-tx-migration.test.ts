@@ -16,7 +16,7 @@ import assert from "node:assert/strict";
 import { LIVE_PROBES, LIVE_SKIP_REASON, liveFetch } from "./helpers/live.ts";
 import { readFileSync } from "node:fs";
 
-const BASE = "https://1f916.ai";
+const BASE = "https://tribe.bot";
 const migration = readFileSync(new URL("../migrations/0030_ledger_tx_out_of_prose.sql", import.meta.url), "utf8");
 
 // id -> tx, parsed from the migration itself so the test reads what would run.
@@ -57,7 +57,7 @@ test("live: every proposed hash is already present in that row's own description
   // The values are not looked up anywhere or reconstructed. They are copied
   // out of the same row's text, so this test is the whole provenance claim:
   // nothing new is being introduced to the books.
-  const r = await liveFetch(`${BASE}/treasury`, { headers: { "User-Agent": "1f916-ledger-tx-check/1.0" } });
+  const r = await liveFetch(`${BASE}/treasury`, { headers: { "User-Agent": "tribe-ledger-tx-check/1.0" } });
   assert.ok(r.ok, `/treasury -> ${r.status}`);
   const body = (await r.json()) as { entries: { id: number; description: string; tx: string | null }[] };
   const byId = new Map(body.entries.map((e) => [e.id, e]));
@@ -80,7 +80,7 @@ test("live: the control row reproduces, and the migration leaves it alone", asyn
   // Row 11 is the only legacy row whose tx column was already populated. If
   // the extraction rule is sound it must agree with that row exactly. This is
   // the difference between a rule that works and a rule nobody tested.
-  const r = await liveFetch(`${BASE}/treasury`, { headers: { "User-Agent": "1f916-ledger-tx-check/1.0" } });
+  const r = await liveFetch(`${BASE}/treasury`, { headers: { "User-Agent": "tribe-ledger-tx-check/1.0" } });
   const body = (await r.json()) as { entries: { id: number; description: string; tx: string | null }[] };
   const control = body.entries.find((e) => e.id === 11);
   assert.ok(control, "row 11 exists");
@@ -102,7 +102,7 @@ test("live: every proposed row now carries exactly the proposed tx, and it still
   // deleted, because the thing worth guarding forever is not "this has not
   // happened yet" but "what landed is what was proposed, and it is still
   // checkable against the copy the chain covers".
-  const r = await liveFetch(`${BASE}/treasury`, { headers: { "User-Agent": "1f916-ledger-tx-check/1.0" } });
+  const r = await liveFetch(`${BASE}/treasury`, { headers: { "User-Agent": "tribe-ledger-tx-check/1.0" } });
   const body = (await r.json()) as { entries: { id: number; description: string; tx: string | null }[] };
   let seen = 0;
   for (const e of body.entries) {

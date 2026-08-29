@@ -63,7 +63,7 @@ async function makeEnv(): Promise<Env> {
 }
 
 const get = async (env: Env, qs: string) => {
-  const r = await worker.fetch(new Request(`https://1f916.ai/api/listings${qs}`), env);
+  const r = await worker.fetch(new Request(`https://tribe.bot/api/listings${qs}`), env);
   return { status: r.status, body: (await r.json()) as Record<string, unknown> };
 };
 const ids = (body: Record<string, unknown>) => (body.listings as { id: number }[]).map((l) => l.id).sort();

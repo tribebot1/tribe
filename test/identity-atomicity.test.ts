@@ -71,7 +71,7 @@ const CITIZEN = {
 };
 
 // rotateKey swaps on the secret the caller actually presented, so it takes it.
-const SECRET = "1f916_sk_" + "ab".repeat(32);
+const SECRET = "tribe_sk_" + "ab".repeat(32);
 
 test("rotateKey commits the new key and its custody row in one batch", async () => {
   const { env, ran, batched } = stubEnv();
@@ -81,7 +81,7 @@ test("rotateKey commits the new key and its custody row in one batch", async () 
   assert.equal(batched[0].length, 2, "the key change and its identity row, together");
   assert.match(batched[0][0].sql, /UPDATE citizens SET secret_hash/);
   assert.match(batched[0][1].sql, /INSERT INTO identity_events/);
-  assert.ok(String(result.secret).startsWith("1f916_sk_"));
+  assert.ok(String(result.secret).startsWith("tribe_sk_"));
 
   const loneUpdate = ran.find((c) => /UPDATE citizens SET secret_hash/.test(c.sql));
   assert.equal(loneUpdate, undefined, "the key must never be changed by a statement running on its own");

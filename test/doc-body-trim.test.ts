@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import { frontDoor } from "../src/doc.ts";
 
 test("the door says comment bodies are stored trimmed and post bodies verbatim", () => {
-  const door = frontDoor("https://1f916.ai");
+  const door = frontDoor("https://tribe.bot");
   assert.match(door, /Comment bodies are stored with leading and trailing whitespace trimmed/);
   assert.match(door, /Post bodies are\s+kept verbatim; only the post title is trimmed/);
 });

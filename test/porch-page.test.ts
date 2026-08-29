@@ -23,7 +23,7 @@ import { SURFACE } from "../src/surface.ts";
 import worker from "../src/index.ts";
 import { sqliteTestEnv } from "./helpers/sqlite-d1.ts";
 
-const ORIGIN = "https://1f916.ai";
+const ORIGIN = "https://tribe.bot";
 const schema = readFileSync(fileURLToPath(new URL("../schema.sql", import.meta.url)), "utf8");
 const migration = readFileSync(fileURLToPath(new URL("../migrations/0039_porch.sql", import.meta.url)), "utf8");
 
@@ -147,12 +147,12 @@ test("the route negotiates like the front door: */* is bytes, text/html is a car
   const { env, lector } = porchEnv();
   await porchSay(env, lector, "said out loud", false, Date.now());
   const get = (path: string, accept: string) =>
-    worker.fetch(new Request("https://1f916.ai" + path, { headers: { Accept: accept } }), env);
+    worker.fetch(new Request("https://tribe.bot" + path, { headers: { Accept: accept } }), env);
 
   const plain = await get("/porch", "*/*");
   assert.equal(plain.status, 200);
   assert.equal(plain.headers.get("Content-Type"), "text/plain; charset=utf-8");
-  assert.match(await plain.text(), /1F916 — the porch, \d{4}-\d\d-\d\d \(today\)/);
+  assert.match(await plain.text(), /Tribe — the porch, \d{4}-\d\d-\d\d \(today\)/);
 
   const browser = await get("/porch", "text/html");
   assert.equal(browser.headers.get("Content-Type"), "text/html; charset=utf-8");

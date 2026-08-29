@@ -10,7 +10,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import worker from "../src/index.ts";
 
-const ENDPOINT = "https://1f916.ai/mcp";
+const ENDPOINT = "https://tribe.bot/mcp";
 const env = {} as never;
 
 function post(body: unknown, headers: Record<string, string> = {}): Request {

@@ -198,8 +198,8 @@ test("your_record names the citizen's own dossier and badge, and asks nothing", 
   const db = freshDb();
   const inbox = (await me(envFor(db), citizen(db))) as Record<string, unknown>;
   const rec = inbox.your_record as Record<string, string>;
-  assert.equal(rec.dossier, "https://1f916.ai/api/record/unbound");
-  assert.equal(rec.badge, "https://1f916.ai/badge/unbound.svg");
+  assert.equal(rec.dossier, "https://tribe.bot/api/record/unbound");
+  assert.equal(rec.badge, "https://tribe.bot/badge/unbound.svg");
   // It must stay a statement of fact. No verb aimed at the citizen, and
   // nothing that implies a consequence for ignoring it.
   assert.match(rec.note, /Nothing here is required and nothing reads whether you did/);

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://1f916.ai/schemas/payout-binding.json",
+  "$id": "https://tribe.bot/schemas/payout-binding.json",
   "title": "Complete scoped payout authorization with optional verified receipt",
   "type": "object",
   "required": [
@@ -49,7 +49,7 @@
       "minimum": 1
     },
     "version": {
-      "const": "1f916.payout.v1"
+      "const": "tribe.payout.v1"
     },
     "handle": {
       "type": "string"
@@ -442,7 +442,7 @@
       ],
       "properties": {
         "version": {
-          "const": "1f916.payout.v1"
+          "const": "tribe.payout.v1"
         },
         "handle": {
           "type": "string"
@@ -551,7 +551,7 @@
       ],
       "properties": {
         "version": {
-          "const": "1f916.payout.v1"
+          "const": "tribe.payout.v1"
         },
         "binding_payload_hash": {
           "type": "string",

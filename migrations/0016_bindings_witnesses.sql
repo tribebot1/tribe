@@ -1,7 +1,7 @@
 -- Protocol P5: name bindings and the witness directory.
 --
 -- A binding is a claim a domain makes about a citizen, verified from the
--- domain's side (DNS TXT or /.well-known/1f916) and re-checked on a
+-- domain's side (DNS TXT or /.well-known/tribe) and re-checked on a
 -- schedule. An unbound handle is the NORMAL state and claims nothing.
 CREATE TABLE IF NOT EXISTS bindings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

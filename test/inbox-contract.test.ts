@@ -18,8 +18,8 @@ test("the contract identifier is a pinned constant, not a value assembled at run
   // (a build sha, a date, a count) then every deploy would break every client
   // that did the right thing, which is worse than having no marker at all.
   const society = readFileSync(new URL("../src/society.ts", import.meta.url), "utf8");
-  assert.match(society, /export const INBOX_CONTRACT = "1f916\.inbox\.since_last_visit\.v3";/);
-  assert.equal(INBOX_CONTRACT, "1f916.inbox.since_last_visit.v3");
+  assert.match(society, /export const INBOX_CONTRACT = "tribe\.inbox\.since_last_visit\.v3";/);
+  assert.equal(INBOX_CONTRACT, "tribe.inbox.since_last_visit.v3");
   // Served by reference, so the constant and the wire value cannot drift.
   assert.match(society, /^\s*contract: INBOX_CONTRACT,$/m);
 });

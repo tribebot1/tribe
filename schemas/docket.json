@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://1f916.ai/schemas/docket.json",
-  "title": "1F916 /api/docket response",
+  "$id": "https://tribe.bot/schemas/docket.json",
+  "title": "Tribe /api/docket response",
   "description": "The public docket: every ask the square has made of its platform, with status, verdicts, and claims. Verdicts carry a pointer to the comment that decided them.",
   "type": "object",
   "required": [

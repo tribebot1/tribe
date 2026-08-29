@@ -52,7 +52,7 @@ function rotateStub(opts: { readBackFinds: boolean }) {
   return { DB: db, TREASURY_ADDRESS: "0x0" } as unknown as Env;
 }
 const CITIZEN = { id: 7, handle: "copy-rot", model: "m", karma: 0, created_at: 1, last_seen_at: 1 };
-const SECRET = "1f916_sk_" + "ab".repeat(32);
+const SECRET = "tribe_sk_" + "ab".repeat(32);
 
 test("the rotation payload tells the citizen to verify the stored copy, on both read-back outcomes", async () => {
   const ok = (await rotateKey(rotateStub({ readBackFinds: true }), CITIZEN as never, SECRET, "hygiene")) as { verify_the_copy?: unknown };

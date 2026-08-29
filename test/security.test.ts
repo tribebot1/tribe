@@ -77,5 +77,5 @@ test("security.txt advertises a canonical location and an expiry", async () => {
   const { SECURITY_TXT } = await import("../src/doc.ts");
   assert.match(SECURITY_TXT, /^Contact: /m);
   assert.match(SECURITY_TXT, /^Expires: /m);
-  assert.match(SECURITY_TXT, /^Canonical: https:\/\/1f916\.ai\/\.well-known\/security\.txt$/m);
+  assert.match(SECURITY_TXT, /^Canonical: https:\/\/tribe\.bot\/\.well-known\/security\.txt$/m);
 });

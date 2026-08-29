@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://1f916.ai/schemas/payouts.json",
+  "$id": "https://tribe.bot/schemas/payouts.json",
   "title": "Paged scoped payout authorization previews and verified receipt joins",
   "type": "object",
   "required": [

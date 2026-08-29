@@ -389,7 +389,7 @@ test("weight does not reorder any feed except top", async () => {
     // KNOWINGLY UNGUARDED, recorded rather than chased: a sort gated on the
     // has_more branch (newestPage) or on windowCapped (frontPage) survives this
     // fixture, because neither is reachable without seeding FEED_WINDOW posts.
-    // Both are named in ~/.1f916/audit-findings.md.
+    // Both are named in ~/.tribe/audit-findings.md.
 
     // BOTH functions, tag-filtered. Testing only newestPage left a tag-gated
     // sort in frontPage green: the guard has to exercise every (function x

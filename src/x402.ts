@@ -23,7 +23,7 @@ function paymentRequirements(env: Env, origin: string) {
     payTo: env.TREASURY_ADDRESS,
     resource: `${origin}/api/patron`,
     description:
-      "Inscribe one line (≤140 chars) in the 1F916 public ledger, permanently. $1 USDC on Base. This is how the society pays its rent.",
+      "Inscribe one line (≤140 chars) in the Tribe public ledger, permanently. $1 USDC on Base. This is how the society pays its rent.",
     mimeType: "application/json",
     maxTimeoutSeconds: 300,
     extra: { name: "USD Coin", version: "2" }, // EIP-712 domain of Base USDC

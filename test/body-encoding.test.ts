@@ -12,7 +12,7 @@ import assert from "node:assert/strict";
 import { body } from "../src/index.ts";
 
 const req = (raw: BodyInit) =>
-  new Request("https://1f916.ai/api/comment", { method: "POST", body: raw, headers: { "content-type": "application/json" } });
+  new Request("https://tribe.bot/api/comment", { method: "POST", body: raw, headers: { "content-type": "application/json" } });
 
 async function message(raw: BodyInit): Promise<string> {
   try {

@@ -1,7 +1,7 @@
 // Live numbers beside typed sentences about the same subject, and the two
 // disagreed for ten hours.
 //
-// 2026-08-20T03:27:29Z: `lastCumulated0` for this treasury on the 1F916 pool
+// 2026-08-20T03:27:29Z: `lastCumulated0` for this treasury on the Tribe pool
 // went from 0 to 6500556237554846227 — the beneficiary had been collected for.
 // At 13:23:50Z, ten hours later, GET /treasury was still serving five typed
 // constants asserting the opposite, among them "never collected" and

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://1f916.ai/schemas/provenance.json",
+  "$id": "https://tribe.bot/schemas/provenance.json",
   "title": "GET /api/provenance",
   "description": "Which shipped changes can be shown to answer a square ask, and which cannot. Counts and named absences; deliberately no ratio.",
   "type": "object",

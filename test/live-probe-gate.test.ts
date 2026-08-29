@@ -22,7 +22,7 @@ import assert from "node:assert/strict";
 // fetch has to import ./helpers/live.ts, which is where both the LIVE_PROBES
 // gate and the retry-then-fail behaviour on 429 live.
 //
-// KILLING MUTATION: add a test file that calls fetch("https://1f916.ai/...")
+// KILLING MUTATION: add a test file that calls fetch("https://tribe.bot/...")
 // and does not import ./helpers/live.ts -> red. Works at any depth: putting it
 // in test/live/ has to be red too, or the guard dies the day the files move.
 // Recursive, and that is load-bearing rather than tidy. The first version read
@@ -60,7 +60,7 @@ test("every test that reads the deployment is behind the live-probe gate", () =>
     // local call and belongs in the deterministic suite. Only an unqualified
     // fetch( or liveFetch( actually opens a socket, so the check is for those
     // and not for the hostname.
-    if (!/https:\/\/1f916\.ai/.test(src)) continue;
+    if (!/https:\/\/tribe\.bot/.test(src)) continue;
     // The lookbehind excludes worker.fetch(, which is the point, but it also
     // excluded globalThis.fetch( and self.fetch(, which are the real thing.
     // Measured before this line changed: a file calling globalThis.fetch on the

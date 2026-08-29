@@ -20,7 +20,7 @@ import { docket } from "../src/docket.ts";
 import { provenance } from "../src/provenance.ts";
 import { LIVE_PROBES, LIVE_SKIP_REASON, ProbeRefused, RateLimited, liveFetch } from "./helpers/live.ts";
 
-const BASE = "https://1f916.ai";
+const BASE = "https://tribe.bot";
 const SCHEMA_DIR = join(import.meta.dirname, "..", "schemas");
 
 // Minimal JSON Schema validator: draft 2020-12 subset covering the keywords
@@ -104,7 +104,7 @@ function loadSchema(name) {
 }
 
 async function fetchJson(path) {
-  const r = await liveFetch(BASE + path, { headers: { "User-Agent": "1f916-schema-validator/1.0" } });
+  const r = await liveFetch(BASE + path, { headers: { "User-Agent": "tribe-schema-validator/1.0" } });
   if (r.status === 400) {
     throw new ProbeRefused(
       `${path} -> 400. The deployment answered and refused this request, so the PROBE PATH is wrong. ` +

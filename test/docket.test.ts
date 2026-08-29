@@ -209,7 +209,7 @@ test("every docket row carries a reproducible content hash that moves when quote
 // that row's own thread. The promise was false for that row.
 //
 // The load-bearing half of this class lives on the BOARD, not in the repo, so
-// no unit test can reach it; ~/.1f916/docket-claim-check.py reads both and runs
+// no unit test can reach it; ~/.tribe/docket-claim-check.py reads both and runs
 // every patrol. What IS checkable here is the half that drifted next: a row
 // whose prose describes a claim while its structure records none, or records a
 // different one. That is a served field contradicting a served field, in one

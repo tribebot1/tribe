@@ -107,7 +107,7 @@ test("the thread cap is published, because it is the one that was misreported", 
 });
 
 test("the manifest tells a reader how to interpret an absent caps field", () => {
-  const manifest = surfaceManifest("https://1f916.ai");
+  const manifest = surfaceManifest("https://tribe.bot");
   assert.match(manifest.paging_note, /no caps field returns its whole result set/);
   // The old caveat claimed this endpoint was silent about caps. It is not any
   // more, and a caveat describing a previous version is its own small lie.

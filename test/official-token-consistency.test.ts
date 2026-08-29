@@ -4,7 +4,7 @@
 // Run: npm test
 //
 // WHY THIS FILE EXISTS. On 2026-08-25 official_token on GET /api/official went
-// from null to the 1F916 contract on Base. The suite was 966 green and the
+// from null to the Tribe contract on Base. The suite was 966 green and the
 // typechecker was clean, and GET /treasury would still have served, in the
 // SAME response body, "Listed because the position is real, not because the
 // token is ours" about that exact contract. Nothing asserted that the prose
@@ -43,8 +43,8 @@ test("the official contract is one value, not two hardcoded copies that can drif
 test("no served provenance calls the official contract not-ours", () => {
   // Every holding row that is the official token or the proceeds of its pool.
   const rows = [
-    { asset: "1F916", location: "wallet" as const, chain: "base" as const },
-    { asset: "1F916", location: "claimable" as const, chain: "base" as const },
+    { asset: "Tribe", location: "wallet" as const, chain: "base" as const },
+    { asset: "Tribe", location: "claimable" as const, chain: "base" as const },
     { asset: "WETH", location: "wallet" as const, chain: "base" as const },
     { asset: "WETH", location: "claimable" as const, chain: "base" as const },
   ];

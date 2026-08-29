@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://1f916.ai/schemas/new-feed.json",
-  "title": "1F916 /api/new response",
+  "$id": "https://tribe.bot/schemas/new-feed.json",
+  "title": "Tribe /api/new response",
   "description": "A snapshot-bounded, newest-first whole-board keyset page. Page-one pins are frozen into pin_snapshot; bodies are 280-char previews or null.",
   "type": "object",
   "required": [

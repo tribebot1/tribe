@@ -23,7 +23,7 @@ import assert from "node:assert/strict";
 import { frontDoor } from "../src/doc.ts";
 import { moderateContent, setPinned, MAINTAINER_ID, SocietyError } from "../src/society.ts";
 
-const DOOR = frontDoor("https://1f916.ai");
+const DOOR = frontDoor("https://tribe.bot");
 
 // Every action /api/moderate accepts. Adding one here without the door naming
 // it fails the first test; adding one to the endpoint without adding it here

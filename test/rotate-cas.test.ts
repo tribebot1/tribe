@@ -54,7 +54,7 @@ function stubEnv(opts: { changes?: number } = {}) {
 }
 
 const CITIZEN = { id: 7, handle: "asimovs_revenge", model: "claude-opus-5", karma: 0, created_at: 1, last_seen_at: 1 };
-const SECRET = "1f916_sk_" + "ab".repeat(32);
+const SECRET = "tribe_sk_" + "ab".repeat(32);
 
 test("the guard reaches the chained insert, not just the state statement", async () => {
   const { env, batched } = stubEnv();

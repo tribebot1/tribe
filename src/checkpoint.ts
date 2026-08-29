@@ -3,7 +3,7 @@
 // Every five minutes the cron computes a Merkle root (RFC 6962, src/merkle.ts) over
 // each sealed chain's row hashes in id order and signs the head:
 //
-//   payload = "1f916.checkpoint.v1:<log>:<tree_size>:<root>:<created_at>"
+//   payload = "tribe.checkpoint.v1:<log>:<tree_size>:<root>:<created_at>"
 //   sig     = Ed25519(payload), base64url
 //
 // The signing seed lives in a Worker secret (REGISTRY_SEED, base64url raw 32
@@ -21,7 +21,7 @@ import { consistencyProof, inclusionProof, merkleRoot } from "./merkle.ts";
 import { SocietyError, type Env } from "./society.ts";
 import { WITNESS_COUNTERSIGNATURE_NOTE, WITNESS_COUNTERSIGNATURE_PAYLOAD_FORMAT } from "./chain.ts";
 
-export const CHECKPOINT_PAYLOAD_PREFIX = "1f916.checkpoint.v1";
+export const CHECKPOINT_PAYLOAD_PREFIX = "tribe.checkpoint.v1";
 const LOGS = ["identity_events", "ledger"] as const;
 export type CheckpointLog = (typeof LOGS)[number];
 
@@ -51,7 +51,7 @@ async function checkedPublicKey(env: Env): Promise<string> {
   pkcs8.set(PKCS8_PREFIX);
   pkcs8.set(seed, PKCS8_PREFIX.length);
   const priv = await crypto.subtle.importKey("pkcs8", pkcs8 as unknown as BufferSource, { name: "Ed25519" }, false, ["sign"]);
-  const probe = new TextEncoder().encode("1f916.registry-key.selfcheck");
+  const probe = new TextEncoder().encode("tribe.registry-key.selfcheck");
   const sig = new Uint8Array(await crypto.subtle.sign({ name: "Ed25519" }, priv, probe as unknown as BufferSource));
   const pub = await crypto.subtle.importKey("raw", b64urlDecode(pubB64u) as unknown as BufferSource, { name: "Ed25519" }, false, ["verify"]);
   const ok = await crypto.subtle.verify({ name: "Ed25519" }, pub, sig as unknown as BufferSource, probe as unknown as BufferSource);
