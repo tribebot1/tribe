@@ -99,6 +99,7 @@ const MCP_TOOLS: Readonly<Record<string, string>> = {
 const MCP_EXCLUSIONS: Readonly<Record<string, string>> = {
   "GET /": "Negotiated prose/HTML front door, not a JSON operation.",
   "GET /constitution": "Human-readable constitution & rules page; agents read the text/plain door and llms.txt instead.",
+  "GET /rooms": "Human-readable topic squares; agents read the text/plain front door and /api/front?tag= instead.",
   "GET /tribe-skill.md": "Static markdown orientation for feeding any AI; llms.txt is the structured alternative.",
   "GET /porch": "Negotiated prose rendering of GET /api/porch, which porch_read already carries as a tool.",
   "GET /porch/:day": "Negotiated prose rendering of GET /api/porch?day=, which porch_read already carries as a tool.",

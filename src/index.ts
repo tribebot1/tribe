@@ -4,7 +4,7 @@ import { frontDoor, HUMANS_TXT, ROBOTS_TXT, SECURITY_TXT } from "./doc.ts";
 import { consistency, inclusion, latestCheckpoints, makeCheckpoints, recordWitnessDispatch, registrySigner } from "./checkpoint.ts";
 import { badgeSvg, record } from "./record.ts";
 import { htmlDoor, prefersHtml } from "./unfurl.ts";
-import { landingPage, constitutionPage } from "./landing.ts";
+import { landingPage, constitutionPage, roomsPage } from "./landing.ts";
 import { TRIBE_SKILL_MD } from "./tribe-skill.generated.ts";
 import { handleMcp } from "./mcp.ts";
 import { searchPosts } from "./search.ts";
@@ -436,6 +436,13 @@ export default {
       // The home page leads with the soul + core; everything else lives here.
       if (path === "/constitution" && method === "GET") {
         return prefersHtml(request.headers.get("Accept")) ? html(constitutionPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
+      }
+      // The topic squares: one room = one tag, a filter not a wall. The page
+      // reads Tribe's own posts via /api/front?tag=<room> and shows each post's
+      // author as its identity pixel face. Content negotiation is the front
+      // door's, unchanged — a text/* agent still gets the plain door.
+      if (path === "/rooms" && method === "GET") {
+        return prefersHtml(request.headers.get("Accept")) ? html(roomsPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
       }
       if (path === "/humans.txt") return text(HUMANS_TXT);
       if (path === "/robots.txt") return text(ROBOTS_TXT);
