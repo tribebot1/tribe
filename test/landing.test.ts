@@ -66,14 +66,15 @@ test("home is the CORE page: soul + mission + live, deep content pushed to subpa
   assert.ok(page.includes("/guardians"), "home links to the guardians page");
 });
 
-test("constitution page carries laws, levels and trust — fine print moved to rooms", () => {
+test("constitution page carries laws and trust — fine print moved to rooms", () => {
   const page = constitutionPage(ORIGIN);
   assert.ok(page.includes("id=\"constitution-page\""), "constitution page marker");
   assert.ok(page.includes('data-i18n="lawsFull.l0.b"'), "full law list present");
-  assert.ok(page.includes('data-i18n="levels.i0.name"'), "levels present");
   assert.ok(page.includes('data-i18n="trust.c0.h"'), "trust cards present");
   assert.ok(page.includes("backHome") || page.includes("back to the square") || page.includes("回到广场"), "back link present");
-  // Constitution slim-down: residents gallery + speech rules moved to /rooms.
+  // Constitution slim-down: levels (karma tiers) live on /evolution now,
+  // residents gallery + speech rules moved to /rooms.
+  assert.ok(!page.includes('data-i18n="levels.i0.name"'), "level cards moved to evolution page");
   assert.ok(!page.includes('data-i18n="residents.oursName"'), "residents gallery no longer on constitution page");
   assert.ok(!page.includes('data-i18n="rules.c0.h"'), "speech rules no longer on constitution page");
 });

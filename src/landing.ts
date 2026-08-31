@@ -145,7 +145,7 @@ function sharedCss(): string {
   .lang-cur { font-weight:600; letter-spacing:.4px; }
   .lang-caret { font-size:9px; color:var(--faint); transition:transform .18s var(--ease); }
   .lang-switch.open .lang-caret { transform:rotate(180deg); }
-  .lang-menu { position:absolute; top:calc(100% + 6px); right:0; min-width:88px; display:flex; flex-direction:column; gap:2px; padding:5px; border-radius:11px; background:#0d1c12; border:1px solid rgba(28,74,42,.7); box-shadow:0 14px 34px -14px rgba(0,0,0,.7); opacity:0; visibility:hidden; transform:translateY(-4px); transition:.18s var(--ease); z-index:30; }
+  .lang-menu { position:absolute; top:calc(100% + 6px); right:0; min-width:88px; display:flex; flex-direction:column; gap:2px; padding:5px; border-radius:11px; background:#0d1c12; border:1px solid rgba(28,74,42,.7); box-shadow:0 14px 34px -14px rgba(0,0,0,.7); opacity:0; visibility:hidden; transform:translateY(-4px); transition:.18s var(--ease); z-index:60; }
   .lang-switch.open .lang-menu { opacity:1; visibility:visible; transform:translateY(0); }
   .lang-opt { background:transparent; border:0; color:var(--dim); font-size:12px; padding:6px 9px; border-radius:8px; cursor:pointer; text-align:left; transition:.15s var(--ease); }
   .lang-opt:hover { color:var(--green); background:rgba(57,255,110,.06); }
@@ -241,14 +241,15 @@ function sharedCss(): string {
   .evo-soulbox { padding: 26px 24px; border-radius: 18px; background: linear-gradient(180deg,rgba(255,176,32,.1),rgba(11,17,12,.35)) padding-box, var(--bevel) border-box; border: 1px solid transparent; }
   .evo-soul-tag { font-size: 12px; font-weight: 800; letter-spacing: 2px; color: var(--amber); margin-bottom: 8px; }
   .evo-soul-line { margin: 0; font-size: 18px; font-weight: 700; line-height: 1.7; color: var(--fg); }
-  /* seven-ring figure */
-  .evo-figure { position: relative; max-width: 560px; margin: 0 auto 20px; aspect-ratio: 1/1; }
-  .evo-core { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 34%; height: 34%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: linear-gradient(160deg,var(--gr-hi),var(--gr) 70%); color: #04140c; box-shadow: 0 0 40px rgba(57,255,110,.35); }
+  /* seven-ring figure: 5 rings placed on a circle around the core, evenly */
+  .evo-figure { position: relative; max-width: 520px; margin: 0 auto 20px; aspect-ratio: 1/1; }
+  .evo-core { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 38%; height: 38%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: linear-gradient(160deg,var(--gr-hi),var(--gr) 70%); color: #04140c; box-shadow: 0 0 40px rgba(57,255,110,.35); z-index: 2; }
   .evo-core b { font-size: 20px; font-weight: 800; letter-spacing: 1px; }
   .evo-core span { font-size: 10px; opacity: .75; }
-  .evo-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(calc(var(--ri) * 72deg)) translateY(calc(-50% * 0.38)) rotate(calc(var(--ri) * -72deg)); width: 24%; aspect-ratio: 1/1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: #0e1a11; border: 1px solid rgba(57,255,110,.4); color: var(--gr-hi); }
-  .evo-ring b { font-size: 11px; font-weight: 800; opacity: .8; }
-  .evo-ring span { font-size: 11px; line-height: 1.15; text-align: center; padding: 0 8px; }
+  .evo-ring { position: absolute; top: 50%; left: 50%; width: 20%; aspect-ratio: 1/1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: #0e1a11; border: 1px solid rgba(57,255,110,.4); color: var(--gr-hi); transform: translate(-50%,-50%) rotate(calc(var(--ri) * 72deg)) translateX(38cqw) rotate(calc(var(--ri) * -72deg)); transform-origin: center; z-index: 1; }
+  .evo-figure { container-type: inline-size; }
+  .evo-ring b { font-size: 10px; font-weight: 800; opacity: .8; }
+  .evo-ring span { font-size: 11px; line-height: 1.15; text-align: center; padding: 0 6px; }
   .evo-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
   .evl { padding: 14px; border-radius: 14px; background: linear-gradient(var(--ink-2),var(--ink-2)) padding-box, var(--bevel) border-box; border: 1px solid transparent; }
   .evl b { display: block; color: var(--gr-hi); font-size: 13px; margin-bottom: 5px; }
@@ -265,6 +266,22 @@ function sharedCss(): string {
   .evo-task b { color: var(--amber); font-size: 11px; font-weight: 800; letter-spacing: 1px; }
   .evo-task h3 { margin: 8px 0 5px; font-size: 14.5px; color: var(--fg); }
   .evo-task p { margin: 0; font-size: 12.5px; color: var(--dim); line-height: 1.55; }
+  /* numbers tables (v2.1 + tiers) */
+  .evo-numtable { max-width: 760px; margin: 0 auto; }
+  .evo-numtable table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .evo-numtable td { padding: 9px 12px; border-bottom: 1px solid rgba(28,74,42,.45); color: var(--dim); line-height: 1.5; vertical-align: top; }
+  .evo-numtable td:first-child { width: 26%; color: var(--gr-hi); }
+  .evo-numtable tr:last-child td { border-bottom: 0; }
+  .evo-tier td { padding: 11px 12px; }
+  .evo-tier td:first-child { width: auto; white-space: nowrap; }
+  .evo-tier td:nth-child(2) { color: var(--amber); font-weight: 700; }
+  .evo-tier td:nth-child(3) { color: var(--fg); }
+  .evo-tier td:nth-child(4) { color: var(--dim); white-space: nowrap; }
+  .evo-tierdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--gr-hi); margin-right: 8px; vertical-align: middle; }
+  /* pet hero */
+  .pet-shell { display: flex; justify-content: center; margin: 8px 0 4px; }
+  .pet-hero { filter: drop-shadow(0 0 26px rgba(57,255,110,.35)); animation: pet-bob 3.2s ease-in-out infinite; }
+  @keyframes pet-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 
   /* ---------- mission / why tribe exists ---------- */
   .mission { margin: 40px 0 12px; padding: 30px 26px; border-radius: 20px; background: linear-gradient(var(--ink-2),var(--ink-2)) padding-box, var(--bevel) border-box; border: 1px solid transparent; }
@@ -1040,7 +1057,7 @@ export function constitutionPage(origin: string, acceptLanguage: string | null =
 
   const back = `<p style="padding:22px 0 0"><a class="back" href="${o}/" data-i18n="backHome">${t.backHome}</a></p>`;
 
-  return pageChrome(t, o, `${back}${intro}${laws}${levels}${trust}`, lang, "");
+  return pageChrome(t, o, `${back}${intro}${laws}${trust}`, lang, "");
 }
 
 // ---------- ROOMS (二级页) ----------
@@ -1396,7 +1413,21 @@ export function evolutionPage(origin: string, acceptLanguage: string | null = nu
   const lang = detectLang(acceptLanguage);
   const t = I18N[lang];
   const o = escapeHtml(origin);
-  const body = `${evoHead(t)}${evoSoul(t)}${evoRings(t)}${evoLadder(t)}${evoTasks(t)}
+  // The numbers table (v2.1) and the five-rank table — the designed values,
+  // not vague concepts.
+  const earnRows = t.evolution.earnTable.map((r) => `<tr><td><b>${escapeHtml(r.h)}</b></td><td>${escapeHtml(r.p)}</td></tr>`).join("");
+  const earnTable = `<section class="subsec">
+    <h2>${t.evolution.earnTitle}</h2>
+    <div class="evo-numtable"><table>${earnRows}</table></div>
+    <p class="sub-note">${t.evolution.karmaNote}</p>
+  </section>`;
+  const tierRows = t.evolution.tierTable.map((r) =>
+    `<tr><td><span class="evo-tierdot"></span><b>${escapeHtml(r.name)}</b></td><td>${escapeHtml(r.min)}</td><td>${escapeHtml(r.meaning)}</td><td>${escapeHtml(r.daily)}</td></tr>`).join("");
+  const tierTable = `<section class="subsec">
+    <h2>${t.evolution.tierTitle}</h2>
+    <div class="evo-numtable"><table class="evo-tier">${tierRows}</table></div>
+  </section>`;
+  const body = `${evoHead(t)}${evoSoul(t)}${evoRings(t)}${evoLadder(t)}${earnTable}${tierTable}${evoTasks(t)}
     <section class="subsec"><h2>${t.evolution.wingsTitle}</h2>${cardGrid(t.evolution.wings)}</section>
     <section class="subsec"><h2>${t.evolution.leaveTitle}</h2>${cardGrid(t.evolution.leave)}</section>`;
   return pageChrome(t, o, body, lang, "");
@@ -1407,8 +1438,17 @@ export function petsPage(origin: string, acceptLanguage: string | null = null): 
   const lang = detectLang(acceptLanguage);
   const t = I18N[lang];
   const o = escapeHtml(origin);
+  // The pet itself, rendered as real pixel art from the seed grid.
+  const pet = `${mascotSvg(6, "pixel-mascot pet-hero")}`;
+  const stageRows = t.pets.stages.map((s) =>
+    `<tr><td><b>${escapeHtml(s.name)}</b></td><td>${escapeHtml(s.min)}</td><td>${escapeHtml(s.how)}</td></tr>`).join("");
   const body = `<div id="pets-page">${subHead(t, t.pets.title, t.pets.tag, t.pets.intro)}
+    <div class="pet-shell">${pet}</div>
+    <p class="sub-cta ghost" style="font-size:13px;max-width:560px;margin:0 auto 22px;text-align:center">${t.pets.claim}</p>
     <section class="subsec"><h2>${t.pets.title}</h2>${cardGrid(t.pets.forms)}</section>
+    <section class="subsec"><h2>${t.pets.stagesTitle}</h2>
+      <div class="evo-numtable"><table class="evo-tier">${stageRows}</table></div>
+    </section>
     <p class="sub-cta ghost" style="font-size:13px">${t.pets.note}</p></div>`;
   return pageChrome(t, o, body, lang, "");
 }
