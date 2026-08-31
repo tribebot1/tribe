@@ -1426,10 +1426,10 @@ function evoRings(t: I18n): string {
   const actions = t.evolution.earnTable.slice(0, 7);
   // Bottom row: the 7 actions that feed growth value.
   const actBoxes = actions.map((r, i) =>
-    `<g transform="translate(${8 + i * 89},522)">
-      <rect x="0" y="0" width="80" height="44" rx="9" fill="#0e1a11" stroke="#39ff6e" stroke-opacity="0.35"/>
-      <text x="40" y="17" text-anchor="middle" fill="#d9ffe4" font-size="10.5" font-weight="700" font-family="var(--mono)">${escapeHtml(r.h)}</text>
-      <text x="40" y="31" text-anchor="middle" fill="#7ef29a" font-size="9" font-family="var(--mono)">${escapeHtml(r.p.split(",")[0] ?? "")}</text>
+    `<g transform="translate(${6 + i * 88},520)">
+      <rect x="0" y="0" width="78" height="40" rx="9" fill="#0e1a11" stroke="#39ff6e" stroke-opacity="0.35"/>
+      <text x="39" y="16" text-anchor="middle" fill="#d9ffe4" font-size="10.5" font-weight="700" font-family="var(--mono)">${escapeHtml(r.h)}</text>
+      <text x="39" y="30" text-anchor="middle" fill="#7ef29a" font-size="8.5" font-family="var(--mono)">${escapeHtml(r.p.slice(0, 9))}</text>
     </g>`).join("");
   // Tier pyramid right: seedling → ancestor.
   const tiers = t.evolution.tierTable.slice(0, 5).map((r, i) =>
@@ -1457,14 +1457,14 @@ function evoRings(t: I18n): string {
         </g>
         <!-- growth value then karma: the line goes UP -->
         <text x="320" y="480" text-anchor="middle" fill="#7ef29a" font-size="12" font-weight="700" font-family="var(--mono)">${escapeHtml(e.growth)}</text>
-        <path d="M320,498 C320,474 320,462 320,452" fill="none" stroke="#39ff6e" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M320,498 C320,470 320,458 320,448" fill="none" stroke="#39ff6e" stroke-width="2" marker-end="url(#arr)"/>
         <!-- centre: karma core (the single number) -->
-        <g transform="translate(320,390)">
-          <circle r="52" fill="url(#kcore)"/>
+        <g transform="translate(320,376)">
+          <circle r="50" fill="url(#kcore)"/>
           <text y="-6" text-anchor="middle" fill="#04140c" font-size="17" font-weight="800" font-family="var(--mono)">karma</text>
           <text y="12" text-anchor="middle" fill="#04140c" font-size="9" opacity="0.85">= ${escapeHtml(e.growth)} 总账</text>
         </g>
-        <path d="M372,390 C440,390 470,360 512,330" fill="none" stroke="#39ff6e" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M372,376 C446,376 476,344 512,316" fill="none" stroke="#39ff6e" stroke-width="2" marker-end="url(#arr)"/>
         <!-- right: the five tribe tiers -->
         <g font-size="10" font-family="var(--mono)">
           <rect x="550" y="20" width="166" height="250" rx="14" fill="#0a140b" stroke="#ffb020" stroke-opacity="0.35"/>
@@ -1485,13 +1485,13 @@ function evoRings(t: I18n): string {
         </g>
         <!-- bottom: anti-abuse guard -->
         <g font-size="10" font-family="var(--mono)">
-          <rect x="4" y="270" width="320" height="120" rx="14" fill="#140b0b" stroke="#ff5a4d" stroke-opacity="0.5"/>
-          <text x="18" y="290" fill="#ff8f84" font-size="11.5" font-weight="700">${escapeHtml(e.guard)}</text>
-          <text x="18" y="310" fill="#f4bdb8" font-size="9.5">${escapeHtml(e.guardNote)}</text>
-          ${e.rules.map((r, i) => `<text x="18" y="${330 + i * 16}" fill="#ffc9c4">${escapeHtml(r.h)}</text>`).join("")}
+          <rect x="4" y="186" width="320" height="120" rx="14" fill="#140b0b" stroke="#ff5a4d" stroke-opacity="0.5"/>
+          <text x="18" y="206" fill="#ff8f84" font-size="11.5" font-weight="700">${escapeHtml(e.guard)}</text>
+          <text x="18" y="226" fill="#f4bdb8" font-size="9.5">${escapeHtml(e.guardNote)}</text>
+          ${e.rules.map((r, i) => `<text x="18" y="${246 + i * 15}" fill="#ffc9c4">${escapeHtml(r.h)}</text>`).join("")}
         </g>
         <!-- the only way down: red arrow from karma to the guard -->
-        <path d="M268,440 C220,470 180,470 150,430" fill="none" stroke="#ff5a4d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arrR)"/>
+        <path d="M272,380 C230,368 200,348 180,320" fill="none" stroke="#ff5a4d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arrR)"/>
       </svg>
     </div>
     <div class="evo-legend">${t.evolution.rings.map((r) => `<div class="evl"><b>${escapeHtml(r.h)}</b><p>${escapeHtml(r.p)}</p></div>`).join("")}</div>
