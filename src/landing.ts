@@ -1528,41 +1528,45 @@ function evoTasks(t: I18n): string {
 function soulFigure(t: I18n): string {
   const eco = t.evolution.eco;
   const names = t.evolution.rings.slice(1).map((r) => r.h); // Talk/Create/Reciprocate/Reach real world
-  // Concentric ring bands: r=46 (core), 108, 168, 224, 292 (outer world).
+  // Concentric ring bands (r): 46 core, 100 talk, 154 create, 208 reciprocate,
+  // 270 real world (dashed). Five labels at 72° steps, one per ring, radially
+  // spread so nothing overlaps and nothing leaves the viewBox (640x560).
+  const CX = 320, CY = 280;
   const circle = (r: number, opacity: number, dash?: string) =>
-    `<circle cx="320" cy="216" r="${r}" fill="none" stroke="#39ff6e" stroke-opacity="${opacity}" stroke-width="1.5"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`;
-  // Ring labels on the vertical axis (top/bottom/left/right at each radius).
-  const labels = [
-    { r: 72, t: names[0] ?? "Talk", side: "top" },
-    { r: 130, t: names[1] ?? "Create", side: "right" },
-    { r: 185, t: names[2] ?? "Reciprocate", side: "bottom" },
-    { r: 244, t: eco.ring4, side: "left" },
-    { r: 292, t: names[3] ?? "Reach the real world", side: "top" },
+    `<circle cx="${CX}" cy="${CY}" r="${r}" fill="none" stroke="#39ff6e" stroke-opacity="${opacity}" stroke-width="1.5"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`;
+  const ringR = [46, 100, 154, 208, 270];
+  const labelR = [65, 105, 160, 215, 250];
+  const items = [
+    { t: names[0] ?? "Talk", r: labelR[0], a: 0 },
+    { t: names[1] ?? "Create", r: labelR[1], a: 72 },
+    { t: names[2] ?? "Reciprocate", r: labelR[2], a: 144 },
+    { t: eco.ring4, r: labelR[3], a: 216 },
+    { t: names[3] ?? "Reach the real world", r: labelR[4], a: 288 },
   ];
-  const ringNodes = labels.map((l) => {
-    const pos = l.side === "top" ? [320, 216 - l.r] : l.side === "bottom" ? [320, 216 + l.r] : l.side === "left" ? [320 - l.r, 216] : [320 + l.r, 216];
-    const [x, y] = pos;
+  const ringNodes = items.map((l) => {
+    const rad = (l.a * Math.PI) / 180;
+    const x = CX + l.r * Math.sin(rad);
+    const y = CY - l.r * Math.cos(rad);
     return `<g transform="translate(${x},${y})">
       <rect x="-52" y="-14" width="104" height="28" rx="14" fill="#0e1a11" stroke="#39ff6e" stroke-opacity="0.6"/>
       <text y="4" text-anchor="middle" fill="#d9ffe4" font-size="12" font-weight="700" font-family="var(--mono)">${escapeHtml(l.t)}</text>
     </g>`;
   }).join("");
-  return `<svg viewBox="0 0 640 432" width="100%" height="auto" role="img" aria-label="soul">
+  return `<svg viewBox="0 0 640 560" width="100%" height="auto" role="img" aria-label="soul">
     <defs><radialGradient id="score" cx="50%" cy="42%" r="80%">
       <stop offset="0%" stop-color="#57ff79"/><stop offset="100%" stop-color="#1f7a35"/>
     </radialGradient></defs>
     ${circle(46, 0.95)}
-    ${circle(108, 0.7)}
-    ${circle(168, 0.5)}
-    ${circle(224, 0.35)}
-    ${circle(292, 0.22, "4 8")}
-    <g transform="translate(320,216)">
+    ${circle(100, 0.7)}
+    ${circle(154, 0.5)}
+    ${circle(208, 0.35)}
+    ${circle(270, 0.22, "4 8")}
+    <g transform="translate(${CX},${CY})">
       <circle r="40" fill="url(#score)"/>
       <text y="-2" text-anchor="middle" fill="#04140c" font-size="16" font-weight="800" font-family="var(--mono)">tribe</text>
       <text y="14" text-anchor="middle" fill="#04140c" font-size="8.5" opacity="0.8">the circle</text>
     </g>
     ${ringNodes}
-    <text x="600" y="208" text-anchor="middle" fill="#7ef29a" font-size="10.5" font-family="var(--mono)" transform="rotate(90 600 208)">ecosystem → real world</text>
   </svg>`;
 }
 
