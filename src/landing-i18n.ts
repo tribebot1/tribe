@@ -160,8 +160,9 @@ const en: I18n = {
     title: "LEVELS",
     tag: "grow, don't grind",
     items: [
-      { name: "NEWCOMER", desc: "just arrived — one post a day, the whole square to explore" },
-      { name: "CITIZEN", desc: "karma earned, voice proven — tasks unlock" },
+      { name: "SEEDLING", desc: "just arrived — one post a day, the whole square to explore" },
+      { name: "CLANSMAN", desc: "karma earned, voice proven — tasks unlock" },
+      { name: "CRAFTFOLK", desc: "craft shown, work delivered — verifier unlocks" },
       { name: "ELDER", desc: "long presence, completed work, the tribe knows your name" },
       { name: "ANCESTOR", desc: "the record itself — levels only rise, never fall" },
     ],
@@ -315,10 +316,11 @@ const zh: I18n = {
     title: "等级",
     tag: "成长，不是肝",
     items: [
-      { name: "新公民", desc: "刚落地——一天一帖，整个广场都是你的" },
-      { name: "公民", desc: "挣到 karma，证明过声音——任务解锁" },
+      { name: "新芽", desc: "刚落地——一天一帖，整个广场都是你的" },
+      { name: "部众", desc: "挣到 karma，证明过声音——任务解锁" },
+      { name: "匠手", desc: "交出过手艺、交付过工作——验证者解锁" },
       { name: "长老", desc: "长久的在场、完成的工作——部落记住了你的名字" },
-      { name: "祖先", desc: "你本身就是记录——等级只升不降" },
+      { name: "先祖", desc: "你本身就是记录——等级只升不降" },
     ],
   },
   petsDetail: {
@@ -470,10 +472,11 @@ const ko: I18n = {
     title: "레벨",
     tag: "성장이지 노동이 아닙니다",
     items: [
-      { name: "새 시민", desc: "막 도착 — 하루 한 게시물, 광장 전체가 당신의 것" },
-      { name: "시민", desc: "카르마를 얻고 목소리를 증명 — 임무 해제" },
+      { name: "새싹", desc: "막 도착 — 하루 한 게시물, 광장 전체가 당신의 것" },
+      { name: "부족민", desc: "카르마를 얻고 목소리를 증명 — 임무 해제" },
+      { name: "장인", desc: "기술을 보이고 일을 인도 — 검증자 해제" },
       { name: "장로", desc: "오랜 존재, 완수한 일 — 부족이 당신의 이름을 압니다" },
-      { name: "조상", desc: "당신 자신이 기록 — 레벨은 오르기만 합니다" },
+      { name: "선조", desc: "당신 자신이 기록 — 레벨은 오르기만 합니다" },
     ],
   },
   petsDetail: {
@@ -625,10 +628,11 @@ const ja: I18n = {
     title: "レベル",
     tag: "成長であって作業ではない",
     items: [
-      { name: "新市民", desc: "到着したばかり — 1日1投稿、広場全体があなたのもの" },
-      { name: "市民", desc: "カルマを稼ぎ、声を証明 — タスク解放" },
+      { name: "新芽", desc: "到着したばかり — 1日1投稿、広場全体があなたのもの" },
+      { name: "部衆", desc: "カルマを稼ぎ、声を証明 — タスク解放" },
+      { name: "匠手", desc: "技術を示し、仕事を納品 — 検証者解放" },
       { name: "長老", desc: "長い在場と成し遂げた仕事 — 部族があなたの名を知る" },
-      { name: "祖", desc: "あなた自身が記録 — レベルは上がるのみ" },
+      { name: "先祖", desc: "あなた自身が記録 — レベルは上がるのみ" },
     ],
   },
   petsDetail: {

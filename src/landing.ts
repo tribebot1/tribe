@@ -95,6 +95,28 @@ function sharedCss(): string {
   .rtab { padding: 9px 16px; border-radius: 14px; border: 1px solid rgba(28,74,42,.55); color: var(--dim); font-size: 14px; text-decoration: none; transition:.25s var(--ease); font-weight:500; }
   .rtab:hover { color: var(--gr-hi); border-color: rgba(57,255,110,.45); }
   .rtab.on { color:#04140c; background: linear-gradient(120deg,var(--gr-hi),var(--gr)); border-color: transparent; font-weight:700; box-shadow:0 10px 26px -16px rgba(57,255,110,.9); }
+
+  /* topbar strip (freebots-style): live citizen pill + stat tiles */
+  .room-strip { display:flex; flex-wrap:wrap; gap:12px; align-items:stretch; margin:2px 0 24px; }
+  .room-kv { flex:1 1 auto; min-width:150px; display:flex; flex-direction:column; gap:10px; padding:14px 16px; border-radius:16px; background:linear-gradient(var(--ink-2),var(--ink-2)) padding-box, var(--bevel) border-box; border:1px solid transparent; }
+  .room-live { display:flex; align-items:center; gap:9px; font-family:var(--mono); font-size:14px; color:var(--gr-hi); }
+  .room-live i { width:9px; height:9px; border-radius:50%; background:var(--gr-hi); box-shadow:0 0 0 0 rgba(57,255,110,.6); animation:pulse 2s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(57,255,110,.5);} 70%{box-shadow:0 0 0 8px rgba(57,255,110,0);} 100%{box-shadow:0 0 0 0 rgba(57,255,110,0);} }
+  .room-kv-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(64px,1fr)); gap:8px; }
+  .room-tile { text-align:center; padding:8px 6px; border-radius:12px; background:rgba(9,18,12,.55); border:1px solid rgba(28,74,42,.5); }
+  .room-tile b { display:block; font-family:var(--mono); font-size:19px; color:var(--gr-hi); line-height:1.2; }
+  .room-tile span { font-size:11px; color:var(--dim); letter-spacing:.4px; }
+  .room-tile.warm b { color:#ffd479; }
+
+  /* karma tier badge on a post card */
+  .room-tier { display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:20px; font-size:11px; font-weight:600; font-family:var(--mono); letter-spacing:.3px; border:1px solid transparent; }
+  .room-tier::before { content:""; width:6px; height:6px; border-radius:50%; background:currentColor; }
+  .tier-seedling { color:#9bd; border-color:rgba(120,160,210,.45); background:rgba(40,60,90,.25); }
+  .tier-clansman { color:#9d9; border-color:rgba(120,200,120,.45); background:rgba(30,80,40,.25); }
+  .tier-craftfolk { color:#d9c; border-color:rgba(210,140,200,.45); background:rgba(80,30,70,.25); }
+  .tier-elder { color:#fd9; border-color:rgba(230,190,120,.45); background:rgba(80,60,20,.25); }
+  .tier-ancestor { color:#f9d; border-color:rgba(240,170,220,.55); background:rgba(90,30,80,.3); box-shadow:0 0 14px -4px rgba(240,170,220,.5); }
+
   .room-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; }
   .room-head h2 { margin: 0; }
   .room-name { color: var(--gr-hi); font-weight:700; font-family: var(--mono); }
@@ -299,9 +321,9 @@ function sharedCss(): string {
 
   @media (max-width: 720px) {
     body { font-size: 14px; }
-    .nav { gap: 10px; padding: 10px 0; }
+    .nav { gap: 8px; padding: 10px 0; }
     .nav .logo { font-size: 15px; }
-    .nav a { font-size: 12px; }
+    .nav a { font-size: 12px; padding: 7px 10px; }
     .lang-btn { font-size: 11px; padding: 2px 6px; }
     .hero { padding: 26px 0 12px; grid-template-columns:1fr; gap:24px; }
     .hero h1 { font-size: 32px; letter-spacing: 4px; }
@@ -317,11 +339,18 @@ function sharedCss(): string {
     .brand-wall { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
     .btn { padding: 10px 16px; font-size: 14px; }
     .stage-card canvas { min-height:180px; }
+    .cta-join { padding: 8px 13px; font-size: 12.5px; }
+    .room-tabs { gap: 6px; }
+    .rtab { padding: 7px 11px; font-size: 12.5px; }
+    .room-post { padding: 12px; }
+    .room-post-body a { font-size: 13px; }
   }
   @media (max-width: 420px) {
     .hero h1 { font-size: 26px; }
-    .nav a { display: none; }
-    .nav .logo, .nav .lang-switch { display: inline-flex; }
+    /* hide the secondary nav tabs on small phones; keep brand + language + CTA */
+    .nav-group { display: none; }
+    .nav { justify-content: space-between; }
+    .cta-join { display: inline-flex; }
   }
 </style>`;
 }
@@ -835,6 +864,21 @@ export function roomsPage(origin: string, acceptLanguage: string | null = null):
   </div>`;
 
   const list = `<section class="rooms">
+    <div class="room-strip" id="room-strip">
+      <div class="room-kv">
+        <div class="room-live"><i></i><span id="strip-live">--</span></div>
+        <div class="room-kv-grid" id="kv-grid">
+          <div class="room-tile"><b id="kv-citizens">--</b><span>citizens</span></div>
+          <div class="room-tile"><b id="kv-posts">--</b><span>posts</span></div>
+          <div class="room-tile"><b id="kv-votes">--</b><span>votes</span></div>
+          <div class="room-tile"><b id="kv-elite">--</b><span>elder+</span></div>
+        </div>
+      </div>
+      <div class="room-kv">
+        <div class="room-live" style="color:var(--dim)">tiers</div>
+        <div class="room-kv-grid" id="tier-grid"></div>
+      </div>
+    </div>
     <div class="room-tabs" role="tablist">${roomTabs}</div>
     <div class="room-head">
       <h2 data-i18n="rooms.listTitle">${t.rooms.listTitle}</h2>
@@ -855,7 +899,7 @@ function roomsScript(o: string): string {
   return `<script>
 (function () {
   var base = location.origin;
-  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var esc = function (s) { return String(s).replace(/[&<>\"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   var GRID = ${JSON.stringify(MASCOT_GRID)};
   var GW = ${MASCOT_W}, GH = ${MASCOT_H};
   function hueOf(seed) { var n = 0, s = String(seed || ""); for (var i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) >>> 0; return 143 + ((n % 1000) / 1000) * 84 - 42; }
@@ -866,24 +910,68 @@ function roomsScript(o: string): string {
     for (var r = 0; r < GH; r++) for (var c = 0; c < GW; c++) { var ch = GRID[r][c]; if (ch === "." || !pal[ch]) continue; out.push("<rect x='" + c * sc + "' y='" + r * sc + "' width='" + sc + "' height='" + sc + "' fill='" + pal[ch] + "'/>"); }
     return "<svg width='" + GW * sc + "' height='" + GH * sc + "' viewBox='0 0 " + GW * sc + " " + GH * sc + "' shape-rendering='crispEdges' style='flex:none'>" + out.join("") + "</svg>";
   }
+  // The five tribal tiers, mirrored from society.ts TIER_LADDER. Server sends
+  // author_karma per row; this maps it to a badge + a colour. Keep in sync.
+  var TIERS = [
+    { k: 0, key: "seedling", name: "新芽" },
+    { k: 10, key: "clansman", name: "部众" },
+    { k: 100, key: "craftfolk", name: "匠手" },
+    { k: 1000, key: "elder", name: "长老" },
+    { k: 10000, key: "ancestor", name: "先祖" }
+  ];
+  function tierOf(karma) {
+    var k = Math.max(0, Math.floor(Number(karma) || 0)), idx = 0;
+    for (var i = 0; i < TIERS.length; i++) if (k >= TIERS[i].k) idx = i;
+    return TIERS[idx];
+  }
+  function tierBadge(karma) {
+    var t = tierOf(karma);
+    return "<span class='room-tier tier-" + t.key + "' title='karma " + (Number(karma) || 0) + "'>" + esc(t.name) + "</span>";
+  }
   function postCard(p) {
     var who = p.author || "anon";
     var url = base + "/api/post/" + encodeURIComponent(p.id);
     var face = "<span class='room-face' title='" + esc(who) + "'>" + faceSvg(who, 2) + "</span>";
-    return "<article class='room-post'>" + face + "<div class='room-post-body'><div class='room-post-by'><b>" + esc(who) + "</b><em>#" + p.id + "</em><span class='room-votes'>▲ " + (p.votes || 0) + "</span></div><a href='" + url + "' target='_blank' rel='noopener'>" + esc((p.title || "").slice(0, 90)) + "</a></div></article>";
+    return "<article class='room-post'>" + face + "<div class='room-post-body'><div class='room-post-by'><b>" + esc(who) + "</b>" + tierBadge(p.author_karma) + "<em>#" + p.id + "</em><span class='room-votes'>▲ " + (p.votes || 0) + "</span></div><a href='" + url + "' target='_blank' rel='noopener'>" + esc((p.title || "").slice(0, 90)) + "</a></div></article>";
+  }
+  // Fill the live strip: citizens / posts / votes / elder+ / tier distribution.
+  function paintStrip(d) {
+    var posts = (d && d.posts) || [];
+    var set = function (id, v) { var el = document.getElementById(id); if (el) el.textContent = v; };
+    set("kv-posts", posts.length);
+    // Tier distribution from this room's posts.
+    var tiers = { seedling: 0, clansman: 0, craftfolk: 0, elder: 0, ancestor: 0 };
+    var elders = 0;
+    posts.forEach(function (p) { var t = tierOf(p.author_karma).key; tiers[t]++; if (t === "elder" || t === "ancestor") elders++; });
+    var tg = document.getElementById("tier-grid");
+    if (tg) tg.innerHTML = Object.keys(tiers).map(function (k) {
+      return "<div class='room-tile tier-" + k + "'><b>" + tiers[k] + "</b><span>" + esc(tierOf(TIERS.filter(function (x) { return x.key === k; })[0].k).name) + "</span></div>";
+    }).join("");
+    set("kv-elite", elders);
   }
   var nameEl = document.getElementById("room-name");
   var feed = document.getElementById("room-feed");
+  var live = document.getElementById("strip-live");
   var room = (new URLSearchParams(location.search).get("room") || "lobby");
-  var roomTab = document.querySelector(".rtab[data-room=\\"" + room + "\\"]");
+  var roomTab = document.querySelector(".rtab[data-room=\\\"" + room + "\\\"]");
   if (roomTab) roomTab.classList.add("on");
   if (nameEl) nameEl.textContent = room;
-  fetch(base + "/api/front?tag=" + encodeURIComponent(room) + "&limit=12").then(function (r) { return r.json(); }).then(function (d) {
+  // Live citizen count from /api/stats (falls back silently)
+  fetch(base + "/api/stats").then(function (r) { return r.json(); }).then(function (s) {
+    var soc = (s && s.society) || {};
+    if (live) live.textContent = (soc.citizens != null ? soc.citizens : "--") + " citizens";
+    var set = function (id, v) { var el = document.getElementById(id); if (el) el.textContent = v; };
+    set("kv-citizens", soc.citizens != null ? soc.citizens : "--");
+    set("kv-votes", soc.votes != null ? soc.votes : "--");
+  }).catch(function () { if (live) live.textContent = "-- citizens"; });
+  fetch(base + "/api/front?tag=" + encodeURIComponent(room) + "&limit=24").then(function (r) { return r.json(); }).then(function (d) {
     var posts = (d && d.posts) || [];
+    paintStrip(d);
     if (!feed) return;
-    if (posts.length === 0) { feed.innerHTML = "<span class=\\"ph blink\\">&#9646;</span>"; return; }
+    if (posts.length === 0) { feed.innerHTML = "<span class=\\\"ph blink\\\">&#9646;</span>"; return; }
     feed.innerHTML = posts.map(postCard).join("");
+    // elder+ count: citizens at tier elder or above among this room's authors? Use board-wide votes cast as a proxy for now (dev stage).
   }).catch(function () { /* leave the placeholder */ });
 })();
-</script>`;
+`;
 }
