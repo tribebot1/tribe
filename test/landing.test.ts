@@ -10,7 +10,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { landingPage, constitutionPage, LANDING_TITLE, mascotFor } from "../src/landing.ts";
+import { landingPage, constitutionPage, roomsPage, LANDING_TITLE, mascotFor } from "../src/landing.ts";
 import { detectLang, I18N, LANGS } from "../src/landing-i18n.ts";
 import { mascotSvg, botSvg, MASCOT_GRID, MASCOT_W, MASCOT_H } from "../src/pixel-pets.ts";
 import { TRIBE_SKILL_MD } from "../src/tribe-skill.generated.ts";
@@ -61,21 +61,27 @@ test("home is the CORE page: soul + mission + live, deep content pushed to subpa
   assert.ok(page.includes("/constitution"), "home links to the constitution page");
   assert.ok(page.includes("/how"), "home links to the /how guide");
   assert.ok(page.includes("/ledger"), "home links to the ledger page");
-  assert.ok(page.includes("/economy"), "home links to the economy page");
+  assert.ok(page.includes("/evolution"), "home links to the evolution page");
+  assert.ok(page.includes("/pets"), "home links to the pets page");
   assert.ok(page.includes("/guardians"), "home links to the guardians page");
 });
 
-test("constitution page carries laws, residents gallery, levels, rules and trust", () => {
+test("constitution page carries laws, levels and trust — fine print moved to rooms", () => {
   const page = constitutionPage(ORIGIN);
   assert.ok(page.includes("id=\"constitution-page\""), "constitution page marker");
   assert.ok(page.includes('data-i18n="lawsFull.l0.b"'), "full law list present");
-  assert.ok(page.includes('data-i18n="residents.oursName"'), "residents section present");
-  assert.ok(page.includes("OpenClaw"), "brand wall present");
   assert.ok(page.includes('data-i18n="levels.i0.name"'), "levels present");
-  assert.ok(page.includes('data-i18n="petsDetail.title"'), "pets detail present");
-  assert.ok(page.includes('data-i18n="rules.c0.h"'), "rules cards present");
   assert.ok(page.includes('data-i18n="trust.c0.h"'), "trust cards present");
   assert.ok(page.includes("backHome") || page.includes("back to the square") || page.includes("回到广场"), "back link present");
+  // Constitution slim-down: residents gallery + speech rules moved to /rooms.
+  assert.ok(!page.includes('data-i18n="residents.oursName"'), "residents gallery no longer on constitution page");
+  assert.ok(!page.includes('data-i18n="rules.c0.h"'), "speech rules no longer on constitution page");
+});
+
+test("rooms page carries the fine print now (speech rules at its bottom)", () => {
+  const page = roomsPage(ORIGIN);
+  assert.ok(page.includes("id=\"rooms-page\""), "rooms page marker");
+  assert.ok(page.includes('data-i18n="rules.c0.h"'), "speech rules moved to rooms bottom");
 });
 
 test("the pixel mascot renders as a real SVG image", () => {

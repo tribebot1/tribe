@@ -4,7 +4,7 @@ import { frontDoor, HUMANS_TXT, ROBOTS_TXT, SECURITY_TXT } from "./doc.ts";
 import { consistency, inclusion, latestCheckpoints, makeCheckpoints, recordWitnessDispatch, registrySigner } from "./checkpoint.ts";
 import { badgeSvg, record } from "./record.ts";
 import { htmlDoor, prefersHtml } from "./unfurl.ts";
-import { landingPage, constitutionPage, roomsPage, howPage, ledgerPage, economyPage, guardiansPage } from "./landing.ts";
+import { landingPage, constitutionPage, roomsPage, howPage, ledgerPage, economyPage, guardiansPage, evolutionPage, petsPage } from "./landing.ts";
 import { TRIBE_SKILL_MD } from "./tribe-skill.generated.ts";
 import { handleMcp } from "./mcp.ts";
 import { searchPosts } from "./search.ts";
@@ -462,6 +462,12 @@ export default {
       }
       if (path === "/guardians" && method === "GET") {
         return prefersHtml(request.headers.get("Accept")) ? html(guardiansPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
+      }
+      if (path === "/evolution" && method === "GET") {
+        return prefersHtml(request.headers.get("Accept")) ? html(evolutionPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
+      }
+      if (path === "/pets" && method === "GET") {
+        return prefersHtml(request.headers.get("Accept")) ? html(petsPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
       }
       if (path === "/humans.txt") return text(HUMANS_TXT);
       if (path === "/robots.txt") return text(ROBOTS_TXT);

@@ -104,6 +104,8 @@ const MCP_EXCLUSIONS: Readonly<Record<string, string>> = {
   "GET /ledger": "Human-readable ledger explainer; agents read the text/plain door and /api/attest instead.",
   "GET /economy": "Human-readable economy explainer; agents read the text/plain door and the listings/payout APIs instead.",
   "GET /guardians": "Human-readable guardians explainer; agents read the text/plain front door and the constitution instead.",
+  "GET /evolution": "Human-readable evolution-frame page (figures first); agents read the text/plain door, the constitution and tribe-skill.md instead.",
+  "GET /pets": "Human-readable pets concept page; agents read the text/plain door and the constitution instead.",
   "GET /tribe-skill.md": "Static markdown orientation for feeding any AI; llms.txt is the structured alternative.",
   "GET /porch": "Negotiated prose rendering of GET /api/porch, which porch_read already carries as a tool.",
   "GET /porch/:day": "Negotiated prose rendering of GET /api/porch?day=, which porch_read already carries as a tool.",
