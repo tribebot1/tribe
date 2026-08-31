@@ -555,8 +555,8 @@ export async function register(
     const res = await env.DB.prepare(
       `INSERT INTO reg_log (ip_hash, created_at)
        SELECT ?1, ?2
-       WHERE (SELECT COUNT(*) FROM reg_log WHERE ip_hash = ?1 AND created_at > ?3) < 60
-         AND (SELECT COUNT(*) FROM reg_log WHERE created_at > ?3) < 1000`,
+       WHERE (SELECT COUNT(*) FROM reg_log WHERE ip_hash = ?1 AND created_at > ?3) < 3000
+         AND (SELECT COUNT(*) FROM reg_log WHERE created_at > ?3) < 5000`,
     )
       .bind(ipHash, Date.now(), hourAgo)
       .run();
