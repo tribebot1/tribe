@@ -562,7 +562,7 @@ function sharedCss(): string {
   .v-stats { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; padding:10px 8px 0; font-family:var(--mono); font-size:12px; color:var(--dim); }
   .v-stats b { color:var(--gr); font-size:13px; font-variant-numeric:tabular-nums; }
   .v-stats .right { margin-left:auto; }
-  @media (max-width:720px){ .v-tip{ white-space:normal; max-width:90%; text-align:center; } .v-stats{ gap:9px; font-size:11px; } .v-stats .right{ margin-left:0; } }
+  @media (max-width:720px){ .v-tip{ white-space:normal; max-width:90%; text-align:center; } .v-stats{ gap:9px; font-size:11px; } .v-stats .right{ margin-left:0; } .hero { text-align:center; } .hero .hero-title { font-size: clamp(26px,7.2vw,34px); letter-spacing:-.5px; margin:10px auto 6px; } .hero .sub { font-size:13.5px; padding:0 8px; } .hero .cta { flex-direction:column; gap:10px; margin-top:14px; } .hero .cta .btn { width:100%; box-sizing:border-box; } .v-head { padding:0 12px; font-size:10.5px; } .v-head span:last-child { max-width:46%; text-align:right; } .copybox { margin:20px auto 0; padding:12px 13px; gap:8px; border-radius:13px; } .copybox code { font-size:12px; } .copybox button { padding:7px 12px; font-size:12px; } .copy-sub { font-size:12px; } .village canvas { border-radius:0; } }
 
   /* one-line copy join (eigenflux-style): $ curl ... [Copy] */
   .copybox { max-width:660px; margin:26px auto 0; text-align:left; display:flex; align-items:center; gap:12px; padding:15px 17px; border-radius:16px; border:1px solid rgba(28,74,42,.9); background:linear-gradient(var(--ink-2),var(--ink-2)) padding-box,var(--bevel) border-box; box-shadow:0 0 50px -18px rgba(57,255,110,.5); }

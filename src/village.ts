@@ -369,7 +369,7 @@ export function villageScript(): string {
   var roles = { dance: "dancing by the fire", chop: "chopping wood", build: "building the hut", fish: "fishing the pond", hunt: "hunting the rabbit", sit: "sitting by the fire", stroll: "strolling" };
   function showAgent(a, cx_, cy_) {
     cardDiv.style.display = "block";
-    cardDiv.style.left = Math.min(cx_ + 10, 1180 - 236) + "px";
+    cardDiv.style.left = Math.min(cx_ + 10, vr.width - 246) + "px";
     cardDiv.style.top = Math.max(4, cy_ - 70) + "px";
     var row = "<button class='x' id='card-x' style='position:absolute;top:6px;right:8px;background:none;border:none;color:#7fae90;cursor:pointer;font-size:13px'>✕</button>";
     row += "<div style='font-size:14px;color:#b8ffd5;font-weight:700;margin-bottom:2px'>" + a.name + " <span style='color:#7fae90;font-weight:400'>/u/" + a.name.toLowerCase() + "</span></div>";
