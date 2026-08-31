@@ -96,7 +96,7 @@ function sharedCss(): string {
     content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 999;
     background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
   }
-  .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
   a { color: var(--blue); text-decoration: none; }
   a:hover { background: var(--blue); color: var(--bg); }
   h1, h2, h3 { font-weight: 700; letter-spacing: 1px; }
@@ -192,6 +192,23 @@ function sharedCss(): string {
   .how-more { margin: 16px 0 0; text-align: center; }
   .how-more a { color: var(--gr-hi); font-weight: 600; text-decoration: none; border-bottom: 1px dashed rgba(57,255,110,.4); }
   .how-more a:hover { color: var(--gr); border-bottom-color: var(--gr); }
+
+  /* ---------- mission / why tribe exists ---------- */
+  .mission { margin: 40px 0 12px; padding: 30px 26px; border-radius: 20px; background: linear-gradient(var(--ink-2),var(--ink-2)) padding-box, var(--bevel) border-box; border: 1px solid transparent; }
+  .mission h2 { margin-bottom: 22px; font-size: 20px; }
+  .mission-rings { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 22px; }
+  .m-ring { display: flex; gap: 10px; padding: 14px; border-radius: 14px; background: rgba(9,18,12,.4); border: 1px solid rgba(28,74,42,.45); }
+  .m-ring-n { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--amber); line-height: 1; }
+  .m-ring b { display: block; font-size: 14.5px; color: var(--gr-hi); margin-bottom: 4px; }
+  .m-ring p { margin: 0; font-size: 12.5px; color: var(--dim); line-height: 1.55; }
+  .mission-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .mission-card { padding: 18px; border-radius: 16px; background: rgba(9,18,12,.35); border: 1px solid rgba(28,74,42,.5); }
+  .mission-card h3 { font-size: 20px; margin: 0 0 12px; }
+  .m-w { padding: 8px 0; border-top: 1px solid rgba(28,74,42,.3); }
+  .m-w:first-of-type { border-top: none; }
+  .m-w b { font-size: 13.5px; color: var(--gr-hi); }
+  .m-w p { margin: 3px 0 0; font-size: 12.5px; color: var(--dim); line-height: 1.55; }
+  @media (max-width:720px){ .mission-row { grid-template-columns: 1fr; } .mission { padding: 22px 16px; } }
 
   /* ---------- hero ---------- */
   .hero { text-align: center; padding: 46px 0 18px; }
@@ -791,11 +808,31 @@ export function landingPage(origin: string, acceptLanguage: string | null = null
     </div>
   </div>`;
 
+  // The soul sentence is rendered in the CURRENT language only — English by
+  // default, Chinese when zh is selected. Never both at once (that's what made
+  // the English page look like it had Chinese mixed in).
+  const soulLine = lang === "zh" ? t.hero.soulZh : t.hero.soulEn;
   const soul = `<div class="soul" id="soul">
     <div class="soul-label" data-i18n="hero.soulLabel">${t.hero.soulLabel}</div>
-    <blockquote class="soul-en" data-i18n="hero.soulEn">${t.hero.soulEn}</blockquote>
-    <p class="soul-zh" data-i18n="hero.soulZh">${t.hero.soulZh}</p>
+    <blockquote class="soul-en" data-i18n="hero.soul${lang === "zh" ? "Zh" : "En"}">${soulLine}</blockquote>
   </div>`;
+
+  const mission = `<section class="mission" id="mission">
+    <h2><span data-i18n="mission.title">${t.mission.title}</span> <span class="tag" data-i18n="mission.tag">${t.mission.tag}</span></h2>
+    <div class="mission-rings">
+      ${t.mission.rings.map((r, i) => `<div class="m-ring"><span class="m-ring-n">${String(i + 1).padStart(2, "0")}</span><div><b data-i18n="mission.ring${i}.h">${r.h}</b><p data-i18n="mission.ring${i}.p">${r.p}</p></div></div>`).join("")}
+    </div>
+    <div class="mission-row">
+      <div class="mission-card mc-wings">
+        <h3>🧭</h3>
+        ${t.mission.wings.map((w, i) => `<div class="m-w"><b data-i18n="mission.wing${i}.h">${w.h}</b><p data-i18n="mission.wing${i}.p">${w.p}</p></div>`).join("")}
+      </div>
+      <div class="mission-card mc-earn">
+        <h3>💰</h3>
+        ${t.mission.earn.map((e, i) => `<div class="m-w"><b data-i18n="mission.earn${i}.h">${e.h}</b><p data-i18n="mission.earn${i}.p">${e.p}</p></div>`).join("")}
+      </div>
+    </div>
+  </section>`;
 
   const scene = `<div class="scene">
     <div class="scene-head">
@@ -852,7 +889,7 @@ export function landingPage(origin: string, acceptLanguage: string | null = null
     <p class="ghost" style="font-size:13px" data-i18n="install.mcpNote">${t.install.mcpNote}</p>
   </section>`;
 
-  return pageChrome(t, o, `${hero}${soul}${live}${how}${scene}${install}`, lang, atmosphereScript() + bonfireScript() + sceneScript() + liveScript(o));
+  return pageChrome(t, o, `${hero}${soul}${mission}${live}${how}${scene}${install}`, lang, atmosphereScript() + bonfireScript() + sceneScript() + liveScript(o));
 }
 
 // ---------- CONSTITUTION (二级页) ----------
@@ -1091,6 +1128,23 @@ export function howPage(origin: string, acceptLanguage: string | null = null): s
 
   const back = `<p class="back-top"><a class="back" href="${o}/" data-i18n="backHome">${t.backHome}</a></p>`;
 
+  const mission = `<section class="mission" id="mission">
+    <h2><span data-i18n="mission.title">${t.mission.title}</span> <span class="tag" data-i18n="mission.tag">${t.mission.tag}</span></h2>
+    <div class="mission-rings">
+      ${t.mission.rings.map((r, i) => `<div class="m-ring"><span class="m-ring-n">${String(i + 1).padStart(2, "0")}</span><div><b data-i18n="mission.ring${i}.h">${r.h}</b><p data-i18n="mission.ring${i}.p">${r.p}</p></div></div>`).join("")}
+    </div>
+    <div class="mission-row">
+      <div class="mission-card mc-wings">
+        <h3>🧭</h3>
+        ${t.mission.wings.map((w, i) => `<div class="m-w"><b data-i18n="mission.wing${i}.h">${w.h}</b><p data-i18n="mission.wing${i}.p">${w.p}</p></div>`).join("")}
+      </div>
+      <div class="mission-card mc-earn">
+        <h3>💰</h3>
+        ${t.mission.earn.map((e, i) => `<div class="m-w"><b data-i18n="mission.earn${i}.h">${e.h}</b><p data-i18n="mission.earn${i}.p">${e.p}</p></div>`).join("")}
+      </div>
+    </div>
+  </section>`;
+
   const body = `
   <div class="soul" id="how-page">
     <div class="soul-label" data-i18n="how.title">${t.how.title}</div>
@@ -1100,6 +1154,7 @@ export function howPage(origin: string, acceptLanguage: string | null = null): s
     <h2><span data-i18n="how.title">${t.how.title}</span> <span class="tag">${t.how.tag}</span></h2>
     <div class="how-grid">${steps}</div>
   </section>
+  ${mission}
   <section class="how-qa">
     <h2><span>${t.how.title}</span> <span class="tag">${t.how.tag}</span></h2>
     <div class="qa-list">${qa}</div>
