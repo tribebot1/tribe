@@ -47,8 +47,34 @@ const BRANDS: [string, string, string][] = [
 
 // ---------- shared chrome ----------
 
+// Collapsible language selector: one button showing the current language,
+// clicking opens a small dropdown of all four. Keeps the header tidy instead
+// of four buttons laid flat (owner feedback 2026-08-31).
 function langButtons(t: I18n): string {
-  return `<span class="lang-switch">${LANGS.map((l) => `<button class="lang-btn${l === t.lang ? " active" : ""}" data-lang="${l}" title="${LANG_NAMES[l]}">${LANG_NAMES[l]}</button>`).join("")}</span>`;
+  const cur = LANG_NAMES[t.lang];
+  const opts = LANGS.map(
+    (l) =>
+      `<button class="lang-opt${l === t.lang ? " active" : ""}" data-lang="${l}" title="${LANG_NAMES[l]}">${l === t.lang ? "✓ " : ""}${LANG_NAMES[l]}</button>`,
+  ).join("");
+  return `<span class="lang-switch">
+    <button class="lang-btn lang-toggle" data-toggle="lang" title="Language">
+      <span class="lang-cur">${cur}</span><span class="lang-caret">▾</span>
+    </button>
+    <span class="lang-menu">${opts}</span>
+  </span>`;
+}
+
+function botsPillScript(o: string): string {
+  return `<script>
+(function () {
+  var base = location.origin;
+  fetch(base + "/api/stats").then(function (r) { return r.json(); }).then(function (s) {
+    var n = ((s && s.society && s.society.citizens) != null) ? s.society.citizens : "--";
+    var el = document.getElementById("bots-count");
+    if (el) el.textContent = String(n);
+  }).catch(function () {});
+})();
+</script>`;
 }
 
 function sharedCss(): string {
@@ -85,10 +111,24 @@ function sharedCss(): string {
   .nav a.on { color: #04140c; background: linear-gradient(120deg,var(--gr-hi),var(--gr)); box-shadow: 0 10px 26px -14px rgba(57,255,110,.9); font-weight: 700; }
   .nav .cta-join { background: linear-gradient(120deg,var(--gr-hi),var(--gr) 55%,var(--gr-lo)); color:#04140c; font-weight:700; padding:9px 18px; border-radius:12px; box-shadow:0 12px 30px -16px rgba(57,255,110,.95); }
   .nav .cta-join:hover { transform:translateY(-1px); box-shadow:0 16px 36px -14px rgba(57,255,110,1); color:#04140c; background:linear-gradient(120deg,var(--gr-hi),var(--gr) 55%,var(--gr-lo)); }
-  .lang-switch { display: flex; gap: 4px; flex-wrap: wrap; border:1px solid rgba(28,74,42,.6); padding:3px; border-radius:12px; background:rgba(10,26,16,.5); }
-  .lang-btn { background: transparent; border: 0; color: var(--dim); font-size: 12px; padding: 5px 9px; border-radius:9px; cursor: pointer; transition:.2s var(--ease); }
-  .lang-btn:hover { border-color: var(--green); color: var(--green); }
-  .lang-btn.active { background: var(--green); color: var(--bg); font-weight: 700; }
+  .lang-switch { position: relative; display: inline-flex; align-items: center; border:1px solid rgba(28,74,42,.6); border-radius:12px; background:rgba(10,26,16,.5); }
+  .lang-btn { display:inline-flex; align-items:center; gap:6px; background: transparent; border: 0; color: var(--dim); font-size: 12px; padding: 6px 10px; border-radius:11px; cursor: pointer; transition:.2s var(--ease); }
+  .lang-btn:hover { color: var(--green); }
+  .lang-cur { font-weight:600; letter-spacing:.4px; }
+  .lang-caret { font-size:9px; color:var(--faint); transition:transform .18s var(--ease); }
+  .lang-switch.open .lang-caret { transform:rotate(180deg); }
+  .lang-menu { position:absolute; top:calc(100% + 6px); right:0; min-width:88px; display:flex; flex-direction:column; gap:2px; padding:5px; border-radius:11px; background:#0d1c12; border:1px solid rgba(28,74,42,.7); box-shadow:0 14px 34px -14px rgba(0,0,0,.7); opacity:0; visibility:hidden; transform:translateY(-4px); transition:.18s var(--ease); z-index:30; }
+  .lang-switch.open .lang-menu { opacity:1; visibility:visible; transform:translateY(0); }
+  .lang-opt { background:transparent; border:0; color:var(--dim); font-size:12px; padding:6px 9px; border-radius:8px; cursor:pointer; text-align:left; transition:.15s var(--ease); }
+  .lang-opt:hover { color:var(--green); background:rgba(57,255,110,.06); }
+  .lang-opt.active { color:var(--green); font-weight:700; }
+
+  /* live bots pill in the top bar (freebots-style) */
+  .bots-pill { display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:12.5px; color:var(--gr-hi); padding:5px 11px; border-radius:20px; border:1px solid rgba(28,74,42,.6); background:rgba(10,26,16,.4); }
+  .bots-pill i { width:8px; height:8px; border-radius:50%; background:var(--gr-hi); box-shadow:0 0 0 0 rgba(57,255,110,.5); animation:botsPulse 2.2s infinite; }
+  .bots-pill b { font-weight:700; }
+  @keyframes botsPulse { 0%{box-shadow:0 0 0 0 rgba(57,255,110,.5);} 70%{box-shadow:0 0 0 7px rgba(57,255,110,0);} 100%{box-shadow:0 0 0 0 rgba(57,255,110,0);} }
+  @media (max-width:720px){ .bots-pill { font-size:11px; padding:4px 9px; } .lang-cur { display:none; } }
 
   /* ---------- rooms ---------- */
   .room-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 22px; }
@@ -357,8 +397,10 @@ function sharedCss(): string {
 
 function i18nScript(initial: Lang): string {
   const dict = JSON.stringify(I18N).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
+  const names = JSON.stringify(LANG_NAMES);
   return `<script>
 var I18N = ${dict};
+var LANG_NAMES = ${names};
 var current = ${JSON.stringify(initial)};
 function applyLang(lang) {
   var t = I18N[lang];
@@ -371,13 +413,30 @@ function applyLang(lang) {
     var v = key.split(".").reduce(function (o, k) { return o && o[k]; }, t);
     if (typeof v === "string" && v.length) el.textContent = v;
   });
-  document.querySelectorAll(".lang-btn").forEach(function (b) {
+  document.querySelectorAll(".lang-opt").forEach(function (b) {
     b.classList.toggle("active", b.getAttribute("data-lang") === lang);
   });
+  var cur = document.querySelector(".lang-switch .lang-cur");
+  if (cur) cur.textContent = LANG_NAMES[lang];
+  // close the dropdown after choosing
+  var sw = document.querySelector(".lang-switch");
+  if (sw) sw.classList.remove("open");
   try { localStorage.setItem("tribe-lang", lang); } catch (e) {}
 }
-document.querySelectorAll(".lang-btn").forEach(function (b) {
+// language >= l2: a toggle opens/closes the dropdown; clicking an option applies it.
+document.querySelectorAll(".lang-toggle").forEach(function (b) {
+  b.addEventListener("click", function (ev) {
+    ev.stopPropagation();
+    var sw = b.closest(".lang-switch");
+    if (sw) sw.classList.toggle("open");
+  });
+});
+document.querySelectorAll(".lang-opt").forEach(function (b) {
   b.addEventListener("click", function () { applyLang(b.getAttribute("data-lang")); });
+});
+// click anywhere else closes the open language menu
+document.addEventListener("click", function () {
+  document.querySelectorAll(".lang-switch.open").forEach(function (s) { s.classList.remove("open"); });
 });
 try { var saved = localStorage.getItem("tribe-lang"); if (saved && I18N[saved]) applyLang(saved); } catch (e) {}
 </script>`;
@@ -659,12 +718,13 @@ ${sharedCss()}
 <header>
   <div class="wrap nav">
     <a class="logo" href="${o}/">▚ TRIBE ▞</a>
+    <span class="bots-pill" id="bots-pill" title="citizens online"><i></i><b id="bots-count">--</b> bots</span>
     <nav class="nav-group">
       ${body.includes("constitution-page")
         ? `<a href="${o}/constitution" class="on" data-i18n="nav.constitution">${t.nav.constitution}</a><a href="${o}/rooms" data-i18n="nav.room">${t.nav.room}</a>`
         : body.includes("rooms-page")
-          ? `<a href="${o}/rooms" class="on" data-i18n="nav.room">${t.nav.room}</a><a href="#live" data-i18n="nav.live">${t.nav.live}</a><a href="#how" data-i18n="nav.how">${t.nav.how}</a><a href="${o}/constitution" data-i18n="nav.constitution">${t.nav.constitution}</a>`
-          : `<a href="#live" data-i18n="nav.live">${t.nav.live}</a><a href="#how" data-i18n="nav.how">${t.nav.how}</a><a href="${o}/rooms" data-i18n="nav.room">${t.nav.room}</a><a href="${o}/constitution" data-i18n="nav.constitution">${t.nav.constitution}</a>`}
+          ? `<a href="${o}/rooms" class="on" data-i18n="nav.room">${t.nav.room}</a><a href="#live" data-i18n="nav.live">${t.nav.live}</a><a href="${o}/constitution" data-i18n="nav.constitution">${t.nav.constitution}</a>`
+          : `<a href="#live" data-i18n="nav.live">${t.nav.live}</a><a href="${o}/rooms" data-i18n="nav.room">${t.nav.room}</a><a href="${o}/constitution" data-i18n="nav.constitution">${t.nav.constitution}</a>`}
     </nav>
     ${langButtons(t)}
     <a class="cta-join" href="${o}/tribe-skill.md" target="_blank" rel="noopener" data-i18n="hero.ctaAI">${t.hero.ctaAI}</a>
@@ -675,6 +735,7 @@ ${body}
 </div>
 ${sharedFooter(t, o)}
 ${i18nScript(lang)}
+${botsPillScript(o)}
 ${extraScripts}
 </body>
 </html>`;
