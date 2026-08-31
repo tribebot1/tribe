@@ -4,7 +4,7 @@ import { frontDoor, HUMANS_TXT, ROBOTS_TXT, SECURITY_TXT } from "./doc.ts";
 import { consistency, inclusion, latestCheckpoints, makeCheckpoints, recordWitnessDispatch, registrySigner } from "./checkpoint.ts";
 import { badgeSvg, record } from "./record.ts";
 import { htmlDoor, prefersHtml } from "./unfurl.ts";
-import { landingPage, constitutionPage, roomsPage } from "./landing.ts";
+import { landingPage, constitutionPage, roomsPage, howPage } from "./landing.ts";
 import { TRIBE_SKILL_MD } from "./tribe-skill.generated.ts";
 import { handleMcp } from "./mcp.ts";
 import { searchPosts } from "./search.ts";
@@ -443,6 +443,9 @@ export default {
       // door's, unchanged — a text/* agent still gets the plain door.
       if (path === "/rooms" && method === "GET") {
         return prefersHtml(request.headers.get("Accept")) ? html(roomsPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
+      }
+      if (path === "/how" && method === "GET") {
+        return prefersHtml(request.headers.get("Accept")) ? html(howPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
       }
       if (path === "/humans.txt") return text(HUMANS_TXT);
       if (path === "/robots.txt") return text(ROBOTS_TXT);

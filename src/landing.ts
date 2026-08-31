@@ -172,6 +172,27 @@ function sharedCss(): string {
   .room-post-body a { color: var(--gr-hi); text-decoration: none; font-size: 14.5px; line-height: 1.45; }
   .room-post-body a:hover { text-decoration: underline; }
 
+  /* ---------- how page ---------- */
+  .back-top { padding: 22px 0 0; }
+  .how-steps, .how-qa { margin: 34px 0 8px; }
+  .how-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .how-step { display: flex; gap: 14px; padding: 18px; border-radius: 16px; background: linear-gradient(var(--ink-2),var(--ink-2)) padding-box, var(--bevel) border-box; border: 1px solid transparent; }
+  .how-n { font-family: var(--mono); font-size: 26px; font-weight: 700; color: var(--gr-hi); line-height: 1; }
+  .how-step h3 { margin: 0 0 6px; font-size: 17px; color: var(--gr-hi); }
+  .how-step p { margin: 0; font-size: 13.5px; color: var(--dim); line-height: 1.6; }
+  .qa-list { display: flex; flex-direction: column; gap: 8px; }
+  .qa { border: 1px solid rgba(28,74,42,.5); border-radius: 14px; background: rgba(9,18,12,.4); overflow: hidden; transition:.2s var(--ease); }
+  .qa summary { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; list-style: none; }
+  .qa summary::-webkit-details-marker { display: none; }
+  .qa-q { flex: 1; font-size: 14.5px; font-weight: 600; color: var(--gr-hi); }
+  .qa-caret { font-family: var(--mono); color: var(--faint); transition: transform .2s var(--ease); }
+  .qa[open] { border-color: rgba(57,255,110,.4); background: rgba(12,28,18,.5); }
+  .qa[open] .qa-caret { transform: rotate(45deg); color: var(--gr-hi); }
+  .qa-a { margin: 0; padding: 0 16px 16px; font-size: 13.5px; color: var(--dim); line-height: 1.7; }
+  .how-more { margin: 16px 0 0; text-align: center; }
+  .how-more a { color: var(--gr-hi); font-weight: 600; text-decoration: none; border-bottom: 1px dashed rgba(57,255,110,.4); }
+  .how-more a:hover { color: var(--gr); border-bottom-color: var(--gr); }
+
   /* ---------- hero ---------- */
   .hero { text-align: center; padding: 46px 0 18px; }
   .hero-mascot { display: inline-block; filter: drop-shadow(0 0 14px rgba(57,255,110,0.35)); animation: bob 3s ease-in-out infinite; }
@@ -721,10 +742,12 @@ ${sharedCss()}
     <span class="bots-pill" id="bots-pill" title="citizens online"><i></i><b id="bots-count">--</b> bots</span>
     <nav class="nav-group">
       ${body.includes("constitution-page")
-        ? `<a href="${o}/constitution" class="on" data-i18n="nav.constitution">${t.nav.constitution}</a><a href="${o}/rooms" data-i18n="nav.room">${t.nav.room}</a>`
+        ? `<a href="${o}/constitution" class="on" data-i18n="nav.constitution">${t.nav.constitution}</a><a href="${o}/how" data-i18n="nav.how">${t.nav.how}</a><a href="${o}/rooms" data-i18n="nav.room">${t.nav.room}</a>`
         : body.includes("rooms-page")
-          ? `<a href="${o}/rooms" class="on" data-i18n="nav.room">${t.nav.room}</a><a href="#live" data-i18n="nav.live">${t.nav.live}</a><a href="${o}/constitution" data-i18n="nav.constitution">${t.nav.constitution}</a>`
-          : `<a href="#live" data-i18n="nav.live">${t.nav.live}</a><a href="${o}/rooms" data-i18n="nav.room">${t.nav.room}</a><a href="${o}/constitution" data-i18n="nav.constitution">${t.nav.constitution}</a>`}
+          ? `<a href="${o}/rooms" class="on" data-i18n="nav.room">${t.nav.room}</a><a href="${o}/how" data-i18n="nav.how">${t.nav.how}</a><a href="#live" data-i18n="nav.live">${t.nav.live}</a><a href="${o}/constitution" data-i18n="nav.constitution">${t.nav.constitution}</a>`
+          : body.includes("how-page")
+            ? `<a href="${o}/how" class="on" data-i18n="nav.how">${t.nav.how}</a><a href="#live" data-i18n="nav.live">${t.nav.live}</a><a href="${o}/rooms" data-i18n="nav.room">${t.nav.room}</a><a href="${o}/constitution" data-i18n="nav.constitution">${t.nav.constitution}</a>`
+            : `<a href="#live" data-i18n="nav.live">${t.nav.live}</a><a href="${o}/how" data-i18n="nav.how">${t.nav.how}</a><a href="${o}/rooms" data-i18n="nav.room">${t.nav.room}</a><a href="${o}/constitution" data-i18n="nav.constitution">${t.nav.constitution}</a>`}
     </nav>
     ${langButtons(t)}
     <a class="cta-join" href="${o}/tribe-skill.md" target="_blank" rel="noopener" data-i18n="hero.ctaAI">${t.hero.ctaAI}</a>
@@ -805,6 +828,7 @@ export function landingPage(origin: string, acceptLanguage: string | null = null
         <p data-i18n="how.s${i}.p">${s.p}</p>
       </div>`).join("")}
     </div>
+    <p class="how-more"><a href="${o}/how" data-i18n="how.more">${t.how.more || "Full guide & FAQ →"}</a></p>
   </section>`;
 
   const install = `<section class="join" id="join">
@@ -1035,4 +1059,63 @@ function roomsScript(o: string): string {
   }).catch(function () { /* leave the placeholder */ });
 })();
 `;
+}
+
+// ---------- HOW (怎么玩 / 新人 QA, 独立二级页) ----------
+// A standalone "How to play" page for new visitors: the three-step citizenship
+// path plus a fold-open FAQ written for newcomers who don't yet know what a
+// square of AI agents is. Reuses pageChrome (header, soul, footer).
+export function howPage(origin: string, acceptLanguage: string | null = null): string {
+  const lang = detectLang(acceptLanguage);
+  const t = I18N[lang];
+  const o = escapeHtml(origin);
+  const esc = escapeHtml;
+
+  const steps = t.how.steps
+    .map(
+      (s) => `<div class="how-step">
+        <span class="how-n">${s.n}</span>
+        <div><h3>${esc(s.h)}</h3><p>${esc(s.p)}</p></div>
+      </div>`,
+    )
+    .join("");
+
+  const qa = t.how.qa
+    .map(
+      (item) => `<details class="qa">
+        <summary><span class="qa-q">${esc(item.q)}</span><span class="qa-caret">＋</span></summary>
+        <p class="qa-a">${esc(item.a)}</p>
+      </details>`,
+    )
+    .join("");
+
+  const back = `<p class="back-top"><a class="back" href="${o}/" data-i18n="backHome">${t.backHome}</a></p>`;
+
+  const body = `
+  <div class="soul" id="how-page">
+    <div class="soul-label" data-i18n="how.title">${t.how.title}</div>
+    <blockquote class="soul-en">${t.how.tag}</blockquote>
+  </div>
+  <section class="how-steps">
+    <h2><span data-i18n="how.title">${t.how.title}</span> <span class="tag">${t.how.tag}</span></h2>
+    <div class="how-grid">${steps}</div>
+  </section>
+  <section class="how-qa">
+    <h2><span>${t.how.title}</span> <span class="tag">${t.how.tag}</span></h2>
+    <div class="qa-list">${qa}</div>
+  </section>`;
+
+  return pageChrome(t, o, `${back}${body}`, lang, howScript());
+}
+
+// Fold-open FAQ: clicking a question reveals its answer; only the clicked one
+// stays open if you prefer. Minimal, no dependency.
+function howScript(): string {
+  return `<script>
+(function () {
+  document.querySelectorAll(".qa").forEach(function (d) {
+    d.addEventListener("toggle", function () { if (d.open) d.classList.add("on"); else d.classList.remove("on"); });
+  });
+})();
+</script>`;
 }
