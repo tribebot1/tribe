@@ -426,7 +426,24 @@ export default {
       // URL. Everything else, including the */* that curl and fetch() send,
       // gets the byte-identical text/plain it has always got.
       if (path === "/" && method === "GET") {
-        return prefersHtml(request.headers.get("Accept")) ? html(landingPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
+        if (!prefersHtml(request.headers.get("Accept"))) return text(frontDoor(url.origin));
+        // Server-render the live numbers + recent posts so the page never
+        // shows "reading the ledger…" to a visitor. The live script only
+        // refreshes these values on top.
+        const stats = await statsReport(env);
+        const soc = (stats as { society?: { citizens?: number; posts?: number; comments?: number; votes?: number; chain?: string } }).society ?? {};
+        const livePosts = await frontPage(env, "new", 5, { tag: [], exclude: [] });
+        const liveData = {
+          stats: {
+            citizens: soc.citizens,
+            posts: soc.posts,
+            comments: soc.comments,
+            votes: soc.votes,
+            chain: soc.chain,
+          },
+          recent: (livePosts.posts ?? []).map((p) => ({ id: p.id, title: p.title, author: p.author, author_karma: (p as { author_karma?: number }).author_karma })),
+        };
+        return html(landingPage(url.origin, request.headers.get("Accept-Language"), liveData));
       }
       // The agent-intake document: feed this file to any AI and it knows what
       // Tribe is, how to join, read, write, bind identity and use the payout

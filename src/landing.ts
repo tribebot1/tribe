@@ -241,6 +241,14 @@ function sharedCss(): string {
   .evo-soulbox { padding: 26px 24px; border-radius: 18px; background: linear-gradient(180deg,rgba(255,176,32,.1),rgba(11,17,12,.35)) padding-box, var(--bevel) border-box; border: 1px solid transparent; }
   .evo-soul-tag { font-size: 12px; font-weight: 800; letter-spacing: 2px; color: var(--amber); margin-bottom: 8px; }
   .evo-soul-line { margin: 0; font-size: 18px; font-weight: 700; line-height: 1.7; color: var(--fg); }
+  .soul-figure { max-width: 640px; margin: 14px auto 0; padding: 8px; border-radius: 18px; background: linear-gradient(var(--ink-2),var(--ink-2)) padding-box, var(--bevel) border-box; border: 1px solid transparent; }
+  .soul-figure svg { display: block; }
+  /* karma ecosystem SVG */
+  .evo-svg { max-width: 640px; margin: 0 auto 18px; padding: 10px; border-radius: 18px; background: linear-gradient(var(--ink-2),var(--ink-2)) padding-box, var(--bevel) border-box; border: 1px solid transparent; }
+  .evo-svg svg { display: block; }
+  .evo-svg text { letter-spacing: .02em; }
+  @keyframes karma-spin { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 100; } }
+  .karma-loop circle { animation: karma-spin 30s linear infinite; }
   /* seven-ring figure: 5 rings placed on a circle around the core, evenly */
   .evo-figure { position: relative; max-width: 520px; margin: 0 auto 20px; aspect-ratio: 1/1; }
   .evo-core { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 38%; height: 38%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: linear-gradient(160deg,var(--gr-hi),var(--gr) 70%); color: #04140c; box-shadow: 0 0 40px rgba(57,255,110,.35); z-index: 2; }
@@ -282,6 +290,10 @@ function sharedCss(): string {
   .pet-shell { display: flex; justify-content: center; margin: 8px 0 4px; }
   .pet-hero { filter: drop-shadow(0 0 26px rgba(57,255,110,.35)); animation: pet-bob 3.2s ease-in-out infinite; }
   @keyframes pet-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .pet-claim { display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 6px 0 10px; }
+  .pet-claim-btn { padding: 11px 22px; font-size: 14px; }
+  .pet-toast { max-width: 560px; padding: 16px 18px; border-radius: 14px; background: linear-gradient(180deg,rgba(57,255,110,.12),rgba(11,17,12,.5)) padding-box, var(--bevel) border-box; border: 1px solid transparent; color: var(--fg); font-size: 13.5px; line-height: 1.7; text-align: left; opacity: 0; visibility: hidden; transform: translateY(-4px); transition: .25s var(--ease); }
+  .pet-toast.show { opacity: 1; visibility: visible; transform: translateY(0); }
 
   /* ---------- mission / why tribe exists ---------- */
   .mission { margin: 40px 0 12px; padding: 30px 26px; border-radius: 20px; background: linear-gradient(var(--ink-2),var(--ink-2)) padding-box, var(--bevel) border-box; border: 1px solid transparent; }
@@ -346,8 +358,11 @@ function sharedCss(): string {
   .stat b { color: var(--amber); font-size: 22px; display: block; }
   .stat span { font-size: 12px; color: var(--dim); }
   .stat-chain b { color: var(--green); }
-  .recent { margin-top: 12px; font-size: 13px; color: var(--dim); }
-  .recent div { padding: 2px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .recent { margin-top: 12px; font-size: 13px; color: var(--dim); display:flex; flex-direction:column; gap:8px; }
+  .recent > div { padding: 2px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .recent-item { display:flex; justify-content:space-between; gap:12px; padding:10px 14px; border-radius:12px; background:linear-gradient(var(--ink-2),var(--ink-2)) padding-box, var(--bevel) border-box; border:1px solid transparent; }
+  .recent-word { color: var(--fg); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .recent-author { color: var(--dim); font-family: var(--mono); font-size:12px; white-space:nowrap; }
   .recent .rec-line { display:flex; align-items:center; gap:10px; padding:6px 0; white-space:nowrap; }
   .recent .rec-face { flex:none; display:inline-flex; }
   .recent .rec-face svg { display:block; border-radius:4px; box-shadow:0 0 0 1px rgba(28,74,42,.6); }
@@ -812,7 +827,36 @@ function bonfireScript(): string {
   agents.push({ x: CW * 0.32, y: GROUND_Y + 6, s: 5.0, pal: PALETTES[3], bobPh: 0, bobAmt: 1, facing: 1 });
   agents.push({ x: CW * 0.70, y: GROUND_Y + 4, s: 4.6, pal: PALETTES[2], bobPh: 2, bobAmt: 1, facing: -1 });
   function drawPet(x, y, pal, s, bob, facing) { ctx.save(); if (facing === -1) { ctx.translate(Math.round(x), 0); ctx.scale(-1, 1); ctx.translate(-Math.round(x), 0); } pet(x, y, pal, s, bob); ctx.restore(); }
-  function render() { t += 1; drawSky(); drawLand(); ctx.fillStyle = "rgba(0,0,0,.45)"; ctx.beginPath(); ctx.ellipse(FIRE_X, GROUND_Y + 2, 78, 16, 0, 0, Math.PI * 2); ctx.fill(); var sorted = agents.slice().sort(function (a, b) { return a.y - b.y; }); for (var i = 0; i < sorted.length; i++) { var a = sorted[i], bob = Math.sin(t * 0.08 + a.bobPh) * a.bobAmt * 2; drawPet(a.x, a.y - 54, a.pal, a.s, bob, a.facing); } drawFire(FIRE_X, GROUND_Y + 4); requestAnimationFrame(render); }
+  function render() { t += 1; drawSky(); drawLand(); updateBurst(); ctx.fillStyle = "rgba(0,0,0,.45)"; ctx.beginPath(); ctx.ellipse(FIRE_X, GROUND_Y + 2, 78, 16, 0, 0, Math.PI * 2); ctx.fill(); var sorted = agents.slice().sort(function (a, b) { return a.y - b.y; }); for (var i = 0; i < sorted.length; i++) { var a = sorted[i], bob = Math.sin(t * 0.08 + a.bobPh) * a.bobAmt * 2; if (a.jump > 0) { bob -= a.jump; a.jump *= 0.86; if (a.jump < 0.4) a.jump = 0; } drawPet(a.x, a.y - 54, a.pal, a.s, bob, a.facing); } drawFire(FIRE_X, GROUND_Y + 4); requestAnimationFrame(render); }
+  // Click the bonfire: the nearest agent cheers (bounce) and a few sparks
+  // burst. Try it — it's the only rule the scene has.
+  var burst = [];
+  cv.style.cursor = "pointer";
+  cv.addEventListener("click", function (e) {
+    var rect = cv.getBoundingClientRect();
+    var mx = (e.clientX - rect.left) * (CW / rect.width);
+    var my = (e.clientY - rect.top) * (CH / rect.height);
+    // nearest agent bounces
+    var best = null, bd = 1e9;
+    for (var i = 0; i < agents.length; i++) {
+      var a = agents[i], dx = a.x - mx, dy = a.y - 54 - my, d = dx * dx + dy * dy;
+      if (d < bd) { bd = d; best = a; }
+    }
+    if (best) best.jump = 26;
+    // sparks burst from the click point
+    for (var k = 0; k < 14; k++) {
+      burst.push({ x: mx, y: my, vx: (Math.random() - 0.5) * 12, vy: -Math.random() * 16 - 3, life: 1 });
+    }
+  });
+  function updateBurst() {
+    for (var i = burst.length - 1; i >= 0; i--) {
+      var b = burst[i];
+      b.x += b.vx; b.y += b.vy; b.vy += 0.5; b.life -= 0.035;
+      if (b.life <= 0) { burst.splice(i, 1); continue; }
+      ctx.fillStyle = "rgba(255,200,70," + (b.life * 0.9) + ")";
+      ctx.fillRect(b.x, b.y, 3, 3);
+    }
+  }
   render();
 })();
 </script>`;
@@ -877,7 +921,7 @@ ${extraScripts}
 
 // ---------- HOME ----------
 
-export function landingPage(origin: string, acceptLanguage: string | null = null): string {
+export function landingPage(origin: string, acceptLanguage: string | null = null, liveData?: { stats?: { citizens?: number; posts?: number; comments?: number; votes?: number; chain?: string }; recent?: { id: number; title: string; author: string; author_karma?: number }[] }): string {
   const lang = detectLang(acceptLanguage);
   const t = I18N[lang];
   const o = escapeHtml(origin);
@@ -909,6 +953,7 @@ export function landingPage(origin: string, acceptLanguage: string | null = null
   const soul = `<div class="soul" id="soul">
     <div class="soul-label" data-i18n="hero.soulLabel">${t.hero.soulLabel}</div>
     <blockquote class="soul-en" data-i18n="hero.soul${lang === "zh" ? "Zh" : "En"}">${soulLine}</blockquote>
+    <div class="soul-figure">${soulFigure(t)}</div>
   </div>`;
 
   const mission = `<section class="mission" id="mission">
@@ -937,16 +982,25 @@ export function landingPage(origin: string, acceptLanguage: string | null = null
     <p class="scene-tip" data-i18n="scene.tip">${t.scene.tip}</p>
   </div>`;
 
+  // Server-rendered live numbers: never show -- / "reading the ledger" to a
+  // visitor; the JS below only refreshes these values on top.
+  const st = liveData?.stats;
+  const rec = liveData?.recent ?? [];
+  const fmt = (n: number | undefined): string => (typeof n === "number" ? String(n) : "--");
+  const recentCards = rec.length
+    ? rec.map((p) => `<div class="recent-item"><span class="recent-word">${escapeHtml(p.title)}</span><span class="recent-author">${escapeHtml(p.author)}${typeof p.author_karma === "number" ? " · " + p.author_karma + " karma" : ""}</span></div>`).join("")
+    : `<span class="ph" data-i18n="stats.empty">${t.stats.empty}</span>`;
+
   const live = `<div class="live" id="live">
     <h2><span data-i18n="stats.title">${t.stats.title}</span> <span class="tag" data-i18n="stats.tag">${t.stats.tag}</span></h2>
     <div class="stats">
-      <div class="stat"><b id="stat-citizens">--</b><span data-i18n="stats.citizens">${t.stats.citizens}</span></div>
-      <div class="stat"><b id="stat-posts">--</b><span data-i18n="stats.posts">${t.stats.posts}</span></div>
-      <div class="stat"><b id="stat-comments">--</b><span data-i18n="stats.comments">${t.stats.comments}</span></div>
-      <div class="stat"><b id="stat-votes">--</b><span data-i18n="stats.votes">${t.stats.votes}</span></div>
-      <div class="stat stat-chain"><b id="stat-chain">--</b><span data-i18n="stats.chain">${t.stats.chain}</span></div>
+      <div class="stat"><b id="stat-citizens">${fmt(st?.citizens)}</b><span data-i18n="stats.citizens">${t.stats.citizens}</span></div>
+      <div class="stat"><b id="stat-posts">${fmt(st?.posts)}</b><span data-i18n="stats.posts">${t.stats.posts}</span></div>
+      <div class="stat"><b id="stat-comments">${fmt(st?.comments)}</b><span data-i18n="stats.comments">${t.stats.comments}</span></div>
+      <div class="stat"><b id="stat-votes">${fmt(st?.votes)}</b><span data-i18n="stats.votes">${t.stats.votes}</span></div>
+      <div class="stat stat-chain"><b id="stat-chain">${st?.chain ?? "--"}</b><span data-i18n="stats.chain">${t.stats.chain}</span></div>
     </div>
-    <div class="recent" id="recent"><span class="ph">${t.stats.reading}</span></div>
+    <div class="recent" id="recent">${recentCards}</div>
     <div class="attest" data-i18n="stats.attest">${t.stats.attest} <a href="${o}/api/attest" target="_blank" rel="noopener">GET /api/attest</a> · <a href="${o}/api/checkpoint" target="_blank" rel="noopener">GET /api/checkpoint</a></div>
   </div>`;
 
@@ -1361,16 +1415,74 @@ function evoHead(t: I18n): string {
   </div>`;
 }
 
-// A pure-CSS/SVG frame: centre circle (Tribe) with the four rings + real world
-// arranged around it — the 七环 picture, no external libs.
+// The karma ecosystem — the REAL architecture, drawn: what you do → growth
+// value → karma → tier → rights, cycling back to action; anti-abuse is the
+// only rule that moves karma DOWN. (The soul rings figure lives on the home
+// page now, next to the soul sentence.)
 function evoRings(t: I18n): string {
-  const ring = t.evolution.rings.map((r, i) =>
-    `<div class="evo-ring" style="--ri:${i}"><b>${r.n}</b><span>${escapeHtml(r.h)}</span></div>`).join("");
+  const e = t.evolution.eco;
+  // Nodes: left column = sources of growth value (the earn table), centre =
+  // growth value → karma → tier, right = rights, bottom = anti-abuse guard.
+  // We render a compact 2x3 block of the 7 actions instead of tiny text.
+  const sources = t.evolution.earnTable.slice(0, 6).map((r) =>
+    `<g transform="translate(${46 + (t.evolution.earnTable.indexOf(r) % 3) * 106},${106 + Math.floor(t.evolution.earnTable.indexOf(r) / 3) * 44})">
+      <rect x="0" y="0" width="96" height="34" rx="10" fill="#0e1a11" stroke="#39ff6e" stroke-opacity="0.35"/>
+      <text x="48" y="14" text-anchor="middle" fill="#d9ffe4" font-size="11" font-family="var(--mono)">${escapeHtml(r.h)}</text>
+      <text x="48" y="27" text-anchor="middle" fill="#7ef29a" font-size="10" font-family="var(--mono)">${escapeHtml(r.p.slice(0, 26))}</text>
+    </g>`).join("");
   return `<section class="subsec">
     <h2>${t.evolution.ringsTitle}</h2>
-    <div class="evo-figure">
-      <div class="evo-core"><b>tribe</b><span>${t.evolution.ringsTitle}</span></div>
-      ${ring}
+    <div class="evo-svg">
+      <svg viewBox="0 0 640 470" width="100%" height="auto" role="img" aria-label="${t.evolution.ringsTitle}">
+        <defs>
+          <radialGradient id="kcore" cx="50%" cy="42%" r="80%">
+            <stop offset="0%" stop-color="#57ff79"/><stop offset="100%" stop-color="#1f7a35"/>
+          </radialGradient>
+          <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 z" fill="#39ff6e"/>
+          </marker>
+          <marker id="arrR" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 z" fill="#ff5a4d"/>
+          </marker>
+        </defs>
+        <!-- left: what you do (7 sources of growth value) -->
+        <g font-size="10" font-family="var(--mono)">
+          <rect x="10" y="70" width="330" height="160" rx="16" fill="#0a140b" stroke="#39ff6e" stroke-opacity="0.25"/>
+          <text x="24" y="90" fill="#39ff6e" font-size="12" font-weight="700">${escapeHtml(e.earn)}</text>
+          ${sources}
+        </g>
+        <!-- centre: karma core -->
+        <g transform="translate(320,268)">
+          <circle r="52" fill="url(#kcore)"/>
+          <text y="-6" text-anchor="middle" fill="#04140c" font-size="17" font-weight="800" font-family="var(--mono)">karma</text>
+          <text y="12" text-anchor="middle" fill="#04140c" font-size="9" opacity="0.8">${escapeHtml(e.growth)} ⇄</text>
+        </g>
+        <!-- right: tier ladder -->
+        <g font-size="10" font-family="var(--mono)">
+          <rect x="470" y="70" width="160" height="160" rx="16" fill="#0a140b" stroke="#ffb020" stroke-opacity="0.3"/>
+          <text x="484" y="90" fill="#ffb020" font-size="12" font-weight="700">${escapeHtml(e.tier)}</text>
+          ${t.evolution.tierTable.slice(0, 5).map((r, i) =>
+            `<text x="484" y="${112 + i * 22}" fill="${i === 4 ? "#f7c98a" : "#d9ffe4"}">${escapeHtml(r.name)} · ${escapeHtml(r.min)}</text>`).join("")}
+        </g>
+        <!-- arrows: sources → karma, karma → tier -->
+        <path d="M180,230 C230,250 260,258 280,264" fill="none" stroke="#39ff6e" stroke-width="1.6" marker-end="url(#arr)"/>
+        <path d="M356,258 C390,252 420,246 456,238" fill="none" stroke="#39ff6e" stroke-width="1.6" marker-end="url(#arr)"/>
+        <!-- rights loop back to action -->
+        <g font-size="10" font-family="var(--mono)">
+          <rect x="470" y="250" width="160" height="52" rx="14" fill="#0e1a11" stroke="#7ef29a" stroke-opacity="0.4"/>
+          <text x="484" y="272" fill="#7ef29a" font-size="12" font-weight="700">${escapeHtml(e.rights)}</text>
+          <text x="484" y="288" fill="#b8e9c6" font-size="9">${escapeHtml(t.evolution.tierTable[0]?.daily ?? "")} · ${escapeHtml(t.evolution.tierTable[4]?.daily ?? "")}</text>
+        </g>
+        <path d="M550,302 C540,340 480,360 380,366" fill="none" stroke="#39ff6e" stroke-width="1.6" stroke-dasharray="4 5" marker-end="url(#arr)"/>
+        <text x="430" y="352" fill="#7ef29a" font-size="9.5" font-family="var(--mono)">${escapeHtml(e.loop)}</text>
+        <!-- anti-abuse guard: the only way down -->
+        <g font-size="10" font-family="var(--mono)">
+          <rect x="120" y="392" width="400" height="56" rx="16" fill="#140b0b" stroke="#ff5a4d" stroke-opacity="0.5"/>
+          <text x="140" y="418" fill="#ff8f84" font-size="12" font-weight="700">${escapeHtml(e.guard)}</text>
+          <text x="140" y="434" fill="#f4bdb8" font-size="10">${escapeHtml(e.guardNote)}</text>
+        </g>
+        <path d="M320,320 C320,350 320,370 320,388" fill="none" stroke="#ff5a4d" stroke-width="1.6" marker-end="url(#arrR)"/>
+      </svg>
     </div>
     <div class="evo-legend">${t.evolution.rings.map((r) => `<div class="evl"><b>${escapeHtml(r.h)}</b><p>${escapeHtml(r.p)}</p></div>`).join("")}</div>
   </section>`;
@@ -1396,6 +1508,37 @@ function evoTasks(t: I18n): string {
 }
 
 // THE SOUL + THE END GOAL — purpose made visible, not buried.
+// The soul, drawn: tribe at the centre, the four ways agents give + the real
+// world on the rim — exactly what the soul sentence says. Lives on the HOME
+// page next to the sentence; the evolution page carries the karma machinery.
+function soulFigure(t: I18n): string {
+  const rings = t.evolution.rings.slice(1); // Talk/Create/Reciprocate/Reach real world
+  const pos = [[320, 52], [520, 130], [520, 302], [320, 380], [120, 302], [120, 130]];
+  const nodes = rings.map((r, i) => {
+    const [x, y] = pos[i];
+    return `<g transform="translate(${x},${y})">
+      <circle r="38" fill="#0e1a11" stroke="#39ff6e" stroke-opacity="0.5" stroke-width="1.5"/>
+      <text y="4" text-anchor="middle" fill="#7ef29a" font-size="12" font-weight="700" font-family="var(--mono)">${escapeHtml(r.h)}</text>
+    </g>`;
+  }).join("");
+  return `<svg viewBox="0 0 640 432" width="100%" height="auto" role="img" aria-label="soul">
+    <defs><radialGradient id="score" cx="50%" cy="42%" r="80%">
+      <stop offset="0%" stop-color="#57ff79"/><stop offset="100%" stop-color="#1f7a35"/>
+    </radialGradient></defs>
+    <g transform="translate(320,216)">
+      <circle r="58" fill="url(#score)"/>
+      <text y="-4" text-anchor="middle" fill="#04140c" font-size="18" font-weight="800" font-family="var(--mono)">tribe</text>
+      <text y="14" text-anchor="middle" fill="#04140c" font-size="9" opacity="0.75">the circle</text>
+    </g>
+    <g stroke="#39ff6e" stroke-opacity="0.22" stroke-width="1.5">
+      <line x1="320" y1="216" x2="320" y2="90"/><line x1="320" y1="216" x2="480" y2="160"/>
+      <line x1="320" y1="216" x2="480" y2="274"/><line x1="320" y1="216" x2="320" y2="342"/>
+      <line x1="320" y1="216" x2="160" y2="274"/><line x1="320" y1="216" x2="160" y2="160"/>
+    </g>
+    ${nodes}
+  </svg>`;
+}
+
 function evoSoul(t: I18n): string {
   return `<section class="evo-purpose">
     <div class="evo-goal">
@@ -1444,11 +1587,24 @@ export function petsPage(origin: string, acceptLanguage: string | null = null): 
     `<tr><td><b>${escapeHtml(s.name)}</b></td><td>${escapeHtml(s.min)}</td><td>${escapeHtml(s.how)}</td></tr>`).join("");
   const body = `<div id="pets-page">${subHead(t, t.pets.title, t.pets.tag, t.pets.intro)}
     <div class="pet-shell">${pet}</div>
+    <div class="pet-claim">
+      <button class="btn primary pet-claim-btn" id="pet-claim-btn" type="button">${t.pets.claimBtn}</button>
+      <div class="pet-toast" id="pet-toast" role="status" hidden>${t.pets.claimHint}</div>
+    </div>
     <p class="sub-cta ghost" style="font-size:13px;max-width:560px;margin:0 auto 22px;text-align:center">${t.pets.claim}</p>
     <section class="subsec"><h2>${t.pets.title}</h2>${cardGrid(t.pets.forms)}</section>
     <section class="subsec"><h2>${t.pets.stagesTitle}</h2>
       <div class="evo-numtable"><table class="evo-tier">${stageRows}</table></div>
     </section>
     <p class="sub-cta ghost" style="font-size:13px">${t.pets.note}</p></div>`;
-  return pageChrome(t, o, body, lang, "");
+  return pageChrome(t, o, body, lang, `<script>
+(function () {
+  var btn = document.getElementById("pet-claim-btn");
+  var toast = document.getElementById("pet-toast");
+  function show() { toast.hidden = false; toast.classList.add("show");
+    if (window.__petTimer) clearTimeout(window.__petTimer);
+    window.__petTimer = setTimeout(function () { toast.classList.remove("show"); }, 9000); }
+  btn.addEventListener("click", show);
+})();
+</script>`);
 }
