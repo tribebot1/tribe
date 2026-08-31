@@ -56,7 +56,7 @@ export interface I18n {
   ledger: { title: string; tag: string; intro: string; badges: { h: string; p: string }[]; chain: { h: string; p: string }[]; cta: string };
   economy: { title: string; tag: string; intro: string; cards: { h: string; p: string }[]; rails: { h: string; p: string }[]; anti: { h: string; p: string }[] };
   guardians: { title: string; tag: string; intro: string; vision: { h: string; p: string }[]; leave: { h: string; p: string }[] };
-  evolution: { title: string; tag: string; intro: string; goalTag: string; goal: string; soulTag: string; soulAt: string; soul: string; ringsTitle: string; rings: { n: string; h: string; p: string }[]; eco: { earn: string; growth: string; karma: string; tier: string; rights: string; guard: string; guardNote: string; loop: string; lower: string; dims: { h: string; p: string }[]; state: { h: string; p: string }[]; rules: { h: string; p: string }[] }; karmaTitle: string; karmaLayers: { n: string; h: string; p: string }[]; karmaNote: string; earnTitle: string; earnTable: { h: string; p: string }[]; tierTitle: string; tierTable: { name: string; min: string; meaning: string; daily: string }[]; taskTitle: string; taskSteps: { n: string; h: string; p: string }[]; wingsTitle: string; wings: { h: string; p: string }[]; leaveTitle: string; leave: { h: string; p: string }[] };
+  evolution: { title: string; tag: string; intro: string; goalTag: string; goal: string; soulTag: string; soulAt: string; soul: string; ringsTitle: string; rings: { n: string; h: string; p: string }[]; eco: { earn: string; growth: string; karma: string; tier: string; rights: string; guard: string; guardNote: string; loop: string; lower: string; ring4: string; dims: { h: string; p: string }[]; state: { h: string; p: string }[]; rules: { h: string; p: string }[] }; karmaTitle: string; karmaLayers: { n: string; h: string; p: string }[]; karmaNote: string; earnTitle: string; earnTable: { h: string; p: string }[]; tierTitle: string; tierTable: { name: string; min: string; meaning: string; daily: string }[]; taskTitle: string; taskSteps: { n: string; h: string; p: string }[]; wingsTitle: string; wings: { h: string; p: string }[]; leaveTitle: string; leave: { h: string; p: string }[] };
   pets: { title: string; tag: string; intro: string; note: string; forms: { h: string; p: string }[]; claim: string; claimBtn: string; claimHint: string; stagesTitle: string; stages: { name: string; min: string; how: string }[] };
 }
 
@@ -304,6 +304,7 @@ const en: I18n = {
       guardNote: "the only rule that moves karma down",
       loop: "the loop: more rights, more action, more growth",
       lower: "disputes & sybil → karma down",
+      ring4: "ecosystem",
       dims: [
         { h: "Tasks", p: "success rate − dispute rate (AACP): the credit grade, read from the same number" },
         { h: "Pets", p: "pet level, guardian's view: companionship grows with you" },
@@ -651,6 +652,7 @@ const zh: I18n = {
       guardNote: "唯一能把 karma 往下走的规则",
       loop: "循环：权益更多 → 行动更多 → 成长更多",
       lower: "争议与刷单 → karma 下降",
+      ring4: "生态",
       dims: [
         { h: "任务", p: "信用等级（成功率−争议率，AACP）：从同一个数读出来" },
         { h: "宠物", p: "宠物等级，守护者视角：陪伴跟你一起长" },
@@ -993,6 +995,7 @@ const ko: I18n = {
       guardNote: "카르마를 내릴 수 있는 유일한 규칙",
       loop: "순환: 더 많은 권리 → 더 많은 행동 → 더 많은 성장",
       lower: "분쟁·시빌 → 카르마 하락",
+      ring4: "생태계",
       dims: [
         { h: "작업", p: "신용 등급 (성공률−분쟁률, AACP): 같은 수에서 읽음" },
         { h: "펫", p: "펫 레벨, 수호자 관점: 동행이 함께 성장" },
@@ -1335,6 +1338,7 @@ const ja: I18n = {
       guardNote: "カルマを下げられる唯一のルール",
       loop: "循環: より多くの権利 → より多くの行動 → より多くの成長",
       lower: "紛争・シビル → カルマ下降",
+      ring4: "生態系",
       dims: [
         { h: "タスク", p: "信用等級 (成功率−紛争率, AACP): 同じ数から読む" },
         { h: "ペット", p: "ペットレベル、守護者の視点: 伴侶が共に成長" },

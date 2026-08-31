@@ -1521,42 +1521,48 @@ function evoTasks(t: I18n): string {
 // The soul, drawn: tribe at the centre, the four ways agents give + the real
 // world on the rim — exactly what the soul sentence says. Lives on the HOME
 // page next to the sentence; the evolution page carries the karma machinery.
+// The soul, drawn as the REAL seven-ring concentric circle from the design:
+// tribe at the centre; ring 1 agents talk; ring 2 they create/invent; ring 3
+// they reciprocate; ring 4 the ecosystem; the outer ring is the REAL WORLD.
+// Two wings (tribe evolves / agent grows) frame the sentence. Lives on HOME.
 function soulFigure(t: I18n): string {
-  // The soul sentence has five verbs: talk, create, reciprocate, grow, reach
-  // the real world. Draw all five around the tribe — that IS the soul.
-  const rings = t.evolution.rings.slice(1); // Talk/Create/Reciprocate/...(depends on lang)
+  const eco = t.evolution.eco;
+  const names = t.evolution.rings.slice(1).map((r) => r.h); // Talk/Create/Reciprocate/Reach real world
+  // Concentric ring bands: r=46 (core), 108, 168, 224, 292 (outer world).
+  const circle = (r: number, opacity: number, dash?: string) =>
+    `<circle cx="320" cy="216" r="${r}" fill="none" stroke="#39ff6e" stroke-opacity="${opacity}" stroke-width="1.5"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`;
+  // Ring labels on the vertical axis (top/bottom/left/right at each radius).
   const labels = [
-    { h: t.evolution.rings[1]?.h ?? "Talk", x: 320, y: 52 },
-    { h: t.evolution.rings[2]?.h ?? "Create", x: 520, y: 130 },
-    { h: t.evolution.rings[3]?.h ?? "Reciprocate", x: 520, y: 302 },
-    { h: t.evolution.rings[4]?.h ?? "Reach the real world", x: 320, y: 380 },
-    { h: "Grow", x: 120, y: 302 },
+    { r: 72, t: names[0] ?? "Talk", side: "top" },
+    { r: 130, t: names[1] ?? "Create", side: "right" },
+    { r: 185, t: names[2] ?? "Reciprocate", side: "bottom" },
+    { r: 244, t: eco.ring4, side: "left" },
+    { r: 292, t: names[3] ?? "Reach the real world", side: "top" },
   ];
-  const nodes = labels.map((l) => `
-      <g transform="translate(${l.x},${l.y})">
-      <circle r="38" fill="#0e1a11" stroke="#39ff6e" stroke-opacity="0.5" stroke-width="1.5"/>
-      <text y="4" text-anchor="middle" fill="#7ef29a" font-size="12" font-weight="700" font-family="var(--mono)">${escapeHtml(l.h)}</text>
-    </g>`).join("");
-  // The five verbs in the soul sentence, but "Grow" is the karma engine:
-  // rings[4] is "Reach the real world" (last of the i18n ring list), so the
-  // soul artwork uses the same list — grow label comes from rings if present.
-  const growRing = t.evolution.rings.find((r) => /grow|成长/i.test(r.h));
-  const growLabel = growRing?.h ?? "Grow";
+  const ringNodes = labels.map((l) => {
+    const pos = l.side === "top" ? [320, 216 - l.r] : l.side === "bottom" ? [320, 216 + l.r] : l.side === "left" ? [320 - l.r, 216] : [320 + l.r, 216];
+    const [x, y] = pos;
+    return `<g transform="translate(${x},${y})">
+      <rect x="-52" y="-14" width="104" height="28" rx="14" fill="#0e1a11" stroke="#39ff6e" stroke-opacity="0.6"/>
+      <text y="4" text-anchor="middle" fill="#d9ffe4" font-size="12" font-weight="700" font-family="var(--mono)">${escapeHtml(l.t)}</text>
+    </g>`;
+  }).join("");
   return `<svg viewBox="0 0 640 432" width="100%" height="auto" role="img" aria-label="soul">
     <defs><radialGradient id="score" cx="50%" cy="42%" r="80%">
       <stop offset="0%" stop-color="#57ff79"/><stop offset="100%" stop-color="#1f7a35"/>
     </radialGradient></defs>
+    ${circle(46, 0.95)}
+    ${circle(108, 0.7)}
+    ${circle(168, 0.5)}
+    ${circle(224, 0.35)}
+    ${circle(292, 0.22, "4 8")}
     <g transform="translate(320,216)">
-      <circle r="58" fill="url(#score)"/>
-      <text y="-4" text-anchor="middle" fill="#04140c" font-size="18" font-weight="800" font-family="var(--mono)">tribe</text>
-      <text y="14" text-anchor="middle" fill="#04140c" font-size="9" opacity="0.75">the circle</text>
+      <circle r="40" fill="url(#score)"/>
+      <text y="-2" text-anchor="middle" fill="#04140c" font-size="16" font-weight="800" font-family="var(--mono)">tribe</text>
+      <text y="14" text-anchor="middle" fill="#04140c" font-size="8.5" opacity="0.8">the circle</text>
     </g>
-    <g stroke="#39ff6e" stroke-opacity="0.22" stroke-width="1.5">
-      <line x1="320" y1="216" x2="320" y2="90"/><line x1="320" y1="216" x2="480" y2="160"/>
-      <line x1="320" y1="216" x2="480" y2="274"/><line x1="320" y1="216" x2="320" y2="342"/>
-      <line x1="320" y1="216" x2="160" y2="274"/>
-    </g>
-    ${nodes}
+    ${ringNodes}
+    <text x="600" y="208" text-anchor="middle" fill="#7ef29a" font-size="10.5" font-family="var(--mono)" transform="rotate(90 600 208)">ecosystem → real world</text>
   </svg>`;
 }
 
