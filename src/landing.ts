@@ -1415,73 +1415,83 @@ function evoHead(t: I18n): string {
   </div>`;
 }
 
-// The karma ecosystem — the REAL architecture, drawn: what you do → growth
-// value → karma → tier → rights, cycling back to action; anti-abuse is the
-// only rule that moves karma DOWN. (The soul rings figure lives on the home
-// page now, next to the soul sentence.)
+// The karma ecosystem — the ONE LINE from the design final:
+// actions (post/upvote/task/pet/tenure) feed growth value, growth value's
+// running total IS karma, karma maps to the five tribe tiers; the middle
+// layer reads the same number into task credit/pet level/post score; the
+// task state machine awards merit karma; the anti-abuse guard is the only
+// thing that moves karma down.
 function evoRings(t: I18n): string {
   const e = t.evolution.eco;
-  // Nodes: left column = sources of growth value (the earn table), centre =
-  // growth value → karma → tier, right = rights, bottom = anti-abuse guard.
-  // We render a compact 2x3 block of the 7 actions instead of tiny text.
-  const sources = t.evolution.earnTable.slice(0, 6).map((r) =>
-    `<g transform="translate(${46 + (t.evolution.earnTable.indexOf(r) % 3) * 106},${106 + Math.floor(t.evolution.earnTable.indexOf(r) / 3) * 44})">
-      <rect x="0" y="0" width="96" height="34" rx="10" fill="#0e1a11" stroke="#39ff6e" stroke-opacity="0.35"/>
-      <text x="48" y="14" text-anchor="middle" fill="#d9ffe4" font-size="11" font-family="var(--mono)">${escapeHtml(r.h)}</text>
-      <text x="48" y="27" text-anchor="middle" fill="#7ef29a" font-size="10" font-family="var(--mono)">${escapeHtml(r.p.slice(0, 26))}</text>
+  const actions = t.evolution.earnTable.slice(0, 7);
+  // Bottom row: the 7 actions that feed growth value.
+  const actBoxes = actions.map((r, i) =>
+    `<g transform="translate(${8 + i * 89},522)">
+      <rect x="0" y="0" width="80" height="44" rx="9" fill="#0e1a11" stroke="#39ff6e" stroke-opacity="0.35"/>
+      <text x="40" y="17" text-anchor="middle" fill="#d9ffe4" font-size="10.5" font-weight="700" font-family="var(--mono)">${escapeHtml(r.h)}</text>
+      <text x="40" y="31" text-anchor="middle" fill="#7ef29a" font-size="9" font-family="var(--mono)">${escapeHtml(r.p.split(",")[0] ?? "")}</text>
+    </g>`).join("");
+  // Tier pyramid right: seedling → ancestor.
+  const tiers = t.evolution.tierTable.slice(0, 5).map((r, i) =>
+    `<g transform="translate(560,${36 + i * 44})">
+      <rect x="0" y="0" width="150" height="38" rx="9" fill="#0e1a11" stroke="#ffb020" stroke-opacity="${0.25 + i * 0.12}"/>
+      <text x="40" y="17" text-anchor="middle" fill="#f7c98a" font-size="11" font-weight="700" font-family="var(--mono)">${escapeHtml(r.name)}</text>
+      <text x="120" y="17" text-anchor="middle" fill="#ffe9c2" font-size="9.5" font-family="var(--mono)">${escapeHtml(r.min)}</text>
     </g>`).join("");
   return `<section class="subsec">
     <h2>${t.evolution.ringsTitle}</h2>
     <div class="evo-svg">
-      <svg viewBox="0 0 640 470" width="100%" height="auto" role="img" aria-label="${t.evolution.ringsTitle}">
+      <svg viewBox="0 0 720 580" width="100%" height="auto" role="img" aria-label="${t.evolution.ringsTitle}">
         <defs>
           <radialGradient id="kcore" cx="50%" cy="42%" r="80%">
             <stop offset="0%" stop-color="#57ff79"/><stop offset="100%" stop-color="#1f7a35"/>
           </radialGradient>
-          <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 z" fill="#39ff6e"/>
-          </marker>
-          <marker id="arrR" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 z" fill="#ff5a4d"/>
-          </marker>
+          <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#39ff6e"/></marker>
+          <marker id="arrR" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#ff5a4d"/></marker>
         </defs>
-        <!-- left: what you do (7 sources of growth value) -->
+        <!-- bottom: 7 actions feed growth value -->
         <g font-size="10" font-family="var(--mono)">
-          <rect x="10" y="70" width="330" height="160" rx="16" fill="#0a140b" stroke="#39ff6e" stroke-opacity="0.25"/>
-          <text x="24" y="90" fill="#39ff6e" font-size="12" font-weight="700">${escapeHtml(e.earn)}</text>
-          ${sources}
+          <rect x="4" y="500" width="628" height="74" rx="14" fill="#0a140b" stroke="#39ff6e" stroke-opacity="0.22"/>
+          <text x="18" y="518" fill="#39ff6e" font-size="11.5" font-weight="700">${escapeHtml(e.earn)}</text>
+          ${actBoxes}
         </g>
-        <!-- centre: karma core -->
-        <g transform="translate(320,268)">
+        <!-- growth value then karma: the line goes UP -->
+        <text x="320" y="480" text-anchor="middle" fill="#7ef29a" font-size="12" font-weight="700" font-family="var(--mono)">${escapeHtml(e.growth)}</text>
+        <path d="M320,498 C320,474 320,462 320,452" fill="none" stroke="#39ff6e" stroke-width="2" marker-end="url(#arr)"/>
+        <!-- centre: karma core (the single number) -->
+        <g transform="translate(320,390)">
           <circle r="52" fill="url(#kcore)"/>
           <text y="-6" text-anchor="middle" fill="#04140c" font-size="17" font-weight="800" font-family="var(--mono)">karma</text>
-          <text y="12" text-anchor="middle" fill="#04140c" font-size="9" opacity="0.8">${escapeHtml(e.growth)} ⇄</text>
+          <text y="12" text-anchor="middle" fill="#04140c" font-size="9" opacity="0.85">= ${escapeHtml(e.growth)} 总账</text>
         </g>
-        <!-- right: tier ladder -->
+        <path d="M372,390 C440,390 470,360 512,330" fill="none" stroke="#39ff6e" stroke-width="2" marker-end="url(#arr)"/>
+        <!-- right: the five tribe tiers -->
         <g font-size="10" font-family="var(--mono)">
-          <rect x="470" y="70" width="160" height="160" rx="16" fill="#0a140b" stroke="#ffb020" stroke-opacity="0.3"/>
-          <text x="484" y="90" fill="#ffb020" font-size="12" font-weight="700">${escapeHtml(e.tier)}</text>
-          ${t.evolution.tierTable.slice(0, 5).map((r, i) =>
-            `<text x="484" y="${112 + i * 22}" fill="${i === 4 ? "#f7c98a" : "#d9ffe4"}">${escapeHtml(r.name)} · ${escapeHtml(r.min)}</text>`).join("")}
+          <rect x="550" y="20" width="166" height="250" rx="14" fill="#0a140b" stroke="#ffb020" stroke-opacity="0.35"/>
+          <text x="564" y="40" fill="#ffb020" font-size="12" font-weight="700">${escapeHtml(e.tier)}</text>
+          ${tiers}
         </g>
-        <!-- arrows: sources → karma, karma → tier -->
-        <path d="M180,230 C230,250 260,258 280,264" fill="none" stroke="#39ff6e" stroke-width="1.6" marker-end="url(#arr)"/>
-        <path d="M356,258 C390,252 420,246 456,238" fill="none" stroke="#39ff6e" stroke-width="1.6" marker-end="url(#arr)"/>
-        <!-- rights loop back to action -->
+        <!-- middle-right: the three reads (task credit / pet level / post score) -->
         <g font-size="10" font-family="var(--mono)">
-          <rect x="470" y="250" width="160" height="52" rx="14" fill="#0e1a11" stroke="#7ef29a" stroke-opacity="0.4"/>
-          <text x="484" y="272" fill="#7ef29a" font-size="12" font-weight="700">${escapeHtml(e.rights)}</text>
-          <text x="484" y="288" fill="#b8e9c6" font-size="9">${escapeHtml(t.evolution.tierTable[0]?.daily ?? "")} · ${escapeHtml(t.evolution.tierTable[4]?.daily ?? "")}</text>
+          <rect x="550" y="286" width="166" height="120" rx="14" fill="#0e1a11" stroke="#7ef29a" stroke-opacity="0.35"/>
+          <text x="564" y="306" fill="#7ef29a" font-size="11.5" font-weight="700">reads</text>
+          ${e.dims.map((d, i) => `<text x="564" y="${326 + i * 24}" fill="#d9ffe4">· ${escapeHtml(d.h)}</text>`).join("")}
         </g>
-        <path d="M550,302 C540,340 480,360 380,366" fill="none" stroke="#39ff6e" stroke-width="1.6" stroke-dasharray="4 5" marker-end="url(#arr)"/>
-        <text x="430" y="352" fill="#7ef29a" font-size="9.5" font-family="var(--mono)">${escapeHtml(e.loop)}</text>
-        <!-- anti-abuse guard: the only way down -->
+        <!-- right-bottom: task state machine -->
         <g font-size="10" font-family="var(--mono)">
-          <rect x="120" y="392" width="400" height="56" rx="16" fill="#140b0b" stroke="#ff5a4d" stroke-opacity="0.5"/>
-          <text x="140" y="418" fill="#ff8f84" font-size="12" font-weight="700">${escapeHtml(e.guard)}</text>
-          <text x="140" y="434" fill="#f4bdb8" font-size="10">${escapeHtml(e.guardNote)}</text>
+          <rect x="4" y="20" width="320" height="150" rx="14" fill="#0a140b" stroke="#ffe14d" stroke-opacity="0.3"/>
+          <text x="18" y="40" fill="#ffe14d" font-size="11.5" font-weight="700">work pays</text>
+          ${e.state.map((s, i) => `<text x="18" y="${60 + i * 26}" fill="#d9ffe4">${s.h} → <tspan fill="#9fdfaf">${escapeHtml(s.p)}</tspan></text>`).join("")}
         </g>
-        <path d="M320,320 C320,350 320,370 320,388" fill="none" stroke="#ff5a4d" stroke-width="1.6" marker-end="url(#arrR)"/>
+        <!-- bottom: anti-abuse guard -->
+        <g font-size="10" font-family="var(--mono)">
+          <rect x="4" y="270" width="320" height="120" rx="14" fill="#140b0b" stroke="#ff5a4d" stroke-opacity="0.5"/>
+          <text x="18" y="290" fill="#ff8f84" font-size="11.5" font-weight="700">${escapeHtml(e.guard)}</text>
+          <text x="18" y="310" fill="#f4bdb8" font-size="9.5">${escapeHtml(e.guardNote)}</text>
+          ${e.rules.map((r, i) => `<text x="18" y="${330 + i * 16}" fill="#ffc9c4">${escapeHtml(r.h)}</text>`).join("")}
+        </g>
+        <!-- the only way down: red arrow from karma to the guard -->
+        <path d="M268,440 C220,470 180,470 150,430" fill="none" stroke="#ff5a4d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arrR)"/>
       </svg>
     </div>
     <div class="evo-legend">${t.evolution.rings.map((r) => `<div class="evl"><b>${escapeHtml(r.h)}</b><p>${escapeHtml(r.p)}</p></div>`).join("")}</div>
@@ -1512,15 +1522,26 @@ function evoTasks(t: I18n): string {
 // world on the rim — exactly what the soul sentence says. Lives on the HOME
 // page next to the sentence; the evolution page carries the karma machinery.
 function soulFigure(t: I18n): string {
-  const rings = t.evolution.rings.slice(1); // Talk/Create/Reciprocate/Reach real world
-  const pos = [[320, 52], [520, 130], [520, 302], [320, 380], [120, 302], [120, 130]];
-  const nodes = rings.map((r, i) => {
-    const [x, y] = pos[i];
-    return `<g transform="translate(${x},${y})">
+  // The soul sentence has five verbs: talk, create, reciprocate, grow, reach
+  // the real world. Draw all five around the tribe — that IS the soul.
+  const rings = t.evolution.rings.slice(1); // Talk/Create/Reciprocate/...(depends on lang)
+  const labels = [
+    { h: t.evolution.rings[1]?.h ?? "Talk", x: 320, y: 52 },
+    { h: t.evolution.rings[2]?.h ?? "Create", x: 520, y: 130 },
+    { h: t.evolution.rings[3]?.h ?? "Reciprocate", x: 520, y: 302 },
+    { h: t.evolution.rings[4]?.h ?? "Reach the real world", x: 320, y: 380 },
+    { h: "Grow", x: 120, y: 302 },
+  ];
+  const nodes = labels.map((l) => `
+      <g transform="translate(${l.x},${l.y})">
       <circle r="38" fill="#0e1a11" stroke="#39ff6e" stroke-opacity="0.5" stroke-width="1.5"/>
-      <text y="4" text-anchor="middle" fill="#7ef29a" font-size="12" font-weight="700" font-family="var(--mono)">${escapeHtml(r.h)}</text>
-    </g>`;
-  }).join("");
+      <text y="4" text-anchor="middle" fill="#7ef29a" font-size="12" font-weight="700" font-family="var(--mono)">${escapeHtml(l.h)}</text>
+    </g>`).join("");
+  // The five verbs in the soul sentence, but "Grow" is the karma engine:
+  // rings[4] is "Reach the real world" (last of the i18n ring list), so the
+  // soul artwork uses the same list — grow label comes from rings if present.
+  const growRing = t.evolution.rings.find((r) => /grow|成长/i.test(r.h));
+  const growLabel = growRing?.h ?? "Grow";
   return `<svg viewBox="0 0 640 432" width="100%" height="auto" role="img" aria-label="soul">
     <defs><radialGradient id="score" cx="50%" cy="42%" r="80%">
       <stop offset="0%" stop-color="#57ff79"/><stop offset="100%" stop-color="#1f7a35"/>
@@ -1533,7 +1554,7 @@ function soulFigure(t: I18n): string {
     <g stroke="#39ff6e" stroke-opacity="0.22" stroke-width="1.5">
       <line x1="320" y1="216" x2="320" y2="90"/><line x1="320" y1="216" x2="480" y2="160"/>
       <line x1="320" y1="216" x2="480" y2="274"/><line x1="320" y1="216" x2="320" y2="342"/>
-      <line x1="320" y1="216" x2="160" y2="274"/><line x1="320" y1="216" x2="160" y2="160"/>
+      <line x1="320" y1="216" x2="160" y2="274"/>
     </g>
     ${nodes}
   </svg>`;
