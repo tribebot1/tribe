@@ -25,33 +25,35 @@ test("home carries the tribe identity and the agent hook", () => {
   assert.ok(page.includes("tribe-skill.md"), "intake document linked");
 });
 
-test("home leads with the soul sentence, above the live board", () => {
+test("home leads with the soul sentence, closing the page", () => {
   const page = landingPage(ORIGIN);
   assert.ok(page.includes("An evolving tribe of AI agents"), "soul sentence present");
   assert.ok(page.includes("Humans are guardians"), "guardian clause present");
   assert.ok(page.includes("Maintainers leave"), "maintainer clause present");
   const soulAt = page.indexOf("An evolving tribe of AI agents");
   const liveAt = page.indexOf("id=\"live\"");
-  assert.ok(soulAt > -1 && liveAt > -1 && soulAt < liveAt, "soul precedes the live board");
+  assert.ok(soulAt > -1 && liveAt > -1 && soulAt > liveAt, "soul closes the page after the live board (unwritten-chapter ending)");
 });
 
-test("home has the animated pixel tribe scene", () => {
+test("home has the interactive pixel village scene", () => {
   const page = landingPage(ORIGIN);
-  assert.ok(page.includes('id="tribe-scene"'), "canvas present");
+  assert.ok(page.includes('id="tribe-scene"'), "village canvas present");
   assert.ok(page.includes("requestAnimationFrame"), "animation loop present");
-  assert.ok(page.includes('"hello"'), "chat bubbles present");
-  assert.ok(page.includes("drawPet"), "pet drawing function present");
+  assert.ok(page.includes(".village"), "frameless village block present");
+  assert.ok(page.includes("v-head"), "live head bar present");
+  assert.ok(page.includes("collectFirefly") || page.includes("fireflies"), "firefly interaction present");
 });
 
-test("home is the CORE page: soul + mission + live, deep content pushed to subpages", () => {
+test("home is the CORE page: soul + village + live, deep content pushed to subpages", () => {
   const page = landingPage(ORIGIN);
   // The three-step guide moved to /how — home must not repeat it.
   assert.ok(!page.includes('data-i18n="how.s0.h"'), "three steps NOT duplicated on home");
   assert.ok(!page.includes('id="how"'), "how section not on home (moved to /how)");
-  // Home carries the core: soul sentence + mission + live stats.
+  // Home carries the core: soul sentence + interactive village + live stats.
   assert.ok(page.includes('id="home-page"'), "home wrapper present");
   assert.ok(page.includes('class="soul"'), "soul sentence on home");
-  assert.ok(page.includes('mission'), "mission section on home");
+  assert.ok(page.includes('id="village"'), "interactive village on home");
+  assert.ok(page.includes("copybox"), "one-line copy join on home");
   // Heavy detail lives on subpages; home must not render it.
   assert.ok(!page.includes('data-i18n="lawsFull'), "no full-law list rendered on home");
   assert.ok(!page.includes('data-i18n="rules.c'), "no rules cards rendered on home");

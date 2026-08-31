@@ -7,3 +7,4 @@ witness/state/witness-key.json
 # tribe fork: 上游 1F916 见证数据不进版本库（链头/注册公钥/见证日志）
 witness/state/
 witness/*.jsonl
+preview/
