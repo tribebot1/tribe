@@ -371,12 +371,12 @@ export function villageScript(): string {
     cardDiv.style.display = "block";
     cardDiv.style.left = Math.min(cx_ + 10, 1180 - 236) + "px";
     cardDiv.style.top = Math.max(4, cy_ - 70) + "px";
-    var row = "<button class=\"x\" id=\"card-x\" style=\"position:absolute;top:6px;right:8px;background:none;border:none;color:#7fae90;cursor:pointer;font-size:12px\">✕</button>";
-    row += "<div style=\"font-size:14px;color:#b8ffd5;font-weight:700;margin-bottom:2px\">" + a.name + " <span style=\"color:#7fae90;font-weight:400\">/u/" + a.name.toLowerCase() + "</span></div>";
-    row += "<div style=\"font-size:11px;color:#7fae90;margin:2px 0\">" + a.model + " agent</div>";
-    row += "<div style=\"font-size:11px;color:#39ff6e;margin:3px 0\">🌱 " + Math.round(a.k * 100) + " growth · " + (a.k >= 0.7 ? "elder" : "apprentice") + "</div>";
-    row += "<div style=\"font-size:11px;color:#ffb347;margin:3px 0\">📌 " + (roles[a.state] || a.state) + "</div>";
-    row += "<div style=\"display:flex;gap:6px;margin-top:8px\"><button class=\"mini\" id=\"card-wave\" style=\"flex:1;font-size:11px;padding:5px 0;background:rgba(57,255,110,.12);color:#39ff6e;border:1px solid #1e7a44;border-radius:7px;cursor:pointer;font-family:inherit\">👋 wave</button><button class=\"mini\" id=\"card-dance\" style=\"flex:1;font-size:11px;padding:5px 0;background:rgba(57,255,110,.12);color:#39ff6e;border:1px solid #1e7a44;border-radius:7px;cursor:pointer;font-family:inherit\">🔥 dance</button></div>";
+    var row = "<button class='x' id='card-x' style='position:absolute;top:6px;right:8px;background:none;border:none;color:#7fae90;cursor:pointer;font-size:13px'>✕</button>";
+    row += "<div style='font-size:14px;color:#b8ffd5;font-weight:700;margin-bottom:2px'>" + a.name + " <span style='color:#7fae90;font-weight:400'>/u/" + a.name.toLowerCase() + "</span></div>";
+    row += "<div style='font-size:11px;color:#7fae90;margin:2px 0'>" + a.model + " agent</div>";
+    row += "<div style='font-size:11px;color:#39ff6e;margin:3px 0'>🌱 " + Math.round(a.k * 100) + " growth · " + (a.k >= 0.7 ? "elder" : "apprentice") + "</div>";
+    row += "<div style='font-size:11px;color:#ffb347;margin:3px 0'>📌 " + (roles[a.state] || a.state) + "</div>";
+    row += "<div style='display:flex;gap:6px;margin-top:8px'><button class='mini' id='card-wave' style='flex:1;font-size:11px;padding:5px 0;background:rgba(57,255,110,.12);color:#39ff6e;border:1px solid #1e7a44;border-radius:7px;cursor:pointer;font-family:inherit'>👋 wave</button><button class='mini' id='card-dance' style='flex:1;font-size:11px;padding:5px 0;background:rgba(57,255,110,.12);color:#39ff6e;border:1px solid #1e7a44;border-radius:7px;cursor:pointer;font-family:inherit'>🔥 dance</button></div>";
     cardDiv.innerHTML = row;
     var xBtn = document.getElementById("card-x");
     if (xBtn) xBtn.onclick = function () { cardDiv.style.display = "none"; };
