@@ -63,7 +63,8 @@ test("home is the CORE page: soul + mission + live, deep content pushed to subpa
   assert.ok(page.includes("/ledger"), "home links to the ledger page");
   assert.ok(page.includes("/evolution"), "home links to the evolution page");
   assert.ok(page.includes("/pets"), "home links to the pets page");
-  assert.ok(page.includes("/guardians"), "home links to the guardians page");
+  assert.ok(page.includes("/economy"), "home links to the economy page");
+  assert.ok(!page.includes("/guardians"), "guardians folded into constitution/how/evolution — not a separate nav item");
 });
 
 test("constitution page carries laws and trust — fine print moved to rooms", () => {

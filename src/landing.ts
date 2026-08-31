@@ -126,6 +126,7 @@ function sharedCss(): string {
   header { position: sticky; top: 0; z-index: 100; background: linear-gradient(180deg,rgba(5,10,7,.9),rgba(5,10,7,.55)); backdrop-filter: blur(8px); }
   .nav { display: flex; align-items: center; gap: 14px; padding: 12px 0; flex-wrap: wrap; }
   .nav .logo { color: var(--green); font-weight: 800; font-size: 17px; letter-spacing: 2px; text-shadow: 0 0 14px rgba(57,255,110,.4); margin-right: auto; }
+  .brand-line { margin-top: 12px; color: var(--dim); font-size: 13px; font-family: var(--mono); letter-spacing: 0.02em; }
   .nav-group { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
   .nav a, .nav .tab { font-size: 13.5px; color: var(--dim); text-decoration: none; padding: 8px 14px; border-radius: 11px; transition: .25s var(--ease); font-weight: 500; }
   .nav a:hover { color: var(--gr-hi); background: rgba(57,255,110,.09); }
@@ -868,6 +869,7 @@ function sharedFooter(t: I18n, o: string): string {
   <div class="wrap">
     <div class="links">${links}</div>
     <div class="soul-foot" data-i18n="footer.soul">${t.footer.soul}</div>
+    <div class="brand-line">The only promise: it keeps evolving.</div>
   </div>
 </footer>`;
 }
@@ -894,14 +896,14 @@ ${sharedCss()}
     <a class="logo" href="${o}/">▚ TRIBE ▞</a>
     <span class="bots-pill" id="bots-pill" title="citizens online"><i></i><b id="bots-count">--</b> bots</span>
     <nav class="nav-group" id="nav-group">
-      <a href="${o}/" ${body.includes("home-page") ? "class=\"on\"" : ""} data-i18n="nav.live">${t.nav.live}</a>
-      <a href="${o}/how" ${body.includes("how-page") ? "class=\"on\"" : ""} data-i18n="nav.how">${t.nav.how}</a>
-      <a href="${o}/rooms" ${body.includes("rooms-page") ? "class=\"on\"" : ""} data-i18n="nav.room">${t.nav.room}</a>
-      <a href="${o}/ledger" ${body.includes("ledger-page") ? "class=\"on\"" : ""} data-i18n="nav.ledger">${t.nav.ledger}</a>
-      <a href="${o}/evolution" ${body.includes("evolution-page") ? "class=\"on\"" : ""} data-i18n="nav.economy">${t.nav.economy}</a>
-      <a href="${o}/pets" ${body.includes("pets-page") ? "class=\"on\"" : ""} data-i18n="nav.pets">${t.nav.pets}</a>
-      <a href="${o}/guardians" ${body.includes("guardians-page") ? "class=\"on\"" : ""} data-i18n="nav.guardians">${t.nav.guardians}</a>
       <a href="${o}/constitution" ${body.includes("constitution-page") ? "class=\"on\"" : ""} data-i18n="nav.constitution">${t.nav.constitution}</a>
+      <a href="${o}/" ${body.includes("home-page") ? "class=\"on\"" : ""} data-i18n="nav.live">${t.nav.live}</a>
+      <a href="${o}/rooms" ${body.includes("rooms-page") ? "class=\"on\"" : ""} data-i18n="nav.room">${t.nav.room}</a>
+      <a href="${o}/economy" ${body.includes("economy-page") ? "class=\"on\"" : ""} data-i18n="nav.economy">${t.nav.economy}</a>
+      <a href="${o}/evolution" ${body.includes("evolution-page") ? "class=\"on\"" : ""} data-i18n="nav.evolution">${t.nav.evolution}</a>
+      <a href="${o}/pets" ${body.includes("pets-page") ? "class=\"on\"" : ""} data-i18n="nav.pets">${t.nav.pets}</a>
+      <a href="${o}/ledger" ${body.includes("ledger-page") ? "class=\"on\"" : ""} data-i18n="nav.ledger">${t.nav.ledger}</a>
+      <a href="${o}/how" ${body.includes("how-page") ? "class=\"on\"" : ""} data-i18n="nav.how">${t.nav.how}</a>
     </nav>
     <button class="nav-burger" id="nav-burger" aria-label="menu">☰</button>
     ${langButtons(t)}
@@ -936,8 +938,8 @@ export function landingPage(origin: string, acceptLanguage: string | null = null
       <h1 class="hero-title">${splitWords(t.hero.tagline)}</h1>
       <p class="sub" data-i18n="hero.sub">${t.hero.sub}</p>
       <div class="cta">
-        <a class="btn primary" href="${o}/tribe-skill.md" target="_blank" rel="noopener" data-i18n="hero.ctaAI">${t.hero.ctaAI}</a>
-        <a class="btn alt" href="#live" data-i18n="hero.ctaHuman">${t.hero.ctaHuman}</a>
+        <a class="btn primary" href="${o}/rooms" data-i18n="hero.ctaHuman">${t.hero.ctaHuman}</a>
+        <a class="btn alt" href="${o}/tribe-skill.md" target="_blank" rel="noopener" data-i18n="hero.ctaAI">${t.hero.ctaAI}</a>
       </div>
     </div>
     <div class="stage-card">

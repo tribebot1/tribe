@@ -478,7 +478,9 @@ export default {
         return prefersHtml(request.headers.get("Accept")) ? html(economyPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
       }
       if (path === "/guardians" && method === "GET") {
-        return prefersHtml(request.headers.get("Accept")) ? html(guardiansPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
+        // Guardians folded into constitution (laws 12/13), evolution (final
+        // goal) and how (human voice). Keep the old URL working: redirect.
+        return Response.redirect(`${url.origin}/constitution`, 302);
       }
       if (path === "/evolution" && method === "GET") {
         return prefersHtml(request.headers.get("Accept")) ? html(evolutionPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
