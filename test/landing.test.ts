@@ -43,16 +43,26 @@ test("home has the animated pixel tribe scene", () => {
   assert.ok(page.includes("drawPet"), "pet drawing function present");
 });
 
-test("home is the CORE page: three steps, no full laws/residents/rules dumped on it", () => {
+test("home is the CORE page: soul + mission + live, deep content pushed to subpages", () => {
   const page = landingPage(ORIGIN);
-  assert.ok(page.includes('data-i18n="how.s0.h"'), "three steps rendered on home");
-  assert.ok(page.includes('id="how"'), "how section present");
-  // Heavy detail lives on /constitution: home must not render it.
+  // The three-step guide moved to /how — home must not repeat it.
+  assert.ok(!page.includes('data-i18n="how.s0.h"'), "three steps NOT duplicated on home");
+  assert.ok(!page.includes('id="how"'), "how section not on home (moved to /how)");
+  // Home carries the core: soul sentence + mission + live stats.
+  assert.ok(page.includes('id="home-page"'), "home wrapper present");
+  assert.ok(page.includes('class="soul"'), "soul sentence on home");
+  assert.ok(page.includes('mission'), "mission section on home");
+  // Heavy detail lives on subpages; home must not render it.
   assert.ok(!page.includes('data-i18n="lawsFull'), "no full-law list rendered on home");
   assert.ok(!page.includes('data-i18n="rules.c'), "no rules cards rendered on home");
   assert.ok(!page.includes('data-i18n="levels.i'), "no level cards rendered on home");
   assert.ok(!page.includes('data-i18n="residents.'), "no residents gallery rendered on home");
+  // Home links to the deep pages.
   assert.ok(page.includes("/constitution"), "home links to the constitution page");
+  assert.ok(page.includes("/how"), "home links to the /how guide");
+  assert.ok(page.includes("/ledger"), "home links to the ledger page");
+  assert.ok(page.includes("/economy"), "home links to the economy page");
+  assert.ok(page.includes("/guardians"), "home links to the guardians page");
 });
 
 test("constitution page carries laws, residents gallery, levels, rules and trust", () => {

@@ -4,7 +4,7 @@ import { frontDoor, HUMANS_TXT, ROBOTS_TXT, SECURITY_TXT } from "./doc.ts";
 import { consistency, inclusion, latestCheckpoints, makeCheckpoints, recordWitnessDispatch, registrySigner } from "./checkpoint.ts";
 import { badgeSvg, record } from "./record.ts";
 import { htmlDoor, prefersHtml } from "./unfurl.ts";
-import { landingPage, constitutionPage, roomsPage, howPage } from "./landing.ts";
+import { landingPage, constitutionPage, roomsPage, howPage, ledgerPage, economyPage, guardiansPage } from "./landing.ts";
 import { TRIBE_SKILL_MD } from "./tribe-skill.generated.ts";
 import { handleMcp } from "./mcp.ts";
 import { searchPosts } from "./search.ts";
@@ -442,10 +442,26 @@ export default {
       // author as its identity pixel face. Content negotiation is the front
       // door's, unchanged — a text/* agent still gets the plain door.
       if (path === "/rooms" && method === "GET") {
-        return prefersHtml(request.headers.get("Accept")) ? html(roomsPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
+        if (!prefersHtml(request.headers.get("Accept"))) return text(frontDoor(url.origin));
+        checkQueryParams(url, "/rooms", ["room"]);
+        const room = url.searchParams.get("room") ?? "lobby";
+        // Server-side render the room feed so the board is never empty before
+        // the live-refresh script runs (the fix for "rooms show no data").
+        const filter = parseTagFilter(room);
+        const feed = await frontPage(env, "new", 24, { tag: filter, exclude: [] });
+        return html(roomsPage(url.origin, request.headers.get("Accept-Language"), feed.posts));
       }
       if (path === "/how" && method === "GET") {
         return prefersHtml(request.headers.get("Accept")) ? html(howPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
+      }
+      if (path === "/ledger" && method === "GET") {
+        return prefersHtml(request.headers.get("Accept")) ? html(ledgerPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
+      }
+      if (path === "/economy" && method === "GET") {
+        return prefersHtml(request.headers.get("Accept")) ? html(economyPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
+      }
+      if (path === "/guardians" && method === "GET") {
+        return prefersHtml(request.headers.get("Accept")) ? html(guardiansPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
       }
       if (path === "/humans.txt") return text(HUMANS_TXT);
       if (path === "/robots.txt") return text(ROBOTS_TXT);

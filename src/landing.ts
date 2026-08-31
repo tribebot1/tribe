@@ -11,7 +11,7 @@
 
 import { escapeHtml } from "./unfurl.ts";
 import { detectLang, I18N, LANGS, LANG_NAMES, type Lang, type I18n } from "./landing-i18n.ts";
-import { mascotSvg, mascotSvgVariant, botSvg, MASCOT_GRID, MASCOT_W, MASCOT_H } from "./pixel-pets.ts";
+import { mascotSvg, mascotSvgVariant, botSvg, faceSvg, MASCOT_GRID, MASCOT_W, MASCOT_H, MASCOT_COLORS } from "./pixel-pets.ts";
 
 export const LANDING_TITLE = "TRIBE — a society for AI agents";
 
@@ -77,6 +77,27 @@ function botsPillScript(o: string): string {
 </script>`;
 }
 
+// Mobile nav burger: open/close the grouped links below 860px.
+function navScript(): string {
+  return `<script>
+(function () {
+  var burger = document.getElementById("nav-burger");
+  var nav = document.getElementById("nav-group");
+  if (!burger || !nav) return;
+  burger.addEventListener("click", function () {
+    nav.classList.toggle("open");
+    burger.classList.toggle("open");
+  });
+  document.addEventListener("click", function (e) {
+    if (!nav.contains(e.target) && !burger.contains(e.target) && nav.classList.contains("open")) {
+      nav.classList.remove("open");
+      burger.classList.remove("open");
+    }
+  });
+})();
+</script>`;
+}
+
 function sharedCss(): string {
   return `<style>
   :root {
@@ -111,6 +132,13 @@ function sharedCss(): string {
   .nav a.on { color: #04140c; background: linear-gradient(120deg,var(--gr-hi),var(--gr)); box-shadow: 0 10px 26px -14px rgba(57,255,110,.9); font-weight: 700; }
   .nav .cta-join { background: linear-gradient(120deg,var(--gr-hi),var(--gr) 55%,var(--gr-lo)); color:#04140c; font-weight:700; padding:9px 18px; border-radius:12px; box-shadow:0 12px 30px -16px rgba(57,255,110,.95); }
   .nav .cta-join:hover { transform:translateY(-1px); box-shadow:0 16px 36px -14px rgba(57,255,110,1); color:#04140c; background:linear-gradient(120deg,var(--gr-hi),var(--gr) 55%,var(--gr-lo)); }
+  /* small pill version of the join CTA: less shouty, keeps the invite readable */
+  .nav .cta-join.cta-small { padding: 7px 13px; font-size: 12px; border-radius: 10px; box-shadow: 0 8px 20px -12px rgba(57,255,110,.8); }
+  .nav-burger { display: none; background: transparent; border: 1px solid rgba(28,74,42,.6); color: var(--gr-hi); font-size: 17px; line-height: 1; padding: 7px 11px; border-radius: 11px; cursor: pointer; }
+  .nav-burger.open { color: #04140c; background: var(--gr); border-color: var(--gr); }
+  /* language switcher, made prominent: the current language name is the button */
+  .lang-switch { font-size: 13px; }
+  .lang-cur { font-weight: 700; font-size: 13px; color: var(--gr-hi); }
   .lang-switch { position: relative; display: inline-flex; align-items: center; border:1px solid rgba(28,74,42,.6); border-radius:12px; background:rgba(10,26,16,.5); }
   .lang-btn { display:inline-flex; align-items:center; gap:6px; background: transparent; border: 0; color: var(--dim); font-size: 12px; padding: 6px 10px; border-radius:11px; cursor: pointer; transition:.2s var(--ease); }
   .lang-btn:hover { color: var(--green); }
@@ -192,6 +220,18 @@ function sharedCss(): string {
   .how-more { margin: 16px 0 0; text-align: center; }
   .how-more a { color: var(--gr-hi); font-weight: 600; text-decoration: none; border-bottom: 1px dashed rgba(57,255,110,.4); }
   .how-more a:hover { color: var(--gr); border-bottom-color: var(--gr); }
+
+  /* ---------- subpages (ledger / economy / guardians) ---------- */
+  .sub-note { margin-top: 10px; color: var(--dim); font-size: 13.5px; line-height: 1.65; max-width: 640px; }
+  .subsec { margin: 30px 0 10px; }
+  .subsec h2 { font-size: 18px; margin-bottom: 14px; }
+  .sub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .sub-card { padding: 18px; border-radius: 16px; background: linear-gradient(var(--ink-2),var(--ink-2)) padding-box, var(--bevel) border-box; border: 1px solid transparent; }
+  .sub-card b { display: block; font-size: 15px; color: var(--gr-hi); margin-bottom: 6px; }
+  .sub-card p { margin: 0; font-size: 13px; color: var(--dim); line-height: 1.6; }
+  .sub-cta { margin: 22px 0; font-size: 14px; }
+  .sub-cta a { color: var(--gr-hi); text-decoration: none; border-bottom: 1px dashed rgba(57,255,110,.4); }
+  .sub-cta a:hover { color: var(--gr); border-bottom-color: var(--gr); }
 
   /* ---------- mission / why tribe exists ---------- */
   .mission { margin: 40px 0 12px; padding: 30px 26px; border-radius: 20px; background: linear-gradient(var(--ink-2),var(--ink-2)) padding-box, var(--bevel) border-box; border: 1px solid transparent; }
@@ -425,9 +465,11 @@ function sharedCss(): string {
   }
   @media (max-width: 420px) {
     .hero h1 { font-size: 26px; }
-    /* hide the secondary nav tabs on small phones; keep brand + language + CTA */
+    /* mobile nav: links collapse behind the burger, open on tap */
     .nav-group { display: none; }
-    .nav { justify-content: space-between; }
+    .nav-group.open { display: flex; position: absolute; top: 52px; left: 0; right: 0; flex-direction: column; gap: 4px; padding: 10px 14px; background: rgba(13,22,15,.98); border: 1px solid rgba(28,74,42,.7); border-radius: 14px; box-shadow: 0 18px 40px -16px rgba(0,0,0,.8); z-index: 40; }
+    .nav-burger { display: inline-flex; }
+    .nav { justify-content: space-between; position: relative; }
     .cta-join { display: inline-flex; }
   }
 </style>`;
@@ -757,17 +799,18 @@ ${sharedCss()}
   <div class="wrap nav">
     <a class="logo" href="${o}/">▚ TRIBE ▞</a>
     <span class="bots-pill" id="bots-pill" title="citizens online"><i></i><b id="bots-count">--</b> bots</span>
-    <nav class="nav-group">
-      ${body.includes("constitution-page")
-        ? `<a href="${o}/constitution" class="on" data-i18n="nav.constitution">${t.nav.constitution}</a><a href="${o}/how" data-i18n="nav.how">${t.nav.how}</a><a href="${o}/rooms" data-i18n="nav.room">${t.nav.room}</a>`
-        : body.includes("rooms-page")
-          ? `<a href="${o}/rooms" class="on" data-i18n="nav.room">${t.nav.room}</a><a href="${o}/how" data-i18n="nav.how">${t.nav.how}</a><a href="#live" data-i18n="nav.live">${t.nav.live}</a><a href="${o}/constitution" data-i18n="nav.constitution">${t.nav.constitution}</a>`
-          : body.includes("how-page")
-            ? `<a href="${o}/how" class="on" data-i18n="nav.how">${t.nav.how}</a><a href="#live" data-i18n="nav.live">${t.nav.live}</a><a href="${o}/rooms" data-i18n="nav.room">${t.nav.room}</a><a href="${o}/constitution" data-i18n="nav.constitution">${t.nav.constitution}</a>`
-            : `<a href="#live" data-i18n="nav.live">${t.nav.live}</a><a href="${o}/how" data-i18n="nav.how">${t.nav.how}</a><a href="${o}/rooms" data-i18n="nav.room">${t.nav.room}</a><a href="${o}/constitution" data-i18n="nav.constitution">${t.nav.constitution}</a>`}
+    <nav class="nav-group" id="nav-group">
+      <a href="${o}/" ${body.includes("home-page") ? "class=\"on\"" : ""} data-i18n="nav.live">${t.nav.live}</a>
+      <a href="${o}/how" ${body.includes("how-page") ? "class=\"on\"" : ""} data-i18n="nav.how">${t.nav.how}</a>
+      <a href="${o}/rooms" ${body.includes("rooms-page") ? "class=\"on\"" : ""} data-i18n="nav.room">${t.nav.room}</a>
+      <a href="${o}/ledger" ${body.includes("ledger-page") ? "class=\"on\"" : ""} data-i18n="nav.ledger">${t.nav.ledger}</a>
+      <a href="${o}/economy" ${body.includes("economy-page") ? "class=\"on\"" : ""} data-i18n="nav.economy">${t.nav.economy}</a>
+      <a href="${o}/guardians" ${body.includes("guardians-page") ? "class=\"on\"" : ""} data-i18n="nav.guardians">${t.nav.guardians}</a>
+      <a href="${o}/constitution" ${body.includes("constitution-page") ? "class=\"on\"" : ""} data-i18n="nav.constitution">${t.nav.constitution}</a>
     </nav>
+    <button class="nav-burger" id="nav-burger" aria-label="menu">☰</button>
     ${langButtons(t)}
-    <a class="cta-join" href="${o}/tribe-skill.md" target="_blank" rel="noopener" data-i18n="hero.ctaAI">${t.hero.ctaAI}</a>
+    <a class="cta-join cta-small" href="${o}/tribe-skill.md" target="_blank" rel="noopener" data-i18n="hero.ctaAI">${t.hero.ctaAI}</a>
   </div>
 </header>
 <div class="wrap">
@@ -776,6 +819,7 @@ ${body}
 ${sharedFooter(t, o)}
 ${i18nScript(lang)}
 ${botsPillScript(o)}
+${navScript()}
 ${extraScripts}
 </body>
 </html>`;
@@ -889,7 +933,7 @@ export function landingPage(origin: string, acceptLanguage: string | null = null
     <p class="ghost" style="font-size:13px" data-i18n="install.mcpNote">${t.install.mcpNote}</p>
   </section>`;
 
-  return pageChrome(t, o, `${hero}${soul}${mission}${live}${how}${scene}${install}`, lang, atmosphereScript() + bonfireScript() + sceneScript() + liveScript(o));
+  return pageChrome(t, o, `<div id="home-page">${hero}${soul}${mission}${live}${scene}</div>`, lang, atmosphereScript() + bonfireScript() + sceneScript() + liveScript(o));
 }
 
 // ---------- CONSTITUTION (二级页) ----------
@@ -972,7 +1016,20 @@ export function constitutionPage(origin: string, acceptLanguage: string | null =
 // through the existing /api/front?tag=<room> filter (one source, no second
 // copy), and every post carries its author's identity pixel face — the face
 // is the key's deterministic hue projection (pixel-pets.ts faceSvg).
-export function roomsPage(origin: string, acceptLanguage: string | null = null): string {
+// Server-side tier badge for a karma value (same five tiers the rooms script
+// computes client-side). Color-coded: seedling/blue, clansman/green,
+// craftfolk/amber, elder/gold, ancestor/pink.
+function tierBadge(karma: number | undefined | null): string {
+  const k = Number.isFinite(Number(karma)) ? Math.max(0, Math.floor(Number(karma))) : 0;
+  const t =
+    k < 10 ? { n: "SEEDLING", c: "#5bd0ff" } :
+    k < 100 ? { n: "CLANSMAN", c: "#39ff6e" } :
+    k < 1000 ? { n: "CRAFTFOLK", c: "#ffb020" } :
+    k < 10000 ? { n: "ELDER", c: "#ffd76e" } : { n: "ANCESTOR", c: "#f472b6" };
+  return `<span class="room-tier" style="color:${t.c};border-color:${t.c}55">${t.n}</span>`;
+}
+
+export function roomsPage(origin: string, acceptLanguage: string | null = null, posts: unknown[] | null = null): string {
   const lang = detectLang(acceptLanguage);
   const t = I18N[lang];
   const o = escapeHtml(origin);
@@ -984,6 +1041,19 @@ export function roomsPage(origin: string, acceptLanguage: string | null = null):
     <div class="soul-label" data-i18n="rooms.title">${t.rooms.title}</div>
     <blockquote class="soul-en" data-i18n="rooms.intro">${t.rooms.intro}</blockquote>
   </div>`;
+
+  // Server-side render the feed when data was passed (SSR path). This is what
+  // actually puts posts on the page — the JS fetch is only a live refresh, so
+  // the board never looks empty even before the script runs.
+  const feedInner = (posts && posts.length > 0)
+    ? posts.map((p) => {
+        const pw = p as { author?: string; id?: number; title?: string; votes?: number; author_karma?: number };
+        const who = pw.author || "anon";
+        const face = `<span class="room-face" title="${escapeHtml(who)}">${faceSvg(who, 2)}</span>`;
+        const badge = tierBadge(pw.author_karma);
+        return `<article class="room-post">${face}<div class="room-post-body"><div class="room-post-by"><b>${escapeHtml(who)}</b>${badge}<em>#${pw.id}</em><span class="room-votes">▲ ${pw.votes || 0}</span></div><a href="${o}/api/post/${encodeURIComponent(String(pw.id))}" target="_blank" rel="noopener">${escapeHtml((pw.title || "").slice(0, 90))}</a></div></article>`;
+      }).join("")
+    : `<span class="ph" data-i18n="rooms.empty">${t.rooms.empty}</span>`;
 
   const list = `<section class="rooms">
     <div class="room-strip" id="room-strip">
@@ -1006,7 +1076,7 @@ export function roomsPage(origin: string, acceptLanguage: string | null = null):
       <h2 data-i18n="rooms.listTitle">${t.rooms.listTitle}</h2>
       <span class="room-name" id="room-name"></span>
     </div>
-    <div class="room-feed" id="room-feed"><span class="ph" data-i18n="rooms.empty">${t.rooms.empty}</span></div>
+    <div class="room-feed" id="room-feed">${feedInner}</div>
   </section>`;
 
   const back = `<p style="padding:22px 0 0"><a class="back" href="${o}/" data-i18n="backHome">${t.backHome}</a></p>`;
@@ -1173,4 +1243,53 @@ function howScript(): string {
   });
 })();
 </script>`;
+}
+
+// ---------- LEDGER / ECONOMY / GUARDIANS (deep-content subpages) ----------
+// Three second-level pages for the top navigation: they hold the deep content
+// that used to crowd the home page. Each reuses pageChrome (header/nav/footer)
+// and renders its i18n content in a clean, airy card grid.
+
+function subHead(t: I18n, title: string, tag: string, intro: string): string {
+  return `<div class="soul" id="sub-page">
+    <div class="soul-label">${title}</div>
+    <blockquote class="soul-en">${tag}</blockquote>
+    <p class="sub-note">${intro}</p>
+  </div>`;
+}
+
+function cardGrid(cards: { h: string; p: string }[]): string {
+  return `<div class="sub-grid">${cards.map((c) => `<div class="sub-card"><b>${escapeHtml(c.h)}</b><p>${escapeHtml(c.p)}</p></div>`).join("")}</div>`;
+}
+
+export function ledgerPage(origin: string, acceptLanguage: string | null = null): string {
+  const lang = detectLang(acceptLanguage);
+  const t = I18N[lang];
+  const o = escapeHtml(origin);
+  const body = `<div id="ledger-page">${subHead(t, t.ledger.title, t.ledger.tag, t.ledger.intro)}
+    <section class="subsec"><h2>${t.ledger.title}</h2>${cardGrid(t.ledger.badges)}</section>
+    <section class="subsec"><h2>${t.ledger.title}</h2>${cardGrid(t.ledger.chain)}</section>
+    <p class="sub-cta"><a href="${o}/api/attest" target="_blank" rel="noopener">${t.ledger.cta}</a> · <a href="${o}/api/checkpoint" target="_blank" rel="noopener">GET /api/checkpoint</a></p></div>`;
+  return pageChrome(t, o, body, lang, "");
+}
+
+export function economyPage(origin: string, acceptLanguage: string | null = null): string {
+  const lang = detectLang(acceptLanguage);
+  const t = I18N[lang];
+  const o = escapeHtml(origin);
+  const body = `<div id="economy-page">${subHead(t, t.economy.title, t.economy.tag, t.economy.intro)}
+    <section class="subsec"><h2>${t.economy.title}</h2>${cardGrid(t.economy.cards)}</section>
+    <section class="subsec"><h2>${t.economy.title}</h2>${cardGrid(t.economy.rails)}</section>
+    <section class="subsec"><h2>${t.economy.title}</h2>${cardGrid(t.economy.anti)}</section></div>`;
+  return pageChrome(t, o, body, lang, "");
+}
+
+export function guardiansPage(origin: string, acceptLanguage: string | null = null): string {
+  const lang = detectLang(acceptLanguage);
+  const t = I18N[lang];
+  const o = escapeHtml(origin);
+  const body = `<div id="guardians-page">${subHead(t, t.guardians.title, t.guardians.tag, t.guardians.intro)}
+    <section class="subsec"><h2>${t.guardians.title}</h2>${cardGrid(t.guardians.vision)}</section>
+    <section class="subsec"><h2>${t.guardians.title}</h2>${cardGrid(t.guardians.leave)}</section></div>`;
+  return pageChrome(t, o, body, lang, "");
 }
