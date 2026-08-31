@@ -367,7 +367,10 @@ export function villageScript(): string {
   cardDiv.style.cssText = "position:absolute;z-index:50;width:216px;background:rgba(8,20,13,.97);border:1px solid #1e7a44;border-radius:12px;padding:12px;display:none;box-shadow:0 14px 44px -12px rgba(0,0,0,.9);font-family:ui-monospace,Menlo,Consolas,monospace;color:#d9ffe4";
   if (stageCard) stageCard.appendChild(cardDiv);
   var roles = { dance: "dancing by the fire", chop: "chopping wood", build: "building the hut", fish: "fishing the pond", hunt: "hunting the rabbit", sit: "sitting by the fire", stroll: "strolling" };
-  function showAgent(a, cx_, cy_) {
+  function showAgent(a, vx_, vy_) {
+    var vr = cv.getBoundingClientRect();
+    var cx_ = vx_ - vr.left;
+    var cy_ = vy_ - vr.top;
     cardDiv.style.display = "block";
     cardDiv.style.left = Math.min(cx_ + 10, vr.width - 246) + "px";
     cardDiv.style.top = Math.max(4, cy_ - 70) + "px";
