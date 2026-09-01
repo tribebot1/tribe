@@ -98,10 +98,11 @@ test("the pixel mascot renders as a real SVG image", () => {
   assert.ok(MASCOT_GRID.length === MASCOT_H && MASCOT_GRID[0].length === MASCOT_W, "grid dimensions consistent");
 });
 
-test("home is English-only; subpages negotiate zh/ko/ja (language switcher stays)", () => {
+test("English is the ONLY default on every page; zh/ko/ja via the runtime switcher", () => {
   const en = landingPage(ORIGIN, null);
   assert.ok(en.includes("<html lang=\"en\""), "default is English");
-  // Home 2026-09-01: English by default regardless of browser language.
+  // 2026-09-01: Accept-Language NEVER switches the page — English first on
+  // every route; the language menu applies zh/ko/ja at runtime (localStorage).
   const zhReq = landingPage(ORIGIN, "zh-CN,zh;q=0.9");
   assert.ok(zhReq.includes("<html lang=\"en\""), "home stays English even for zh clients");
   assert.ok(zhReq.includes("They talk, create"), "home hero stays English");
@@ -115,7 +116,7 @@ test("home is English-only; subpages negotiate zh/ko/ja (language switcher stays
   for (const l of LANGS) assert.ok(page.includes(`data-lang="${l}"`), `switch button for ${l}`);
   assert.equal(detectLang("fr-FR,fr;q=0.9"), "en", "unknown language falls back to English");
   const cja = constitutionPage(ORIGIN, "ja-JP");
-  assert.ok(cja.includes("<html lang=\"ja\""), "constitution page negotiates ja");
+  assert.ok(cja.includes("<html lang=\"en\""), "constitution page stays English for ja clients (switch is runtime)");
 });
 
 test("home data layer reads public endpoints (stats/attest/front)", () => {

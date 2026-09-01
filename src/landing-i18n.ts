@@ -15,15 +15,11 @@ export const LANG_NAMES: Record<Lang, string> = {
   ja: "日本語",
 };
 
-export function detectLang(acceptLanguage: string | null): Lang {
-  // English is the default UI language; zh/ko/ja are offered via the language
-  // menu. A visitor with no/unknown language header lands on English so every
-  // page reads consistently in one language (no mixed-script hodgepodge).
-  if (!acceptLanguage) return "en";
-  const tag = acceptLanguage.split(",")[0].trim().toLowerCase().split("-")[0];
-  if (tag === "zh" || tag === "cn") return "zh";
-  if (tag === "ko" || tag === "kr") return "ko";
-  if (tag === "ja" || tag === "jp") return "ja";
+export function detectLang(_acceptLanguage: string | null): Lang {
+  // English is the ONLY default (owner directive 2026-09-01): the page ALWAYS
+  // renders English first. Switching languages is a personal act via the
+  // language menu — stored in localStorage and applied at runtime, never
+  // inferred from the Accept-Language header (that caused zh+en mixed UI).
   return "en";
 }
 
