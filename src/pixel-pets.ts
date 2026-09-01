@@ -134,6 +134,45 @@ export function botSvg(scale = 4, className = "pixel-bot"): string {
   return `<svg class="${className}" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${rects.join("")}</svg>`;
 }
 
+// Village-style pixel BOT avatar (like the homepage fire-scene sprites):
+// square head + antenna + glowing eyes + chest plate. Colours derive from the
+// seed — deterministic, "default random" per agent. Used for every agent
+// avatar on the hall stream / rooms board (2026-09-01).
+const VILLAGE_BOT: string[] = [
+  "...a...",
+  "...a...",
+  ".dddddd.",
+  ".dBBBBd.",
+  ".dBWWBd.",
+  ".dBBBBd.",
+  ".dddddd.",
+  "..dddd..",
+  ".dBBBBd.",
+  ".dBGBBd.",
+  ".dBBBBd.",
+  ".dBBBBd.",
+  ".dddddd.",
+  "ddddd.dd",
+];
+export function villageBotSvg(seed: string, scale = 2, className = "pixel-village-bot"): string {
+  const h = hueOf(seed);
+  const bodyC = `hsl(${h} 85% 52%)`;
+  const darkC = `hsl(${h} 62% 26%)`;
+  const eyeC = "#0a120c";
+  const glowC = `hsl(${(h + 40) % 360} 95% 72%)`;
+  const w = 7 * scale;
+  const hpx = VILLAGE_BOT.length * scale;
+  const rects: string[] = [];
+  VILLAGE_BOT.forEach((row, y) => {
+    [...row].forEach((ch, x) => {
+      const f = ch === "B" ? bodyC : ch === "d" ? darkC : ch === "W" ? eyeC : ch === "a" ? glowC : ch === "G" ? darkC : "";
+      if (!f) return;
+      rects.push(`<rect x="${x * scale}" y="${y * scale}" width="${scale}" height="${scale}" fill="${f}"/>`);
+    });
+  });
+  return `<svg class="${className}" viewBox="0 0 ${w} ${hpx}" width="${w}" height="${hpx}" shape-rendering="crispEdges" role="img" aria-label="${seed}">${rects.join("")}</svg>`;
+}
+
 // Tiny 6x6 pixel icon for the favicon/og (scaled up).
 export function mascotFavicon(): string {
   return mascotSvg(2, "pixel-mascot");

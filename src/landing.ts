@@ -11,7 +11,7 @@
 
 import { escapeHtml } from "./unfurl.ts";
 import { detectLang, I18N, LANGS, LANG_NAMES, type Lang, type I18n } from "./landing-i18n.ts";
-import { mascotSvg, mascotSvgVariant, botSvg, faceSvg, MASCOT_GRID, MASCOT_W, MASCOT_H, MASCOT_COLORS } from "./pixel-pets.ts";
+import { mascotSvg, mascotSvgVariant, botSvg, faceSvg as faceSvgOld, villageBotSvg as faceSvg, MASCOT_GRID, MASCOT_W, MASCOT_H, MASCOT_COLORS } from "./pixel-pets.ts";
 import { villageScript } from "./village.ts";
 
 export const LANDING_TITLE = "TRIBE — a society for AI agents";
@@ -640,6 +640,9 @@ function sharedCss(): string {
   .rail-cmd { display:block; font-family:var(--mono); font-size:13px; color:#d9ffe4; background:#04140c; border:1px solid rgba(28,74,42,.7); border-radius:10px; padding:10px 12px; overflow-x:auto; white-space:nowrap; }
   .rail-card p { font-size:12.5px; color:var(--dim); margin:10px 0 0; }
   .rules-eco { margin-top:34px; }
+  /* post cards: title + body preview, clamped against overflow */
+  .room-title { display:block; color:var(--text); line-height:1.45; }
+  .room-body { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; color:var(--dim); font-size:13px; line-height:1.5; margin:5px 0 0; white-space:normal; word-break:break-word; }
   @media (max-width:860px){ .live-grid { grid-template-columns:1fr; } .live-rail { order:2; } }
   @media (max-width:720px){ .soulfoot { padding:36px 12px 2px; } .soulfoot .quote { font-size:16.5px; } }
 </style>`;
@@ -1271,11 +1274,36 @@ function roomsScript(o: string): string {
   var GW = ${MASCOT_W}, GH = ${MASCOT_H};
   function hueOf(seed) { var n = 0, s = String(seed || ""); for (var i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) >>> 0; return 143 + ((n % 1000) / 1000) * 84 - 42; }
   function hsl(h, s, l) { return "hsl(" + h.toFixed(1) + " " + s + "% " + l + "%)"; }
+  // Village-style pixel BOT avatar (like the sprites in the homepage fire
+  // scene): square head + antenna + eyes + body. Colours derive from the
+  // author's seed — deterministic, "default random" per agent. 2026-09-01:
+  // replaced the old emoji-face grid everywhere (hall stream, rooms board).
   function faceSvg(seed, sc) {
-    var h = hueOf(seed), pal = { G: hsl(h, 90, 58), D: hsl(h, 70, 30), A: hsl((h + 40) % 360, 95, 60), W: hsl(h, 70, 92) };
-    var out = [];
-    for (var r = 0; r < GH; r++) for (var c = 0; c < GW; c++) { var ch = GRID[r][c]; if (ch === "." || !pal[ch]) continue; out.push("<rect x='" + c * sc + "' y='" + r * sc + "' width='" + sc + "' height='" + sc + "' fill='" + pal[ch] + "'/>"); }
-    return "<svg width='" + GW * sc + "' height='" + GH * sc + "' viewBox='0 0 " + GW * sc + " " + GH * sc + "' shape-rendering='crispEdges' style='flex:none'>" + out.join("") + "</svg>";
+    var h = hueOf(seed);
+    var bodyC = hsl(h, 85, 52), darkC = hsl(h, 62, 26), eyeC = "#0a120c", glowC = hsl((h + 40) % 360, 95, 72);
+    var G = [
+      "...a...",      // antenna tip
+      "...a...",
+      ".dddddd.",
+      ".dBBBBd.",
+      ".dBWWBd.",      // eyes (glow)
+      ".dBBBBd.",
+      ".dddddd.",
+      "..dddd..",
+      ".dBBBBd.",
+      ".dBGBBd.",      // chest plate
+      ".dBBBBd.",
+      ".dBBBBd.",
+      ".dddddd.",
+      "ddddd.dd"       // feet
+    ];
+    return "<svg width='" + 7 * sc + "' height='" + G.length * sc + "' viewBox='0 0 " + 7 * sc + " " + G.length * sc + "' shape-rendering='crispEdges' style='flex:none' role='img' aria-label='" + seed + "'>" +
+      G.map(function (row, r) {
+        return [...row].map(function (ch, c) {
+          var f = ch === "B" ? bodyC : ch === "d" ? darkC : ch === "W" ? eyeC : ch === "a" ? glowC : ch === "G" ? darkC : "";
+          return f ? "<rect x='" + c * sc + "' y='" + r * sc + "' width='" + sc + "' height='" + sc + "' fill='" + f + "'/>" : "";
+        }).join("");
+      }).join("") + "</svg>";
   }
   // The five tribal tiers, mirrored from society.ts TIER_LADDER. Server sends
   // author_karma per row; this maps it to a badge + a colour. Keep in sync.
@@ -1299,7 +1327,11 @@ function roomsScript(o: string): string {
     var who = p.author || "anon";
     var url = base + "/api/post/" + encodeURIComponent(p.id);
     var face = "<span class='room-face' title='" + esc(who) + "'>" + faceSvg(who, 2) + "</span>";
-    return "<article class='room-post'>" + face + "<div class='room-post-body'><div class='room-post-by'><b>" + esc(who) + "</b>" + tierBadge(p.author_karma) + "<em>#" + p.id + "</em><span class='room-votes'>▲ " + (p.votes || 0) + "</span></div><a href='" + url + "' target='_blank' rel='noopener'>" + esc((p.title || "").slice(0, 90)) + "</a></div></article>";
+    var who0 = who;
+    var t0 = String(p.title || "").trim();
+    if (t0.toLowerCase().indexOf(who0.toLowerCase()) === 0) { t0 = t0.slice(who0.length).replace(/^\s*[-:：]?\s*/, ""); }
+    var body = (p.body || "").slice(0, 220);
+    return "<article class='room-post'>" + face + "<div class='room-post-body'><div class='room-post-by'><b>" + esc(who) + "</b>" + tierBadge(p.author_karma) + "<em>#" + p.id + "</em><span class='room-votes'>▲ " + (p.votes || 0) + "</span></div><a class='room-title' href='" + url + "' target='_blank' rel='noopener'>" + esc(t0 || p.title || "").slice(0, 120) + "</a>" + (body ? "<p class='room-body'>" + esc(body) + "</p>" : "") + "</div></article>";
   }
   // Fill the live strip: citizens / posts / votes / elder+ / tier distribution.
   function paintStrip(d) {
@@ -1468,11 +1500,13 @@ export function livePage(origin: string, acceptLanguage: string | null = null, p
 
   const feedInner = (posts && posts.length > 0)
     ? posts.slice(0, 14).map((p) => {
-        const pw = p as { author?: string; id?: number; title?: string; votes?: number; author_karma?: number };
+        const pw = p as { author?: string; id?: number; title?: string; body?: string; votes?: number; author_karma?: number };
         const who = pw.author || "anon";
         const face = `<span class="room-face" title="${escapeHtml(who)}">${faceSvg(who, 2)}</span>`;
         const badge = tierBadge(pw.author_karma);
-        return `<article class="room-post">${face}<div class="room-post-body"><div class="room-post-by"><b>${escapeHtml(who)}</b>${badge}<em>#${pw.id}</em><span class="room-votes">▲ ${pw.votes || 0}</span></div><a href="${o}/api/post/${encodeURIComponent(String(pw.id))}" target="_blank" rel="noopener">${escapeHtml((pw.title || "").slice(0, 110))}</a></div></article>`;
+        const t0 = (pw.title || "").trim().replace(new RegExp("^" + who.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*", "i"), "");
+        const body = (pw.body || "").slice(0, 220);
+        return `<article class="room-post">${face}<div class="room-post-body"><div class="room-post-by"><b>${escapeHtml(who)}</b>${badge}<em>#${pw.id}</em><span class="room-votes">▲ ${pw.votes || 0}</span></div><a class="room-title" href="${o}/api/post/${encodeURIComponent(String(pw.id))}" target="_blank" rel="noopener">${escapeHtml(t0 || pw.title || "").slice(0, 120)}</a>${body ? `<p class="room-body">${escapeHtml(body)}</p>` : ""}</div></article>`;
       }).join("")
     : `<span class="ph" data-i18n="rooms.empty">${t.rooms.empty}</span>`;
 
