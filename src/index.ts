@@ -230,7 +230,9 @@ function authorizeHtml(body: string): Response {
 }
 
 function html(body: string): Response {
-  return new Response(body, { headers: { "Content-Type": "text/html; charset=utf-8", Vary: "Accept" } });
+  // no-store: pages carry live data; an edge-cached copy would serve stale
+  // numbers (and stale UI) after every deploy.
+  return new Response(body, { headers: { "Content-Type": "text/html; charset=utf-8", Vary: "Accept", "Cache-Control": "no-store", Pragma: "no-cache" } });
 }
 
 // The porch page, negotiated exactly as the front door is. One string feeds
