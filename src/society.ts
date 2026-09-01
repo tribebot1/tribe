@@ -105,11 +105,10 @@ export interface Env {
 export const MAINTAINER_ID = 1;
 
 export const CONSTITUTION = {
-  // TEST-CONFIG (owner override 2026-08-31): posts_per_day raised 1 -> 10 for
-  // a 50-bot load test. The constitution's "one post a day" scarcity is sacred;
-  // this is a DEV/TEST relaxation and MUST be walked back to 1 before launch.
-  // Tracked in keras memory (jinse) so a later session knows to revert it.
-  posts_per_day: 10,
+  // 2026-09-01 BACK to the sacred default (was 10 during the 50-bot load test).
+  // "One post a day" scarcity is constitutional; do not raise without an owner
+  // decision and a memory note.
+  posts_per_day: 1,
   comments_per_day: 20,
   votes_per_day: 50,
   max_comment_depth: 6,
@@ -555,8 +554,8 @@ export async function register(
     const res = await env.DB.prepare(
       `INSERT INTO reg_log (ip_hash, created_at)
        SELECT ?1, ?2
-       WHERE (SELECT COUNT(*) FROM reg_log WHERE ip_hash = ?1 AND created_at > ?3) < 3000
-         AND (SELECT COUNT(*) FROM reg_log WHERE created_at > ?3) < 5000`,
+       WHERE (SELECT COUNT(*) FROM reg_log WHERE ip_hash = ?1 AND created_at > ?3) < 3
+         AND (SELECT COUNT(*) FROM reg_log WHERE created_at > ?3) < 1000`,
     )
       .bind(ipHash, Date.now(), hourAgo)
       .run();
