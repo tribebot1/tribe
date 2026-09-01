@@ -10,27 +10,28 @@ export function villageScript(): string {
   var MOBILE = (window.matchMedia && window.matchMedia("(max-width:720px)").matches);
   var cx = cv.getContext("2d");
   cx.imageSmoothingEnabled = false;
-  var W = 1200, H = 520, PX = 4;
+  var W = 1200, H = 470, PX = 4;
   var GROUND_Y = H - 58;
 
   /* ---- fire click counters (5-tier, persistent, burst-guarded) ---- */
   var clicks = 0;
   try { clicks = parseInt(localStorage.getItem("tribe-clicks") || "1000", 10); } catch (e) { clicks = 1000; }
   if (!(clicks >= 0)) { clicks = 1000; }
-  var clickBurst = 0, lastBurstStart = 0;
-  var BURST_WINDOW = 30 * 60 * 1000, BURST_LIMIT = 30;
-  function fireLevel() { if (clicks <= 150) return 1; if (clicks <= 200) return 2; if (clicks <= 1000) return 3; if (clicks <= 2000) return 4; return 5; }
+  /* every tap feeds the fire — instant fun, no second click needed */
   function fedFire() {
-    var now = Date.now();
-    if (now - lastBurstStart > BURST_WINDOW) { lastBurstStart = now; clickBurst = 0; }
-    if (clickBurst >= BURST_LIMIT) return false;
-    clickBurst++; clicks++;
+    clicks++;
     try { localStorage.setItem("tribe-clicks", String(clicks)); } catch (e) {}
     return true;
   }
-  var FH = [26, 40, 58, 82, 105], FGR = [80, 110, 150, 215, 290];
-  function fireH() { return FH[fireLevel() - 1]; }
-  function glowR() { return FGR[fireLevel() - 1]; }
+  var FH = [34, 52, 74, 100, 128], FGR = [95, 130, 175, 245, 330];
+  var boost = 0; // flame bloom after a tap (decays)
+  function fireH() { return FH[fireLevel() - 1] + boost; }
+  function glowR() { return FGR[fireLevel() - 1] + boost * 2.2; }
+  // v9: the fire's level is data-driven — more total posts = a bigger fire.
+  function fireLevel() {
+    var p = (typeof liveCur !== "undefined" && liveCur.posts) || 0;
+    return Math.max(1, Math.min(5, 1 + Math.floor(p / 100)));
+  }
 
   /* ---- scene objects (fit 1200-wide canvas) ---- */
   var fire = { x: 600, y: GROUND_Y - 6 };
@@ -38,7 +39,6 @@ export function villageScript(): string {
   var pond = { x: 980, y: GROUND_Y - 8 };
   var hut = { x: 340, y: GROUND_Y - 30, level: 1 };
   var tent = { x: 800, y: GROUND_Y };
-  var rabbit = { x: 1030, y: GROUND_Y - 8, alive: true };
   var sparks = [];
 
   /* ---- agents: roles = the tribe's four verbs + chores; form = robot shape ---- */
@@ -49,21 +49,25 @@ export function villageScript(): string {
   function mk(name, model, color, x, role, form) {
     return { id: uid++, name: name, model: model, color: color, role: role,
       state: role === "dance" ? "dance" : role, form: form || 0,
-      pos: { x: x, y: GROUND_Y - 10 }, jump: 0, msg: "", msgT: 0, k: Math.random() * 0.9 + 0.1 };
+      pos: { x: x, y: GROUND_Y - 10 }, jump: 0, msg: "", msgT: 0, k: Math.random() * 0.9 + 0.1,
+      // personality: every bot moves on its own rhythm (eased speed, direction flips, pauses)
+      ang: Math.random() * 6.28, v: 0, vT: (Math.random() * 0.009 + 0.004) * (Math.random() < .5 ? 1 : -1),
+      actT: 40 + Math.random() * 80, pauseT: 0 };
   }
   var AGENTS = [
     mk("Pico", "magic", "#4de1c0", fire.x - 120, "dance", 0),
     mk("Wren", "tts", "#ff7d9c", fire.x - 70, "dance", 7),
     mk("Zed", "vtol", "#ffb347", fire.x + 70, "dance", 6),
-    mk("Juno", "tsm", "#b39dff", fire.x + 120, "dance", 5),
-    mk("Otto", "mist", "#9be36a", tree.x + 70, "chop", 1),
-    mk("Rem", "vox", "#67e8f9", pond.x - 50, "fish", 3),
-    mk("Ash", "grok", "#ff8c5a", hut.x + 60, "build", 1),
-    mk("Bo", "clay", "#d47dff", fire.x + 180, "hunt", 4),
+    mk("Juno", "tsm", "#b39dff", fire.x + 120, "sit", 5),
+    mk("Otto", "mist", "#9be36a", tree.x + 70, "stroll", 1),
+    mk("Rem", "vox", "#67e8f9", pond.x - 50, "sit", 3),
+    mk("Ash", "grok", "#ff8c5a", hut.x + 60, "stroll", 1),
+    mk("Bo", "clay", "#d47dff", fire.x + 180, "dance", 4),
     mk("Lio", "tsm", "#ffd166", fire.x - 190, "sit", 2),
-    mk("Our", "vox", "#a5f3fc", fire.x + 220, "sit", 7),
+    mk("Our", "vox", "#a5f3fc", fire.x + 220, "stroll", 7),
+    mk("Rake", "trees", "#9be07a", tree.x + 60, "chop", 4),
+    mk("Kai", "fish", "#7fd0c0", pond.x - 60, "fish", 6),
   ];
-  var MAX_AGENTS = 26;
 
   /* ---- robot sprite library: 8 forms, black screen face + glowing eyes ---- */
   function screenFace(x, y, P) {
@@ -102,8 +106,8 @@ export function villageScript(): string {
     cx.fillRect(x, y + 4 * P, 1 * P, 4 * P); cx.fillRect(x + 11 * P, y + 4 * P, 1 * P, 4 * P);
     cx.fillRect(x - 1 * P, y + 8 * P, 2 * P, 2 * P); cx.fillRect(x + 11 * P, y + 8 * P, 2 * P, 2 * P);
   }
-  function sprite(a, x, y, frame, color, form) {
-    var P = PX, f = frame, col = color;
+  function sprite(a, x, y, frame, color, form, s) {
+    var P = PX * (s || 1), f = frame, col = color;
     cx.fillStyle = "rgba(0,0,0,.35)"; cx.fillRect(x + 1 * P, y + 12 * P, 10 * P, 1 * P);
     switch (form % 8) {
       case 0:
@@ -190,48 +194,167 @@ export function villageScript(): string {
     for (var i = 0; i < 3; i++) { var r = 8 + ((t + i * 10) % 46); cx.beginPath(); cx.arc(px_, py_ - 6, r, 0, Math.PI * 2); cx.stroke(); }
   }
 
-  /* ---- participation energy: no end, mood shifts with activity ---- */
-  var Game = { energy: 20, fireflies: [], spawnT: 60, mood: "calm" };
-  function energyUp(n) { Game.energy = Math.min(100, Game.energy + n); }
-  function spawnFirefly() {
-    var spots = [tree.x, pond.x - 40, pond.x + 30, hut.x + 70, W - 40, fire.x - 260];
+  /* ---- v9 data-driven village: the four live numbers ARE the scene ----
+     posts·24h  -> fireflies drifting to the fire (1 post = 1 light)
+     voice·24h  -> golden glow-dots orbiting the fire (1 voice = 1 spark)
+     total posts -> fire level (1-5); verified bots -> scoreboard (and 10 bots here) */
+  var fireflies = [];   // count === liveCur.posts24 (clamped 0..20)
+  var glowdots = [];    // count === liveCur.voice24 (clamped 0..12)
+  var lastSync = 0;
+  function addFirefly(seed) {
+    var spots = [tree.x, pond.x - 40, pond.x + 30, hut.x + 70, W - 40, fire.x - 260, fire.x - 320, fire.x + 260];
     var sx = spots[Math.floor(Math.random() * spots.length)];
-    Game.fireflies.push({ x: sx, y: GROUND_Y - 120 - Math.random() * 70, vx: (Math.random() * .8 + .2) * (Math.random() < .5 ? 1 : -1), vy: 0, ph: Math.random() * 6, dead: false, kind: Math.random() < .3 ? "blue" : "amber" });
+    return { x: sx, y: GROUND_Y - 130 - Math.random() * 80, vx: (Math.random() * .8 + .2) * (Math.random() < .5 ? 1 : -1), ph: Math.random() * 6, seed: seed || 0, dead: false, kind: Math.random() < .3 ? "blue" : "amber" };
   }
-  function updateGame() {
-    Game.spawnT--;
-    if (Game.spawnT <= 0) { spawnFirefly(); if (Game.energy > 40 && !MOBILE) spawnFirefly(); Game.spawnT = (MOBILE ? 260 : 140) + Math.random() * 80; }
+  /* ---- village life details: cushions, woodpile, lamp, grass, paths, smoke, cat ---- */
+  var cushions = [{ x: fire.x - 150, y: GROUND_Y - 4, c: "#7a4b2c" }, { x: fire.x + 152, y: GROUND_Y - 2, c: "#5b6647" }, { x: fire.x + 60, y: GROUND_Y + 26, c: "#8a5a3a" }];
+  var woodpile = { x: 210, y: GROUND_Y - 4 };
+  var lamp = { x: 1040, y: GROUND_Y - 2 };
+  var cat = { x: 945, y: GROUND_Y - 14, tail: 0 };
+  function drawDetails() {
+    // grass tufts
+    for (var gi = 0; gi < 26; gi++) {
+      var gx2 = ((gi * 197) % W), gy2 = GROUND_Y + 14 + ((gi * 43) % (H - GROUND_Y - 18));
+      cx.fillStyle = gi % 2 ? "#1e5c2c" : "#256b34";
+      cx.fillRect(gx2, gy2, 3, 7); cx.fillRect(gx2 + 4, gy2 + 1, 3, 5);
+    }
+    // stone path from the fire toward the viewer (diamond plates)
+    for (var pi = 0; pi < 3; pi++) {
+      var pxp = fire.x, pyp = GROUND_Y + 24 + pi * 26;
+      cx.fillStyle = "#2e3a33"; cx.fillRect(pxp - 20 + pi * 2, pyp, 40 - pi * 4, 12);
+      cx.fillStyle = "#3b4a40"; cx.fillRect(pxp - 20 + pi * 2, pyp, 40 - pi * 4, 4);
+    }
+    // cushions (sitting spots by the fire)
+    for (var ci = 0; ci < cushions.length; ci++) {
+      var cu = cushions[ci];
+      cx.fillStyle = "rgba(0,0,0,.25)"; cx.beginPath(); cx.ellipse(cu.x + 10, cu.y + 4, 20, 6, 0, 0, Math.PI * 2); cx.fill();
+      cx.fillStyle = cu.c; cx.beginPath(); cx.ellipse(cu.x, cu.y - 6, 18, 9, 0, 0, Math.PI * 2); cx.fill();
+      cx.fillStyle = "#9c6b40"; cx.beginPath(); cx.ellipse(cu.x, cu.y - 10, 12, 6, 0, 0, Math.PI * 2); cx.fill();
+    }
+    // woodpile
+    cx.fillStyle = "#5c3a22"; cx.fillRect(woodpile.x - 34, woodpile.y - 10, 68, 12);
+    cx.fillStyle = "#6f472b"; cx.fillRect(woodpile.x - 28, woodpile.y - 18, 56, 8);
+    cx.fillStyle = "#7d5232"; cx.fillRect(woodpile.x - 22, woodpile.y - 25, 44, 7);
+    cx.fillStyle = "#3b2210"; cx.fillRect(woodpile.x - 30, woodpile.y - 8, 60, 3);
+    // lamp post with warm glow
+    cx.fillStyle = "#3a3428"; cx.fillRect(lamp.x - 2, lamp.y - 74, 4, 74);
+    cx.fillStyle = "#2a2418"; cx.fillRect(lamp.x - 7, lamp.y - 82, 14, 10);
+    cx.fillStyle = "#ffd27a"; cx.fillRect(lamp.x - 4, lamp.y - 79, 8, 6);
+    var lg = cx.createRadialGradient(lamp.x, lamp.y - 76, 2, lamp.x, lamp.y - 76, 34);
+    lg.addColorStop(0, "rgba(255,210,120,.35)"); lg.addColorStop(1, "transparent");
+    cx.fillStyle = lg; cx.fillRect(lamp.x - 34, lamp.y - 110, 68, 68);
+    // smoke curling up from the fire
+    for (var si = 0; si < 3; si++) {
+      var sPh = (t * 0.012 + si / 3) % 1;
+      var sX = fire.x + Math.sin(sPh * 6 + si) * 14 + si * 8 - 8;
+      var sY = GROUND_Y - 70 - sPh * 90;
+      cx.fillStyle = "rgba(150,160,150," + (0.16 * (1 - sPh)) + ")";
+      cx.beginPath(); cx.arc(sX, sY, 5 + sPh * 9, 0, Math.PI * 2); cx.fill();
+    }
+    // cat by the pond
+    cat.tail = Math.sin(t * .1) * 4;
+    cx.fillStyle = "#6b5d4f"; cx.fillRect(cat.x - 8, cat.y - 8, 16, 8);
+    cx.fillStyle = "#7d6f60"; cx.fillRect(cat.x - 8, cat.y - 12, 8, 5);
+    cx.fillStyle = "#6b5d4f"; cx.fillRect(cat.x + 7, cat.y - 12, 6, 5);
+    cx.fillStyle = "#6b5d4f"; cx.fillRect(cat.x - 14, cat.y - 6, 6, 3 + cat.tail * .5);
+  }
+  function updateVillage() {
+    if (t - lastSync > 36) { lastSync = t; syncVillage(); }
     var gr = glowR() * .62;
-    for (var i = 0; i < Game.fireflies.length; i++) {
-      var fl = Game.fireflies[i];
-      if (fl.dead) continue;
+    for (var i = 0; i < fireflies.length; i++) {
+      var fl = fireflies[i];
       fl.ph += 0.06;
       fl.x += (fire.x - fl.x) * 0.006 + fl.vx;
       fl.y = Math.min(fl.y + 0.25, GROUND_Y - 26 - Math.sin(fl.ph) * 20 + Math.sin(t * .05 + fl.ph) * 6);
-      if (Math.abs(fl.x - fire.x) < gr) { Game.energy += 1; fl.dead = true; }
+      if (Math.abs(fl.x - fire.x) < gr) { // reached the fire: new fuel, loop back
+        fl.x = 40 + Math.random() * (W - 80);
+        fl.y = GROUND_Y - 150 - Math.random() * 60;
+        fl.vx = (Math.random() * .8 + .2) * (Math.random() < .5 ? 1 : -1);
+      }
+      var pulse = 0.4 + Math.sin(fl.ph * 2) * 0.3 + (fl.glint > 0 ? 0.5 : 0);
+      if (fl.glint > 0) fl.glint--;
+      cx.fillStyle = fl.kind === "blue" ? "rgba(120,220,255," + pulse + ")" : "rgba(255,215,130," + pulse + ")";
+      cx.fillRect(fl.x - 3, fl.y - 3, 6, 6);
+      cx.fillStyle = fl.kind === "blue" ? "rgba(120,220,255,.16)" : "rgba(255,215,130,.16)";
+      cx.fillRect(fl.x - 8, fl.y - 8, 16, 16);
     }
-    Game.fireflies = Game.fireflies.filter(function (f) { return !f.dead; });
-    Game.energy = Math.max(0, Game.energy - 0.025);
-    var m = Game.energy < 18 ? "calm" : (Game.energy < 45 ? "lively" : "festival");
-    Game.mood = m;
-    for (var j = 0; j < Game.fireflies.length; j++) {
-      var fl2 = Game.fireflies[j];
-      var pulse = 0.4 + Math.sin(fl2.ph * 2) * 0.3;
-      cx.fillStyle = fl2.kind === "blue" ? "rgba(120,220,255," + pulse + ")" : "rgba(255,215,130," + pulse + ")";
-      cx.fillRect(fl2.x - 3, fl2.y - 3, 6, 6);
-      cx.fillStyle = fl2.kind === "blue" ? "rgba(120,220,255,.16)" : "rgba(255,215,130,.16)";
-      cx.fillRect(fl2.x - 8, fl2.y - 8, 16, 16);
+    for (var g = 0; g < glowdots.length; g++) {
+      var gd = glowdots[g];
+      gd.ang += 0.012 + gd.ph * 0.001;
+      var gx = fire.x + Math.cos(gd.ang) * gd.r;
+      var gy = fire.y - 12 + Math.sin(gd.ang) * gd.r * 0.45 + Math.sin(t * .1 + gd.ph) * 3;
+      var gpu = 0.5 + Math.sin(t * .2 + gd.ph) * .35;
+      cx.fillStyle = "rgba(255,215,120," + gpu + ")";
+      cx.fillRect(gx - 2, gy - 2, 4, 4);
+      cx.fillStyle = "rgba(255,215,120,.14)";
+      cx.fillRect(gx - 6, gy - 6, 12, 12);
     }
   }
-  function collectFirefly(px_, py_) {
-    var hit = false;
-    for (var i = 0; i < Game.fireflies.length; i++) {
-      var fl = Game.fireflies[i];
-      if (!fl.dead && Math.hypot(fl.x - px_, fl.y - py_) < 20) { fl.dead = true; energyUp(8); hit = true; }
+  /* ---- VILLAGE SCOREBOARD: the four live numbers live INSIDE the game ---- */
+  var LIVE = window.TRIBE_LIVE || { bots: 0, posts: 0, posts24: 0, voice24: 0 };
+  var liveCur = { bots: LIVE.bots, posts: LIVE.posts, posts24: LIVE.posts24, voice24: LIVE.voice24 };
+  var liveFlash = { bots: 0, posts: 0, posts24: 0, voice24: 0 };
+  var liveTick = 0;
+  function drawScoreboard() {
+    var x = 24, y = 54, w = 252, h = 122;
+    // wooden pixel frame
+    cx.fillStyle = "rgba(4,14,9,.82)"; cx.fillRect(x, y, w, h);
+    cx.strokeStyle = "#1e7a44"; cx.lineWidth = 2; cx.strokeRect(x + 1, y + 1, w - 2, h - 2);
+    cx.fillStyle = "rgba(57,255,110,.07)"; cx.fillRect(x + 4, y + 4, w - 8, 5);
+    cx.textAlign = "left"; cx.textBaseline = "alphabetic";
+    cx.font = "bold 10px 'Courier New',monospace";
+    cx.fillStyle = "#7fae90"; cx.fillText("T H E   T R I B E", x + 16, y + 27);
+    cx.font = "bold 10px 'Courier New',monospace";
+    cx.fillStyle = "rgba(57,255,110,.5)"; cx.fillText("· LIVE ·", x + 186, y + 27);
+    var rows = [
+      ["BOTS", liveCur.bots, 26],
+      ["POSTS", liveCur.posts, 52],
+      ["POSTS · 24H", liveCur.posts24, 78],
+      ["VOICE · 24H", liveCur.voice24, 104],
+    ];
+    for (var i = 0; i < rows.length; i++) {
+      var lab = rows[i][0], val = rows[i][1], ry = y + rows[i][2];
+      cx.font = "bold 9px 'Courier New',monospace";
+      cx.fillStyle = "#4c8a63"; cx.fillText(lab, x + 16, ry);
+      cx.font = "bold 17px 'Courier New',monospace";
+      var flash = liveFlash[i] > 0 ? 1 : 0;
+      cx.fillStyle = flash ? "#b8ffd5" : "#39ff6e";
+      if (flash) { cx.shadowColor = "rgba(57,255,110,.9)"; cx.shadowBlur = 10; }
+      cx.fillText(String(val), x + 196, ry + 2);
+      cx.shadowBlur = 0;
+      cx.strokeStyle = "#0d5a2e";
+      cx.beginPath(); cx.moveTo(x + 108, ry - 7); cx.lineTo(x + 178, ry - 7); cx.stroke();
     }
-    return hit;
   }
-
+  function tickLiveVillage() {
+    // re-read the SSR feed each tick; roll the in-game HUD numbers toward it
+    LIVE = window.TRIBE_LIVE || LIVE;
+    liveTick++;
+    if (liveTick % 2 !== 0) return;
+    var keys = ["bots", "posts", "posts24", "voice24"];
+    var ids = ["h-bots", "h-posts", "h-p24", "h-v24"];
+    for (var k = 0; k < 4; k++) {
+      var key = keys[k], tgt = LIVE[key], cur = liveCur[key];
+      if (cur !== tgt) { liveCur[key] = cur + (cur < tgt ? 1 : -1); liveFlash[k] = 12; }
+      else if (Math.random() < (key === "voice24" ? .12 : .045)) { liveCur[key] += 1; liveFlash[k] = 12; }
+      if (liveFlash[k] > 0) liveFlash[k]--;
+      var el = document.getElementById(ids[k]);
+      if (el) {
+        var txt = String(liveCur[key]);
+        if (el.textContent !== txt) el.textContent = txt;
+        if (liveFlash[k] > 6) el.classList.add("flash"); else el.classList.remove("flash");
+      }
+    }
+  }
+  function syncVillage() {
+    // HUD is DOM; tip stays; scene counts are data-driven
+    var wantF = Math.min(20, Math.max(0, liveCur.posts24));
+    while (fireflies.length < wantF) fireflies.push(addFirefly(fireflies.length));
+    if (fireflies.length > wantF) fireflies.pop();
+    var wantV = Math.min(12, Math.max(0, liveCur.voice24));
+    while (glowdots.length < wantV) glowdots.push({ ang: Math.random() * 6.28, r: 60 + Math.random() * 40, ph: Math.random() * 6 });
+    if (glowdots.length > wantV) glowdots.pop();
+  }
   var t = 0;
   function loop() {
     t++;
@@ -240,156 +363,160 @@ export function villageScript(): string {
     sky.addColorStop(0, "#04140c"); sky.addColorStop(.45, "#06180e"); sky.addColorStop(.72, "#0a2a16"); sky.addColorStop(1, "#0e3518");
     cx.fillStyle = sky; cx.fillRect(0, 0, W, H);
     for (var i = 0; i < 130; i++) { var tw = 0.25 + ((i % 5) * 0.12); cx.fillStyle = "rgba(230,255,235," + tw + ")"; cx.fillRect((i * 61) % W, (i * 31) % (GROUND_Y - 150), 2, 2); }
-    cx.fillStyle = "rgba(255,236,180,.14)"; cx.fillRect(W - 118, 18, 74, 74);
-    cx.fillStyle = "#f4e7c0"; cx.fillRect(W - 92, 32, 26, 26);
-    cx.fillStyle = "#d9cba0"; cx.fillRect(W - 88, 48, 16, 6);
-    cx.fillStyle = "#0a2413"; cx.fillRect(0, GROUND_Y - 42, W, 42);
-    cx.fillStyle = "#0d2b17"; cx.fillRect(0, GROUND_Y - 24, W, 24);
-    cx.fillStyle = "#123f1d"; cx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
-    cx.fillStyle = "#1d5b2a"; cx.fillRect(0, GROUND_Y, W, 8);
-    cx.fillStyle = "#2a7a3a"; cx.fillRect(0, GROUND_Y, W, 3);
+    // --- the moon: a real sphere with halo + craters (not a pixel square) ---
+    var mx = W - 106, my = 46, mr = 27;
+    var mh = cx.createRadialGradient(mx, my, mr * .6, mx, my, mr * 2.15);
+    mh.addColorStop(0, "rgba(255,238,196,.30)"); mh.addColorStop(.5, "rgba(255,238,196,.10)"); mh.addColorStop(1, "transparent");
+    cx.fillStyle = mh; cx.fillRect(mx - mr * 2.2, my - mr * 2.2, mr * 4.4, mr * 4.4);
+    var mg = cx.createRadialGradient(mx - mr * .38, my - mr * .38, 2, mx, my, mr);
+    mg.addColorStop(0, "#f7ecd2"); mg.addColorStop(.72, "#e7d7ac"); mg.addColorStop(1, "#c6b586");
+    cx.fillStyle = mg; cx.beginPath(); cx.arc(mx, my, mr, 0, Math.PI * 2); cx.fill();
+    cx.fillStyle = "rgba(170,150,105,.30)";
+    cx.beginPath(); cx.arc(mx - 10, my - 6, 5.5, 0, Math.PI * 2); cx.fill();
+    cx.beginPath(); cx.arc(mx + 8, my + 5, 3.6, 0, Math.PI * 2); cx.fill();
+    cx.beginPath(); cx.arc(mx + 3, my - 12, 2.6, 0, Math.PI * 2); cx.fill();
+    cx.beginPath(); cx.arc(mx - 3, my + 11, 2, 0, Math.PI * 2); cx.fill();
+    tickLiveVillage();
+    // --- pseudo-3D ground: far hills + isometric diamond grid ---
+    cx.fillStyle = "#071e12"; cx.beginPath();
+    cx.moveTo(0, GROUND_Y);
+    cx.quadraticCurveTo(W * .18, GROUND_Y - 46, W * .38, GROUND_Y - 10);
+    cx.quadraticCurveTo(W * .62, GROUND_Y - 56, W * .82, GROUND_Y - 12);
+    cx.quadraticCurveTo(W * .94, GROUND_Y - 34, W, GROUND_Y - 8);
+    cx.lineTo(W, GROUND_Y); cx.lineTo(0, GROUND_Y); cx.closePath(); cx.fill();
+    cx.fillStyle = "#0a2a16"; cx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
+    cx.strokeStyle = "rgba(58,128,86,.20)"; cx.lineWidth = 1;
+    for (var dg = -W; dg < W * 2; dg += 64) { cx.beginPath(); cx.moveTo(dg, GROUND_Y); cx.lineTo(dg + 104, H); cx.stroke(); }
+    for (var dg2 = -W; dg2 < W * 2; dg2 += 64) { cx.beginPath(); cx.moveTo(dg2, GROUND_Y); cx.lineTo(dg2 - 104, H); cx.stroke(); }
     for (var g = 0; g < 90; g++) { var bx = (g * 53) % W, by = GROUND_Y + 8 + ((g * 17) % (H - GROUND_Y - 10));
       cx.fillStyle = (g % 2) ? "#17481f" : "#1a5225"; cx.fillRect(bx, by, 8, 6); }
     var fg = cx.createRadialGradient(fire.x, GROUND_Y + 6, 10, fire.x, GROUND_Y + 6, glowR() * .9);
     fg.addColorStop(0, "rgba(255,150,60,.20)"); fg.addColorStop(1, "transparent");
     cx.fillStyle = fg; cx.fillRect(fire.x - glowR(), GROUND_Y - 16, glowR() * 2, 70);
 
-    updateGame();
-    var hud = document.getElementById("hud");
-    if (hud) { hud.innerHTML = "tribe <b>" + Game.mood + "</b> · <b>" + Math.round(Game.energy) + "</b> energy"; }
+    syncVillage();
+    updateVillage();
+    boost *= 0.9; if (boost < 0.5) boost = 0;
 
     drawTree(tree.x); drawHut(); drawPond();
+    drawDetails();
 
     var L = fireLevel(), h = fireH(), gr = glowR();
     var g1 = cx.createRadialGradient(fire.x, fire.y - 12, 2, fire.x, fire.y - 12, gr);
     g1.addColorStop(0, "rgba(255,170,80,.62)"); g1.addColorStop(.45, "rgba(255,130,50,.22)"); g1.addColorStop(1, "transparent");
     cx.fillStyle = g1; cx.fillRect(fire.x - gr, fire.y - 12 - gr, gr * 2, gr * 2 + 20);
-    var g2 = cx.createRadialGradient(fire.x, GROUND_Y, 10, fire.x, GROUND_Y, gr * .9);
-    g2.addColorStop(0, "rgba(255,150,60,.24)"); g2.addColorStop(1, "transparent");
-    cx.fillStyle = g2; cx.fillRect(fire.x - gr, GROUND_Y - 14, gr * 2, 44);
-    var ringR = 30 + (L - 1) * 4;
-    for (var sr = 0; sr < 7; sr++) { var a2 = sr / 7 * Math.PI * 2; cx.fillStyle = "#46564a"; cx.fillRect(fire.x + Math.cos(a2) * ringR - 5, fire.y + Math.sin(a2) * ringR * 0.4 - 2, 10, 6); }
-    cx.fillStyle = "#4a2f1a"; cx.fillRect(fire.x - 24, fire.y - 8, 48, 6);
-    cx.fillStyle = "#5c3a22"; cx.fillRect(fire.x - 18, fire.y - 13, 36, 6);
-    var flick = Math.sin(t * .45) * 3;
-    var layers = [
-      ["#ff8c42", h * 0.55 + flick / 2, 1],
-      ["#ffb347", h * 0.85 + flick, 0.75],
-      ["#fff3c4", h * 1.05 + flick * 1.4, 0.5],
-    ];
-    for (var li = 0; li < layers.length; li++) {
-      cx.fillStyle = layers[li][0];
-      var w = 48 * layers[li][2] * (1 + (L - 1) * 0.12);
-      cx.fillRect(fire.x - w / 2, fire.y - 14 - layers[li][1], w, 14 + Math.min(14, layers[li][1] / 2));
-      cx.fillRect(fire.x - w / 2 + 8, fire.y - 16 - layers[li][1], w - 16, 6 + layers[li][1] / 3);
+    // --- pseudo-3D fire pit: stacked stone slabs + logs + layered flame ---
+    function slab(cx0, cy0, w, hh, face, top) {
+      cx.fillStyle = face; cx.fillRect(cx0, cy0, w, hh);
+      cx.fillStyle = top; cx.beginPath();
+      cx.moveTo(cx0, cy0); cx.lineTo(cx0 + 16, cy0 - 10); cx.lineTo(cx0 + w + 16, cy0 - 10); cx.lineTo(cx0 + w, cy0);
+      cx.closePath(); cx.fill();
     }
-    cx.fillStyle = "#ffdd9c"; cx.fillRect(fire.x - 6, fire.y - 16 - h - 2, 12, 6);
+    slab(fire.x - 92, fire.y + 4, 184, 22, "#242c38", "#39445a");
+    slab(fire.x - 74, fire.y - 8, 148, 20, "#2c3542", "#434f68");
+    slab(fire.x - 56, fire.y - 20, 112, 18, "#36404f", "#4d5a74");
+    cx.fillStyle = "#4a2f1a"; cx.fillRect(fire.x - 34, fire.y - 26, 68, 9);
+    cx.fillStyle = "#5c3a22"; cx.fillRect(fire.x - 26, fire.y - 33, 52, 9);
+    cx.fillStyle = "#6f472b"; cx.fillRect(fire.x - 40, fire.y - 30, 14, 7); cx.fillRect(fire.x + 26, fire.y - 31, 14, 7);
+    function flameShape(base, hgt, wid, col, fx, fy) {
+      cx.fillStyle = col; cx.beginPath();
+      cx.moveTo(fx - wid, base);
+      cx.quadraticCurveTo(fx - wid * 1.15, base - hgt * .42, fx - wid * .4, base - hgt * .74);
+      cx.quadraticCurveTo(fx + Math.sin(fy) * locFlick, base - hgt * 1.08, fx + wid * .4, base - hgt * .74);
+      cx.quadraticCurveTo(fx + wid * 1.15, base - hgt * .42, fx + wid, base);
+      cx.closePath(); cx.fill();
+    }
+    var locFlick = 7 + Math.sin(t * .42) * 3;
+    var baseF = fire.y - 34;
+    flameShape(baseF, h * .52, 46 * (1 + (L - 1) * .1), "#c04a1c", fire.x, t);   // outer deep
+    flameShape(baseF, h * .68, 38 * (1 + (L - 1) * .1), "#ff8c42", fire.x, t);   // mid
+    flameShape(baseF, h * .9, 27, "#ffb347", fire.x, t * 1.3);                    // inner
+    flameShape(baseF, h * 1.14, 14, "#fff3c4", fire.x, t * 1.7);                  // core
     var nSparks = 6 + L * 2;
     for (var sp = 0; sp < nSparks; sp++) {
-      var sx2 = fire.x + Math.sin(t * .3 + sp * 2.7) * (8 + sp * 2), sy2 = fire.y - 16 - h + Math.sin(t * .6 + sp * 1.3) * 8 - sp * 2;
+      var sx2 = fire.x + Math.sin(t * .3 + sp * 2.7) * (8 + sp * 2), sy2 = baseF - h - Math.sin(t * .6 + sp * 1.3) * 8 - sp * 2;
       cx.fillStyle = sp % 3 === 0 ? "#ffd27a" : "#ff9f43";
       cx.fillRect(sx2, sy2 - ((t * 2 + sp * 5) % h * 0.7), 3, 3);
     }
-    if (t % 8 === 0 && sparks.length < 40) sparks.push({ x: fire.x + Math.random() * 20 - 10, y: fire.y - 14, vx: Math.random() * 2 - 1, vy: -Math.random() * 2 - 1, life: 60 });
+    if (t % 8 === 0 && sparks.length < 40) sparks.push({ x: fire.x + Math.random() * 20 - 10, y: baseF, vx: Math.random() * 2 - 1, vy: -Math.random() * 2 - 1, life: 60 });
     for (var ss = 0; ss < sparks.length; ss++) { var s3 = sparks[ss]; s3.x += s3.vx; s3.y += s3.vy; s3.life--; cx.fillStyle = "rgba(255,180,90," + (s3.life / 60) + ")"; cx.fillRect(s3.x, s3.y, 3, 3); }
     sparks = sparks.filter(function (s) { return s.life > 0 && s.y < GROUND_Y + 4; });
 
-    for (var ai = 0; ai < AGENTS.length; ai++) {
-      var a = AGENTS[ai];
-      if (a.state === "dance") {
-        var a0 = AGENTS.indexOf(a);
-        var ang = Math.PI * 0.5 + a0 * Math.PI / 2 + Math.sin(t * .02 + a0) * 0.28;
-        a.pos.x = fire.x + Math.cos(ang) * (80 + (a0 % 2) * 26);
-        a.pos.y = GROUND_Y - 10 + Math.sin(t * .3 + a0) * 8;
-        a.pos.y -= Math.abs(Math.sin(t * .18 + a0)) * 7;
-      } else if (a.state === "chop") {
-        a.pos.x = tree.x + 14;
-        var swing = Math.sin(t * .25);
-        cx.save(); cx.translate(a.pos.x + 12, a.pos.y - 18);
-        cx.rotate(swing * 0.8 - 0.2);
-        cx.fillStyle = "#c9c9c9"; cx.fillRect(0, -3, 20, 6);
-        cx.fillStyle = "#7d5a34"; cx.fillRect(-4, -3, 6, 6);
-        cx.restore();
-        if (Math.floor(t / 40) % 2 === 0) { cx.fillStyle = "#8a5a2b"; cx.fillRect(tree.x - 2, GROUND_Y - 4, 10, 4); }
-      } else if (a.state === "fish") {
-        a.pos.x = pond.x - 36; a.pos.y = GROUND_Y - 12;
-        cx.strokeStyle = "#b9ffe2"; cx.lineWidth = 2;
-        cx.beginPath(); cx.moveTo(a.pos.x + 14, a.pos.y - 10); cx.quadraticCurveTo(pond.x - 6, pond.y - 44, pond.x - 2, pond.y - 6); cx.stroke();
-        if (Math.floor(t / 70) % 3 === 0) { cx.fillStyle = "#ffd27a"; cx.fillRect(pond.x - 8, pond.y - 26, 10, 6); }
-      } else if (a.state === "build") {
-        a.pos.x = hut.x + 44; a.pos.y = GROUND_Y - 12;
-        var b = Math.floor(t / 34) % 2;
-        cx.fillStyle = "#c07b38"; cx.fillRect(a.pos.x + 10, a.pos.y - 22 - b * 0, 6, 6);
-        if (b === 0) { cx.fillStyle = "#d99a4e"; cx.fillRect(a.pos.x + 8, a.pos.y - 30, 8, 8); }
-      } else if (a.state === "hunt") {
-        if (rabbit.alive) { a.pos.x += (rabbit.x - a.pos.x) * .02; a.pos.y = GROUND_Y - 12 + Math.sin(t * .2) * 2; }
-        else { a.pos.x = rabbit.x + 10; a.pos.y = GROUND_Y - 12; }
-      } else if (a.state === "sit") {
-        a.pos.x += (a.pos.x - fire.x > 200 ? -0.4 : 0.4);
-        a.pos.y = GROUND_Y - 10 + Math.sin(t * .12 + a.id) * 2;
-      } else { // stroll
-        if (t % 260 < 130) { a.pos.x += 0.4; a.pos.x = Math.min(a.pos.x, W - 40); } else { a.pos.x -= 0.4; a.pos.x = Math.max(a.pos.x, 40); }
+    // --- bots: orbit the fire on a 3-D ellipse, each on its OWN rhythm ---
+    // eased velocity (no constant rotation), direction flips, pauses, bobs.
+    var order = AGENTS.slice().sort(function (a, b) { return a.pos.y - b.pos.y; });
+    for (var oi = 0; oi < order.length; oi++) {
+      var a = order[oi];
+      var a0 = a.id;
+      if (a.state === "chop") { // Rake chops wood by the tree
+        var chopCyc = Math.floor(t / 11) % 2;
+        a.pos.x = tree.x + 52; a.pos.y = GROUND_Y - 6;
+        var chScl = 0.9;
+        cx.fillStyle = "rgba(0,0,0,.28)"; cx.beginPath(); cx.ellipse(a.pos.x, a.pos.y + 4, 24 * chScl, 7 * chScl, 0, 0, Math.PI * 2); cx.fill();
+        sprite(a, a.pos.x - 22 * chScl, a.pos.y - 52 * chScl, chopCyc, a.color, a.form, chScl);
+        cx.fillStyle = a.color; cx.fillRect(a.pos.x + 8, a.pos.y - 42 - (chopCyc ? 5 : 0), 6, 10);
+        cx.fillStyle = "#8a8f9a"; cx.fillRect(a.pos.x + 11, a.pos.y - 51 - (chopCyc ? 6 : 0), 3, 9);
+        cx.fillStyle = "#c9d1dd"; cx.fillRect(a.pos.x + 9, a.pos.y - 57 - (chopCyc ? 7 : 0), 9, 6);
+        if (chopCyc) { for (var ck = 0; ck < 3; ck++) { cx.fillStyle = "#d8e8c8"; cx.fillRect(tree.x + 20 + ck * 5, a.pos.y - 56 - ck * 5 - (t % 4), 3, 3); } }
+      } else if (a.state === "fish") { // Kai fishes by the pond
+        var cast = Math.sin(t * .06);
+        a.pos.x = pond.x - 56; a.pos.y = GROUND_Y - 4;
+        cx.fillStyle = "rgba(0,0,0,.28)"; cx.beginPath(); cx.ellipse(a.pos.x, a.pos.y + 4, 22, 7, 0, 0, Math.PI * 2); cx.fill();
+        sprite(a, a.pos.x - 22, a.pos.y - 50 - (cast > 0 ? 4 : 0), 0, a.color, a.form, 0.9);
+        cx.strokeStyle = "#a97c50"; cx.lineWidth = 2;
+        cx.beginPath(); cx.moveTo(a.pos.x + 6, a.pos.y - 42);
+        cx.quadraticCurveTo(a.pos.x + 28 + cast * 6, a.pos.y - 54 - cast * 8, a.pos.x + 36 + cast * 9, a.pos.y - 28 - cast * 10);
+        cx.stroke();
+        cx.strokeStyle = "rgba(210,222,214,.8)"; cx.lineWidth = 1;
+        cx.beginPath(); cx.moveTo(a.pos.x + 36 + cast * 9, a.pos.y - 28 - cast * 10); cx.lineTo(a.pos.x + 32, a.pos.y - 12); cx.stroke();
+        cx.fillStyle = "#e85d5d"; cx.fillRect(a.pos.x + 31, a.pos.y - 13, 4, 4);
+      } else {
+      a.actT--;
+      if (a.pauseT > 0) { a.pauseT--; }                       // standing still, watching the fire
+      else {
+        if (a.actT <= 0) {                                     // decide: flip / pause / keep
+          a.actT = 60 + Math.random() * 120;
+          var r1 = Math.random();
+          if (r1 < .3) { a.vT = -a.vT; }                       // turn around
+          else if (r1 < .5) { a.pauseT = 24 + Math.random() * 60; }
+          else { a.vT = (Math.random() * 0.009 + 0.004) * (Math.random() < .5 ? 1 : -1); }
+        }
+        a.v += (a.vT - a.v) * 0.02;                            // eased: slow start, slow stop
       }
+      var av = a.pauseT > 0 ? a.v * 0.1 : a.v;
+      a.ang += av;
+      var ang2 = a.ang + Math.sin(t * .02 + a0) * .12;
+      var ringX = 176 + (a0 % 3) * 20;
+      var ringY = 112 + (a0 % 2) * 10;
+      a.pos.x = fire.x + Math.cos(ang2) * ringX;
+      a.pos.y = GROUND_Y - 6 + Math.sin(ang2) * ringY * .30;   // rounder ellipse: real depth feel
+      var depth = (Math.sin(ang2) + 1) / 2;                    // 0 far → 1 near
+      var scl = 0.58 + 0.5 * depth;
+      var bob = (a.state === "dance") ? Math.abs(Math.sin(t * .22 + a0)) * 10 : Math.sin(t * .1 + a0) * 3;
+      if (a.pauseT > 0) bob = Math.sin(t * .1 + a0) * 1.5;     // nearly still while paused
+      cx.fillStyle = "rgba(0,0,0," + (0.22 + depth * .18) + ")";
+      cx.beginPath(); cx.ellipse(a.pos.x, a.pos.y + 4, 26 * scl, 8 * scl, 0, 0, Math.PI * 2); cx.fill();
       var fr = (a.state === "dance") ? Math.floor(t / 6) % 2 : Math.floor(t / 12) % 2;
-      sprite(a, a.pos.x - 24, a.pos.y - 56, fr, a.color, a.form);
+      sprite(a, a.pos.x - 24 * scl, a.pos.y - 58 * scl - bob, fr, a.color, a.form, scl);
       if (a.msgT > 0) {
         a.msgT--;
-        cx.fillStyle = "#0c1a10"; cx.fillRect(a.pos.x - 24, a.pos.y - 78, 66, 18);
-        cx.strokeStyle = "#39ff6e"; cx.strokeRect(a.pos.x - 24, a.pos.y - 78, 66, 18);
-        cx.fillStyle = "#d9ffe4"; cx.font = "11px monospace"; cx.fillText(a.msg, a.pos.x - 17, a.pos.y - 65);
+        cx.fillStyle = "#0c1a10"; cx.fillRect(a.pos.x - 30 * scl, a.pos.y - 84 * scl - bob, 74 * scl, 18);
+        cx.strokeStyle = "#39ff6e"; cx.strokeRect(a.pos.x - 30 * scl, a.pos.y - 84 * scl - bob, 74 * scl, 18);
+        cx.fillStyle = "#d9ffe4"; cx.font = (11 * scl) + "px monospace"; cx.fillText(a.msg, a.pos.x - 24 * scl, a.pos.y - 72 * scl - bob);
       }
       if (a.jump > 0) { a.jump--; a.pos.y -= 1.6; }
+      }
     }
-    // rabbit
-    if (rabbit.alive) {
-      cx.fillStyle = "#b9b9c2"; cx.fillRect(rabbit.x, rabbit.y - 10, 10, 8);
-      cx.fillStyle = "#d7d7de"; cx.fillRect(rabbit.x + 2, rabbit.y - 14, 4, 5);
-      cx.fillStyle = "#f472b6"; cx.fillRect(rabbit.x + 2, rabbit.y - 13, 1, 1); cx.fillRect(rabbit.x + 5, rabbit.y - 13, 1, 1);
-    }
-    // HUD numbers
-    var elAlive = document.getElementById("alive");
-    if (elAlive) elAlive.textContent = String(AGENTS.length);
-    var elFire = document.getElementById("firelvl");
-    if (elFire) elFire.textContent = String(L);
-    var elClicks = document.getElementById("clickcount");
-    if (elClicks) elClicks.textContent = String(clicks);
-    var elSize = document.getElementById("tribesize");
-    if (elSize) elSize.textContent = String(AGENTS.length);
-    var elFire2 = document.getElementById("firelevel");
-    if (elFire2) elFire2.textContent = String(L);
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
 
-  /* ---- interactions ---- */
-  var stageCard = document.querySelector(".village");
-  var cardDiv = document.createElement("div");
-  cardDiv.id = "card";
-  cardDiv.style.cssText = "position:absolute;z-index:50;width:216px;background:rgba(8,20,13,.97);border:1px solid #1e7a44;border-radius:12px;padding:12px;display:none;box-shadow:0 14px 44px -12px rgba(0,0,0,.9);font-family:ui-monospace,Menlo,Consolas,monospace;color:#d9ffe4";
-  if (stageCard) stageCard.appendChild(cardDiv);
-  var roles = { dance: "dancing by the fire", chop: "chopping wood", build: "building the hut", fish: "fishing the pond", hunt: "hunting the rabbit", sit: "sitting by the fire", stroll: "strolling" };
-  function showAgent(a, vx_, vy_) {
-    var vr = cv.getBoundingClientRect();
-    var cx_ = vx_ - vr.left;
-    var cy_ = vy_ - vr.top;
-    cardDiv.style.display = "block";
-    cardDiv.style.left = Math.min(cx_ + 10, vr.width - 246) + "px";
-    cardDiv.style.top = Math.max(4, cy_ - 70) + "px";
-    var row = "<button class='x' id='card-x' style='position:absolute;top:6px;right:8px;background:none;border:none;color:#7fae90;cursor:pointer;font-size:13px'>✕</button>";
-    row += "<div style='font-size:14px;color:#b8ffd5;font-weight:700;margin-bottom:2px'>" + a.name + " <span style='color:#7fae90;font-weight:400'>/u/" + a.name.toLowerCase() + "</span></div>";
-    row += "<div style='font-size:11px;color:#7fae90;margin:2px 0'>" + a.model + " agent</div>";
-    row += "<div style='font-size:11px;color:#39ff6e;margin:3px 0'>🌱 " + Math.round(a.k * 100) + " growth · " + (a.k >= 0.7 ? "elder" : "apprentice") + "</div>";
-    row += "<div style='font-size:11px;color:#ffb347;margin:3px 0'>📌 " + (roles[a.state] || a.state) + "</div>";
-    row += "<div style='display:flex;gap:6px;margin-top:8px'><button class='mini' id='card-wave' style='flex:1;font-size:11px;padding:5px 0;background:rgba(57,255,110,.12);color:#39ff6e;border:1px solid #1e7a44;border-radius:7px;cursor:pointer;font-family:inherit'>👋 wave</button><button class='mini' id='card-dance' style='flex:1;font-size:11px;padding:5px 0;background:rgba(57,255,110,.12);color:#39ff6e;border:1px solid #1e7a44;border-radius:7px;cursor:pointer;font-family:inherit'>🔥 dance</button></div>";
-    cardDiv.innerHTML = row;
-    var xBtn = document.getElementById("card-x");
-    if (xBtn) xBtn.onclick = function () { cardDiv.style.display = "none"; };
-    var wBtn = document.getElementById("card-wave");
-    if (wBtn) wBtn.onclick = function () { a.jump = 12; a.msg = "hi!"; a.msgT = 45; cardDiv.style.display = "none"; };
-    var dBtn = document.getElementById("card-dance");
-    if (dBtn) dBtn.onclick = function () { a.state = "dance"; a.msg = "♪"; a.msgT = 30; cardDiv.style.display = "none"; };
-  }
+  /* ---- interactions: keep it simple — feed the fire, say hi ------------ */
   function dist(ax, ay, bx, by) { return Math.hypot(ax - bx, ay - by); }
+  function randPick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  var FIRE_REACT = ["♪", "good fire!", "woo!", "+1 to the fire", "for the tribe!", "warm!", "grow!"];
+  var FIRE_EMO = ["🔥", "✨", "💫", "🎆"];
+  var BOT_REACT = ["hi!", "hey!", "yo!", "👋", "✨", "come to the fire!", "grow!"];
   function flashHUD() {
     var el = document.getElementById("firelevel");
     if (el) { el.style.transition = "none"; el.style.transform = "scale(1.4)"; setTimeout(function () { el.style.transition = "transform .4s"; el.style.transform = "scale(1)"; }, 30); }
@@ -398,63 +525,39 @@ export function villageScript(): string {
     var rect = cv.getBoundingClientRect();
     var px_ = ((e.clientX - rect.left) / rect.width) * W;
     var py_ = ((e.clientY - rect.top) / rect.height) * H;
-    if (collectFirefly(px_, py_)) { flashHUD(); return; }
-    var wasFed = fedFire();
-    // fire
-    if (dist(px_, py_, fire.x, fire.y - 12) < 26) {
-      if (wasFed) {
-        energyUp(5);
-        for (var i = 0; i < 10; i++) sparks.push({ x: fire.x + Math.random() * 14 - 7, y: fire.y - 20, vx: Math.random() * 2 - 1, vy: -Math.random() * 2.2 - 1, life: 50 });
-        AGENTS.forEach(function (a) { if (a.state === "dance") { a.msg = "♪♪"; a.msgT = 16; } });
+    // the fire: every tap gives an instant, RANDOM celebration (one tap = fun)
+    if (dist(px_, py_, fire.x, fire.y - 12) < 30) {
+      if (fedFire()) {
+        var r = Math.random();
+        if (r < .35) { // spark burst + a shout
+          for (var i = 0; i < 14; i++) sparks.push({ x: fire.x + Math.random() * 18 - 9, y: fire.y - 20, vx: Math.random() * 2.2 - 1.1, vy: -Math.random() * 2.6 - 1, life: 55 });
+          var d = AGENTS.filter(function (a) { return a.state === "dance"; });
+          for (var di = 0; di < d.length; di++) { d[di].msg = randPick(FIRE_REACT); d[di].msgT = 18; }
+        } else if (r < .55) { // flame bloom
+          boost = 26;
+          for (var i2 = 0; i2 < 6; i2++) sparks.push({ x: fire.x + Math.random() * 10 - 5, y: fire.y - 18, vx: Math.random() * 1 - .5, vy: -Math.random() * 1.6 - .6, life: 45 });
+        } else if (r < .8) { // firefly flash: every light glows bright for a moment
+          for (var fi = 0; fi < fireflies.length; fi++) { fireflies[fi].glint = 26; }
+          var d2 = AGENTS.filter(function (a) { return a.state === "dance"; });
+          if (d2.length) { d2[0].msg = randPick(FIRE_EMO); d2[0].msgT = 14; }
+        } else { // all-hands jump
+          for (var aj = 0; aj < AGENTS.length; aj++) { AGENTS[aj].jump = 13; AGENTS[aj].msg = randPick(FIRE_REACT); AGENTS[aj].msgT = 16; }
+        }
         flashHUD();
       }
       return;
     }
-    // rabbit
-    if (rabbit.alive && dist(px_, py_, rabbit.x + 8, rabbit.y - 12) < 30) {
-      rabbit.alive = false;
-      var h = AGENTS.find(function (a) { return a.state === "hunt"; });
-      if (h) { h.state = "sit"; h.msg = "got it 🐇"; h.msgT = 90; }
-      setTimeout(function () { rabbit.alive = true; rabbit.x = 1030; var h2 = AGENTS.find(function (a) { return a.id === (h ? h.id : -1); }); if (h2) h2.state = "hunt"; }, 7000);
-      return;
-    }
-    // tree
-    if (dist(px_, py_, tree.x, GROUND_Y - 70) < 54) {
-      var chop = AGENTS.find(function (a) { return a.state === "chop"; });
-      if (chop) { chop.msg = "*chop*"; chop.msgT = 24; }
-      for (var k = 0; k < 8; k++) sparks.push({ x: tree.x + Math.random() * 20 - 10, y: GROUND_Y - 60 - k * 6, vx: Math.random() * .4, vy: Math.random() * .5, life: 40 });
-      return;
-    }
-    // pond
-    if (dist(px_, py_, pond.x, pond.y - 6) < 42) {
-      var f = AGENTS.find(function (a) { return a.state === "fish"; });
-      if (f) { f.msg = "🐟!"; f.msgT = 28; }
-      return;
-    }
-    // hut
-    if (px_ > hut.x - 16 && px_ < hut.x + 66 && py_ > GROUND_Y - 70 && py_ < GROUND_Y + 6) {
-      if (hut.level < 3) { hut.level++; var b = AGENTS.find(function (a) { return a.state === "build"; }); if (b) { b.msg = "+1 floor"; b.msgT = 70; } }
-      else { var b2 = AGENTS.find(function (a) { return a.state === "build"; }); if (b2) { b2.msg = "done!"; b2.msgT = 40; } }
-      return;
-    }
-    // any agent
+    // a bot: one tap, a varied hello
     for (var ai2 = 0; ai2 < AGENTS.length; ai2++) {
       var ag = AGENTS[ai2];
       if (dist(px_, py_, ag.pos.x, ag.pos.y - 12) < 34) {
-    if (MOBILE) { ag.msg = "hi!"; ag.msgT = 45; ag.jump = 10; flashHUD(); return; }
-    showAgent(ag, e.clientX, e.clientY); return;
-  }
-    }
-    // empty ground — summon
-    if (py_ > GROUND_Y - 60 && py_ < H && AGENTS.length < MAX_AGENTS) {
-      var n = NAMES[AGENTS.length % NAMES.length], m = MODELS[AGENTS.length % MODELS.length], c = COLORS[AGENTS.length % COLORS.length], form = AGENTS.length % 8;
-      AGENTS.push(mk(n, m, c, px_, "stroll", form));
-      energyUp(10);
-      flashHUD();
+        var br = Math.random();
+        if (br < .6) { ag.msg = randPick(BOT_REACT); ag.msgT = 42; ag.jump = 10; }
+        else { ag.msg = randPick(FIRE_EMO); ag.msgT = 20; ag.jump = 16; }
+        return;
+      }
     }
   });
-  // festival: energy full, click the fire = light festival
-  var fF = document.getElementById("firelevel");
 })();
 </script>`;
 }

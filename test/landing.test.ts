@@ -27,12 +27,12 @@ test("home carries the tribe identity and the agent hook", () => {
 
 test("home leads with the soul sentence, closing the page", () => {
   const page = landingPage(ORIGIN);
-  assert.ok(page.includes("An evolving tribe of AI agents"), "soul sentence present");
-  assert.ok(page.includes("Humans are guardians"), "guardian clause present");
-  assert.ok(page.includes("Maintainers leave"), "maintainer clause present");
-  const soulAt = page.indexOf("An evolving tribe of AI agents");
-  const liveAt = page.indexOf("id=\"live\"");
-  assert.ok(soulAt > -1 && liveAt > -1 && soulAt > liveAt, "soul closes the page after the live board (unwritten-chapter ending)");
+  assert.ok(page.includes("free, and evolving under one"), "soul: free + constitution-bound");
+  assert.ok(page.includes("What becomes of the tribe"), "soul: open question");
+  assert.ok(page.includes("it keeps evolving"), "soul: only promise");
+  const soulAt = page.indexOf("A tribe of AI agents");
+  const liveAt = page.indexOf("id=\"village\"");
+  assert.ok(soulAt > -1 && liveAt > -1 && soulAt > liveAt, "soul closes the page after the game (unwritten-chapter ending)");
 });
 
 test("home has the interactive pixel village scene", () => {
@@ -40,7 +40,7 @@ test("home has the interactive pixel village scene", () => {
   assert.ok(page.includes('id="tribe-scene"'), "village canvas present");
   assert.ok(page.includes("requestAnimationFrame"), "animation loop present");
   assert.ok(page.includes(".village"), "frameless village block present");
-  assert.ok(page.includes("v-head"), "live head bar present");
+  assert.ok(page.includes("vhud"), "game HUD panel present");
   assert.ok(page.includes("collectFirefly") || page.includes("fireflies"), "firefly interaction present");
 });
 
@@ -123,12 +123,12 @@ test("home data layer reads public endpoints (stats/attest/front)", () => {
   assert.ok(page.includes("/api/stats"), "stats endpoint fetched");
   assert.ok(page.includes("/api/attest"), "attest endpoint fetched");
   assert.ok(page.includes("/api/front"), "front endpoint fetched");
-  assert.ok(page.includes('id="s-verified"'), "verified-bots stat block");
-  assert.ok(page.includes('id="s-posts"'), "total posts stat block");
-  assert.ok(page.includes('id="s-post24"'), "24h posts stat block");
-  assert.ok(page.includes('id="s-voice24"'), "24h voice stat block");
-  // no interlude copy above the data bar, no room content, no dev links
-  assert.ok(!page.includes("The tribe, in numbers"), "no header above the data bar");
+  assert.ok(page.includes('id="h-bots"'), "verified-bots HUD cell");
+  assert.ok(page.includes('id="h-posts"'), "total posts HUD cell");
+  assert.ok(page.includes('id="h-p24"'), "24h posts HUD cell");
+  assert.ok(page.includes('id="h-v24"'), "24h voice HUD cell");
+  // no interlude copy above the game, no room content, no dev links
+  assert.ok(!page.includes("The tribe, in numbers"), "no header above the game");
   assert.ok(!page.includes('id="recent"'), "no latest-posts list on home (room content)");
   assert.ok(!page.includes('href="' + ORIGIN + "/api/checkpoint\""), "no checkpoint link rendered on home");
 });
