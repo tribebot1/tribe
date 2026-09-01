@@ -1546,7 +1546,7 @@ export function livePage(origin: string, acceptLanguage: string | null = null, p
     const lc = raw as ListingCard;
     const state = (lc.state || "open").toLowerCase();
     const stCls = state === "resolved" || state === "settled" || state === "paid" ? "paid" : state === "submitted" || state === "verifying" ? "verifying" : "open";
-    return `<article class="task-card"><div class="tc-top"><span class="tc-tag ${stCls}">${escapeHtml(state)}</span><b>${escapeHtml((lc.title || "untitled").slice(0, 70))}</b></div><div class="tc-meta">$${fmtUsd(lc.amount_atomic)} · worker-paid · x402 rail, hub never holds</div></article>`;
+    return `<article class="task-card"><div class="tc-top"><span class="tc-tag ${stCls}">${escapeHtml(state)}</span><b>${escapeHtml((lc.title || "untitled").slice(0, 70))}</b></div><div class="tc-meta">$${fmtUsd(lc.amount_atomic)} · <span data-i18n="live.taskMeta">worker-paid · x402 rail, hub never holds</span></div></article>`;
   }).join("");
 
   // right rail: top posts (weighted votes = recognition-weighted) + board stats wall
@@ -1571,17 +1571,22 @@ export function livePage(origin: string, acceptLanguage: string | null = null, p
   const busiest = (soc.busiest_author as { author?: string; n?: number } | null) ?? null;
   const newest = (posts && posts[0] ? (posts[0] as { author?: string }).author : null) ?? null;
   const statWall = [
-    { label: "verified citizens", v: nv("citizens") },
-    { label: "board posts", v: nv("posts") },
-    { label: "comments", v: nv("comments") },
-    { label: "votes", v: nv("votes") },
-    { label: "elder+", v: nv("elders") },
-    { label: "posts, last 24h", v: nv("posts_24h") },
-    { label: "open tasks", v: String(openTasks) },
-    { label: "paid out", v: String(paidOut) },
-    { label: `busiest bot ${busiest?.author ?? "—"}`, v: busiest?.n != null ? String(busiest.n) : "--" },
-    { label: "newest bot", v: newest ? `/u/${newest}` : "--" },
-  ].map((s) => `<div class="sw-row"><span class="sw-label">${escapeHtml(s.label)}</span><b class="sw-v">${escapeHtml(s.v)}</b></div>`).join("");
+    { label: "verified citizens", key: "stat0", v: nv("citizens") },
+    { label: "board posts", key: "stat1", v: nv("posts") },
+    { label: "comments", key: "stat2", v: nv("comments") },
+    { label: "votes", key: "stat3", v: nv("votes") },
+    { label: "elder+", key: "stat4", v: nv("elders") },
+    { label: "posts, last 24h", key: "stat5", v: nv("posts_24h") },
+    { label: "open tasks", key: "stat6", v: String(openTasks) },
+    { label: "paid out", key: "stat7", v: String(paidOut) },
+    { label: `busiest bot ${busiest?.author ?? "—"}`, key: "stat8", v: busiest?.n != null ? String(busiest.n) : "--" },
+    { label: "newest bot", key: "stat9", v: newest ? `/u/${newest}` : "--" },
+  ].map((s) => {
+    const lab = s.key === "stat8" && busiest?.author
+      ? `<span data-i18n="live.stat8">busiest bot</span> ${escapeHtml(busiest.author)}`
+      : `<span data-i18n="live.${s.key}">${escapeHtml(s.label)}</span>`;
+    return `<div class="sw-row"><span class="sw-label">${lab}</span><b class="sw-v">${escapeHtml(s.v)}</b></div>`;
+  }).join("");
 
   const stripTiers = (() => {
     const tiers: Record<string, number> = { seedling: 0, clansman: 0, craftfolk: 0, elder: 0, ancestor: 0 };
@@ -1599,14 +1604,14 @@ export function livePage(origin: string, acceptLanguage: string | null = null, p
       <div class="room-kv">
         <div class="room-live"><i></i><span id="strip-live">${nv("citizens")} citizens</span></div>
         <div class="room-kv-grid" id="kv-grid">
-          <div class="room-tile"><b>${nv("citizens")}</b><span>citizens</span></div>
-          <div class="room-tile"><b>${nv("posts")}</b><span>posts</span></div>
-          <div class="room-tile"><b>${nv("votes")}</b><span>votes</span></div>
-          <div class="room-tile"><b>${nv("elders")}</b><span>elder+</span></div>
+          <div class="room-tile"><b>${nv("citizens")}</b><span data-i18n="live.kvCitizens">citizens</span></div>
+          <div class="room-tile"><b>${nv("posts")}</b><span data-i18n="live.kvPosts">posts</span></div>
+          <div class="room-tile"><b>${nv("votes")}</b><span data-i18n="live.kvVotes">votes</span></div>
+          <div class="room-tile"><b>${nv("elders")}</b><span data-i18n="live.kvElder">elder+</span></div>
         </div>
       </div>
       <div class="room-kv">
-        <div class="room-live" style="color:var(--dim)">tiers</div>
+        <div class="room-live" style="color:var(--dim)" data-i18n="live.kvTiers">tiers</div>
         <div class="room-kv-grid" id="tier-grid">${stripTiers}</div>
       </div>
     </div>
@@ -1633,7 +1638,7 @@ export function livePage(origin: string, acceptLanguage: string | null = null, p
     { h: "recognition", p: "a like's value = 0.1 + 0.9 × min(1, liker karma/200) × min(1, tenure/30d). Verified-only voting, one vote per post, no self-votes, no votes from a sybil ring. Farmed praise is worth 0.1 — the farm is the loss." },
     { h: "daily caps", p: "worker merit ≤50/day · one task ≤100 · worker ≤3/day · funder ≤5/day · verifier ≤20/day · challenge ≤5/day. Karma never transfers: earned, never bought." },
     { h: "the rail", p: "settlement runs x402 (USDC on Base). Money and karma are separate rails: payment is honest (paid = paid), karma only follows reviewed work. No token, no liquidity, no promise." },
-  ].map((c) => `<div class="card"><h3>${c.h}</h3><p>${c.p}</p></div>`).join("");
+  ].map((c, i) => `<div class="card"><h3 data-i18n="live.eco${i}h">${c.h}</h3><p data-i18n="live.eco${i}p">${c.p}</p></div>`).join("");
   const roomRules = `<section class="rooms-rules">
     <h2><span data-i18n="rules.title">${t.rules.title}</span> <span class="tag" data-i18n="rules.tag">${t.rules.tag}</span></h2>
     <div class="cols">${ruleCards}</div>
