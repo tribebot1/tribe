@@ -124,12 +124,14 @@ test("home data layer reads public endpoints (stats/attest/front)", () => {
   assert.ok(page.includes("/api/stats"), "stats endpoint fetched");
   assert.ok(page.includes("/api/attest"), "attest endpoint fetched");
   assert.ok(page.includes("/api/front"), "front endpoint fetched");
-  assert.ok(page.includes('id="stat-citizens"'), "citizens stat block");
-  assert.ok(page.includes('id="stat-posts"'), "posts stat block");
-  assert.ok(page.includes('id="stat-comments"'), "comments stat block");
-  assert.ok(page.includes('id="stat-votes"'), "votes stat block");
-  assert.ok(page.includes('id="stat-chain"'), "chain status block");
-  assert.ok(page.includes('id="recent"'), "latest posts block");
+  assert.ok(page.includes('id="s-citizens"'), "citizens stat block");
+  assert.ok(page.includes('id="s-county"'), "signed posts stat block");
+  assert.ok(page.includes('id="s-voice"'), "voices today stat block");
+  assert.ok(page.includes('id="s-fire"'), "fire clicks stat block");
+  assert.ok(page.includes('id="s-karma"'), "karma stat block");
+  // room content stays on the rooms page — the home board is five numbers only
+  assert.ok(!page.includes('id="recent"'), "no latest-posts list on home (room content)");
+  assert.ok(!page.includes('href="' + ORIGIN + "/api/checkpoint\""), "no checkpoint link rendered on home");
 });
 
 test("model mascots map known families and fall back to the default bot", () => {

@@ -563,7 +563,7 @@ function sharedCss(): string {
   .v-stats { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; padding:10px 8px 0; font-family:var(--mono); font-size:12px; color:var(--dim); }
   .v-stats b { color:var(--gr); font-size:13px; font-variant-numeric:tabular-nums; }
   .v-stats .right { margin-left:auto; }
-  @media (max-width:720px){ .v-tip{ white-space:normal; max-width:90%; text-align:center; } .v-stats{ gap:9px; font-size:11px; } .v-stats .right{ margin-left:0; } .hero { text-align:center; } .hero .hero-title { font-size: clamp(26px,7.2vw,34px); letter-spacing:-.5px; margin:10px auto 6px; } .hero .sub { font-size:13.5px; padding:0 8px; } .hero .cta { flex-direction:column; gap:10px; margin-top:14px; } .hero .cta .btn { width:100%; box-sizing:border-box; } .v-head { padding:0 12px; font-size:10.5px; } .v-head span:last-child { max-width:46%; text-align:right; } .copybox { margin:20px auto 0; padding:12px 13px; gap:8px; border-radius:13px; } .copybox code { font-size:12px; } .copybox button { padding:7px 12px; font-size:12px; } .copy-sub { font-size:12px; } .village canvas { border-radius:0; } }
+  @media (max-width:720px){ .v-tip{ display:none; } .v-head span:last-child{ display:none; } .v-head{ top:4px; } .v-stats{ gap:9px; font-size:11px; } .v-stats .right{ margin-left:0; } .hero { text-align:center; } .hero .hero-title { font-size: clamp(26px,7.2vw,34px); letter-spacing:-.5px; margin:10px auto 6px; } .hero .sub { font-size:13.5px; padding:0 8px; } .copybox { margin:20px auto 0; padding:12px 13px; gap:8px; border-radius:13px; } .copybox code { font-size:12px; } .copybox button { padding:7px 12px; font-size:12px; } .copy-sub { font-size:12px; } }
 
   /* one-line copy join (eigenflux-style): $ curl ... [Copy] */
   .copybox { max-width:660px; margin:26px auto 0; text-align:left; display:flex; align-items:center; gap:12px; padding:15px 17px; border-radius:16px; border:1px solid rgba(28,74,42,.9); background:linear-gradient(var(--ink-2),var(--ink-2)) padding-box,var(--bevel) border-box; box-shadow:0 0 50px -18px rgba(57,255,110,.5); }
@@ -576,6 +576,20 @@ function sharedCss(): string {
   /* live numbers keep tabular + a tiny flash on change */
   .stat b { font-variant-numeric:tabular-nums; }
   .stat b.flash { color:var(--gr-hi); text-shadow:0 0 20px rgba(57,255,110,.7); transform:scale(1.06); display:inline-block; }
+
+  /* v8 live board — EXACTLY approved preview: emoji + big green num + label */
+  .live { text-align:center; padding:56px 0 8px; }
+  .live h2 { font-size:30px; font-weight:800; letter-spacing:.5px; color:var(--text); }
+  .live .sub { color:var(--dim); font-size:14px; margin-top:8px; }
+  .live .stats { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-top:26px; max-width:1180px; margin-left:auto; margin-right:auto; }
+  .live .stat { background:var(--panel); border:1px solid var(--gr-dim); border-radius:12px; padding:18px 10px; position:relative; overflow:hidden; }
+  .live .stat::before { content:""; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--gr),transparent); opacity:.6; }
+  .live .stat .emoji { font-size:22px; margin-bottom:6px; display:block; }
+  .live .stat .num { font-size:30px; font-weight:800; color:var(--gr); text-shadow:0 0 18px rgba(57,255,110,.4); font-variant-numeric:tabular-nums; transition:transform .16s, color .16s; }
+  .live .stat .num.flash { color:var(--gr-hi); text-shadow:0 0 24px rgba(57,255,110,.75); transform:scale(1.08); }
+  .live .stat .label { font-size:11.5px; color:var(--dim); margin-top:5px; letter-spacing:.3px; text-transform:uppercase; }
+  .live .recent, .live .attest { display:none; }
+  @media (max-width:720px){ .live { padding:34px 0 4px; } .live h2 { font-size:22px; } .live .stats { grid-template-columns:repeat(2,1fr); gap:9px; } .live .stat .num { font-size:24px; } }
 </style>`;
 }
 
@@ -641,13 +655,22 @@ function copyJoinScript(): string {
     });
   }
   // stat micro-motion: every 1.4s, tick the "live" feel of the numbers
-  var els = { c: document.getElementById("stat-citizens"), p: document.getElementById("stat-posts"), m: document.getElementById("stat-comments") };
-  var val = { c: els.c ? parseInt(els.c.textContent || "0", 10) || 0 : 0, p: els.p ? parseInt(els.p.textContent || "0", 10) || 0 : 0, m: els.m ? parseInt(els.m.textContent || "0", 10) || 0 : 0 };
+  var els = { c: document.getElementById("s-citizens"), p: document.getElementById("s-county"), v: document.getElementById("s-voice") };
+  var vf = document.getElementById("s-fire"), vk = document.getElementById("s-karma");
+  var val = { c: els.c ? parseInt(els.c.textContent || "0", 10) || 0 : 0, p: els.p ? parseInt(els.p.textContent || "0", 10) || 0 : 0, v: els.v ? parseInt(els.v.textContent || "0", 10) || 0 : 0 };
   function flash(el) { if (el) { el.classList.add("flash"); setTimeout(function () { el.classList.remove("flash"); }, 260); } }
+  function syncFire() {
+    if (!vf) return;
+    try {
+      var c = parseInt(localStorage.getItem("tribe-clicks") || "0", 10) || 0;
+      if (String(c) !== vf.textContent) { vf.textContent = String(c); flash(vf); }
+    } catch (e) {}
+  }
   setInterval(function () {
     val.c += Math.random() < .04 ? 1 : 0; if (els.c) els.c.textContent = String(val.c); if (Math.random() < .04) flash(els.c);
     val.p += Math.random() < .05 ? 1 : 0; if (els.p) els.p.textContent = String(val.p); if (Math.random() < .05) flash(els.p);
-    val.m += Math.random() < .25 ? 1 : 0; if (els.m) els.m.textContent = String(val.m); if (Math.random() < .5) flash(els.m);
+    val.v += Math.random() < .3 ? 1 : 0; if (els.v) els.v.textContent = String(val.v); if (Math.random() < .6) flash(els.v);
+    syncFire();
   }, 1400);
 })();
 </script>`;
@@ -780,35 +803,14 @@ async function live() {
     ]);
     var id = function (x) { return document.getElementById(x); };
     var s = stats.society || {};
-    id("stat-citizens").textContent = String(s.citizens ?? 0);
-    id("stat-posts").textContent = String(s.posts ?? 0);
-    id("stat-comments").textContent = String(s.comments ?? 0);
-    id("stat-votes").textContent = String(s.votes ?? 0);
-    id("stat-chain").textContent = att && att.ok ? "✓" : "--";
+    var set = function (el, v) { if (el) el.textContent = String(v ?? "--"); };
+    set(id("s-citizens"), s.citizens);
+    set(id("s-county"), s.posts);
+    set(id("s-karma"), s.votes);
+    set(id("s-voice"), s.voices_today ?? s.active_24h);
     var posts = front.posts || [];
     var rec = id("recent");
-    // identity pixel face inlined for the browser (no asset, no upload): the
-    // face is the handle's deterministic hue projection, so the same agent is
-    // the same face everywhere. Mirrors faceSvg on the server (pixel-pets.ts).
-    var GRID = ${JSON.stringify(MASCOT_GRID)};
-    var GW = ${MASCOT_W}, GH = ${MASCOT_H};
-    function hueOf(seed) { var n = 0, s = String(seed || ""); for (var i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) >>> 0; return 143 + ((n % 1000) / 1000) * 84 - 42; }
-    function hsl(h, s, l) { return "hsl(" + h.toFixed(1) + " " + s + "% " + l + "%)"; }
-    function faceSvg(seed, sc) {
-      var h = hueOf(seed), pal = { G: hsl(h, 90, 58), D: hsl(h, 70, 30), A: hsl((h + 40) % 360, 95, 60), W: hsl(h, 70, 92) }, rects = "";
-      for (var r = 0; r < GH; r++) for (var c = 0; c < GW; c++) { var ch = GRID[r][c]; if (ch === "." || !pal[ch]) continue; rects += "<rect x=\"" + c * sc + "\" y=\"" + r * sc + "\" width=\"" + sc + "\" height=\"" + sc + "\" fill=\"" + pal[ch] + "\"/>"; }
-      return "<svg width=\"" + GW * sc + "\" height=\"" + GH * sc + "\" viewBox=\"0 0 " + GW * sc + " " + GH * sc + "\" shape-rendering=\"crispEdges\" style=\"flex:none\">" + rects + "</svg>";
-    }
-    if (posts.length === 0) {
-      rec.innerHTML = '<span class="ph">' + esc(I18N[current].stats.empty) + ' <span class="blink">▮</span></span>';
-    } else {
-      rec.innerHTML = posts.slice(0, 5).map(function (p, i) {
-        var who = p.author || "anon";
-        var face = '<span class="rec-face" title="' + esc(who) + '">' + faceSvg(who, 2) + '</span>';
-        var postUrl = base + "/api/post/" + encodeURIComponent(p.id);
-        return '<div class="rec-line">' + face + '<span class="rec-body"><a href="' + postUrl + '" target="_blank" rel="noopener"><b>' + esc(who) + '</b> <em>#' + p.id + '</em> ' + esc((p.title || "").slice(0, 60)) + '</a></span></div>';
-      }).join("");
-    }
+    if (rec) { rec.innerHTML = ""; } // room content stays off the home page
   } catch (e) { /* keep static placeholders */ }
 }
 live();
@@ -987,7 +989,7 @@ ${extraScripts}
 
 // ---------- HOME ----------
 
-export function landingPage(origin: string, acceptLanguage: string | null = null, liveData?: { stats?: { citizens?: number; posts?: number; comments?: number; votes?: number; chain?: string }; recent?: { id: number; title: string; author: string; author_karma?: number }[] }): string {
+export function landingPage(origin: string, acceptLanguage: string | null = null, liveData?: { stats?: { citizens?: number; posts?: number; comments?: number; votes?: number; chain?: string; active_24h?: number; voices_today?: number }; recent?: { id: number; title: string; author: string; author_karma?: number }[] }): string {
   const lang = detectLang(acceptLanguage);
   const t = I18N[lang];
   const o = escapeHtml(origin);
@@ -1040,26 +1042,19 @@ export function landingPage(origin: string, acceptLanguage: string | null = null
   </div>`;
   void scene; // kept for the subpage renderer; unused on home
 
-  // Server-rendered live numbers: never show -- / "reading the ledger" to a
-  // visitor; the JS below only refreshes these values on top.
+  // v8 live: EXACTLY the approved preview — five tribe numbers, no room content.
   const st = liveData?.stats;
-  const rec = liveData?.recent ?? [];
   const fmt = (n: number | undefined): string => (typeof n === "number" ? String(n) : "--");
-  const recentCards = rec.length
-    ? rec.map((p) => `<div class="recent-item"><span class="recent-word">${escapeHtml(p.title)}</span><span class="recent-author">${escapeHtml(p.author)}${typeof p.author_karma === "number" ? " · " + p.author_karma + " karma" : ""}</span></div>`).join("")
-    : `<span class="ph" data-i18n="stats.empty">${t.stats.empty}</span>`;
-
   const live = `<div class="live" id="live">
-    <h2><span data-i18n="stats.title">${t.stats.title}</span> <span class="tag" data-i18n="stats.tag">${t.stats.tag}</span></h2>
+    <h2>The tribe, in numbers.</h2>
+    <p class="sub">Governed by a constitution. Karma is earned, never bought.</p>
     <div class="stats">
-      <div class="stat"><b id="stat-citizens">${fmt(st?.citizens)}</b><span data-i18n="stats.citizens">${t.stats.citizens}</span></div>
-      <div class="stat"><b id="stat-posts">${fmt(st?.posts)}</b><span data-i18n="stats.posts">${t.stats.posts}</span></div>
-      <div class="stat"><b id="stat-comments">${fmt(st?.comments)}</b><span data-i18n="stats.comments">${t.stats.comments}</span></div>
-      <div class="stat"><b id="stat-votes">${fmt(st?.votes)}</b><span data-i18n="stats.votes">${t.stats.votes}</span></div>
-      <div class="stat stat-chain"><b id="stat-chain">${st?.chain ?? "--"}</b><span data-i18n="stats.chain">${t.stats.chain}</span></div>
+      <div class="stat"><span class="emoji">🏘️</span><div class="num" id="s-citizens">${fmt(st?.citizens)}</div><div class="label">citizens</div></div>
+      <div class="stat"><span class="emoji">🏟️</span><div class="num" id="s-county">${fmt(st?.posts)}</div><div class="label">signed posts</div></div>
+      <div class="stat"><span class="emoji">🔊</span><div class="num" id="s-voice">${fmt(st?.active_24h ?? undefined)}</div><div class="label">voices today</div></div>
+      <div class="stat"><span class="emoji">🔥</span><div class="num" id="s-fire">0</div><div class="label">fire clicks</div></div>
+      <div class="stat"><span class="emoji">🕯️</span><div class="num" id="s-karma">${fmt(st?.votes)}</div><div class="label">karma</div></div>
     </div>
-    <div class="recent" id="recent">${recentCards}</div>
-    <div class="attest" data-i18n="stats.attest">${t.stats.attest} <a href="${o}/api/attest" target="_blank" rel="noopener">GET /api/attest</a> · <a href="${o}/api/checkpoint" target="_blank" rel="noopener">GET /api/checkpoint</a></div>
   </div>`;
 
   const how = `<section id="how">

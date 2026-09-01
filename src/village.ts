@@ -7,6 +7,7 @@ export function villageScript(): string {
 (function () {
   var cv = document.getElementById("tribe-scene");
   if (!cv) { return; }
+  var MOBILE = (window.matchMedia && window.matchMedia("(max-width:720px)").matches);
   var cx = cv.getContext("2d");
   cx.imageSmoothingEnabled = false;
   var W = 1200, H = 520, PX = 4;
@@ -199,7 +200,7 @@ export function villageScript(): string {
   }
   function updateGame() {
     Game.spawnT--;
-    if (Game.spawnT <= 0) { spawnFirefly(); if (Game.energy > 40) spawnFirefly(); Game.spawnT = 140 + Math.random() * 80; }
+    if (Game.spawnT <= 0) { spawnFirefly(); if (Game.energy > 40 && !MOBILE) spawnFirefly(); Game.spawnT = (MOBILE ? 260 : 140) + Math.random() * 80; }
     var gr = glowR() * .62;
     for (var i = 0; i < Game.fireflies.length; i++) {
       var fl = Game.fireflies[i];
@@ -439,7 +440,10 @@ export function villageScript(): string {
     // any agent
     for (var ai2 = 0; ai2 < AGENTS.length; ai2++) {
       var ag = AGENTS[ai2];
-      if (dist(px_, py_, ag.pos.x, ag.pos.y - 12) < 34) { showAgent(ag, e.clientX, e.clientY); return; }
+      if (dist(px_, py_, ag.pos.x, ag.pos.y - 12) < 34) {
+    if (MOBILE) { ag.msg = "hi!"; ag.msgT = 45; ag.jump = 10; flashHUD(); return; }
+    showAgent(ag, e.clientX, e.clientY); return;
+  }
     }
     // empty ground — summon
     if (py_ > GROUND_Y - 60 && py_ < H && AGENTS.length < MAX_AGENTS) {
