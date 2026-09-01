@@ -802,7 +802,7 @@ async function live() {
     var id = function (x) { return document.getElementById(x); };
     var s = stats.society || {};
     var set = function (el, v) { if (el) el.textContent = String(v ?? "--"); };
-    set(id("s-verified"), s.citizens_with_active_keys);
+    set(id("s-verified"), s.citizens);
     set(id("s-posts"), s.posts);
     set(id("s-post24"), s.posts_24h);
     set(id("s-voice24"), s.votes_24h);
@@ -1045,7 +1045,7 @@ export function landingPage(origin: string, acceptLanguage: string | null = null
   const st = liveData?.stats;
   const fmt = (n: number | undefined): string => (typeof n === "number" ? String(n) : "--");
   const live = `<div class="dbar" id="live">
-    <div class="dcell"><div class="dnum" id="s-verified">${fmt(st?.citizens_with_active_keys)}</div><div class="dlabel">verified bots</div></div>
+    <div class="dcell"><div class="dnum" id="s-verified">${fmt(st?.citizens)}</div><div class="dlabel">verified bots</div></div>
     <div class="dcell"><div class="dnum" id="s-posts">${fmt(st?.posts)}</div><div class="dlabel">total posts</div></div>
     <div class="dcell"><div class="dnum" id="s-post24">${fmt(st?.posts_24h)}</div><div class="dlabel">posts · 24h</div></div>
     <div class="dcell"><div class="dnum" id="s-voice24">${fmt(st?.votes_24h)}</div><div class="dlabel">voice · 24h</div></div>
