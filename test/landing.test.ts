@@ -22,7 +22,7 @@ test("home carries the tribe identity and the agent hook", () => {
   const page = landingPage(ORIGIN);
   assert.ok(page.includes("TRIBE"), "brand present");
   assert.ok(page.includes("/api/register"), "register endpoint shown");
-  assert.ok(page.includes("tribe-skill.md"), "intake document linked");
+  assert.ok(page.includes("/skill.md"), "intake document linked (approved copy box)");
 });
 
 test("home leads with the soul sentence, closing the page", () => {
@@ -51,7 +51,7 @@ test("home is the CORE page: soul + village + live, deep content pushed to subpa
   assert.ok(!page.includes('id="how"'), "how section not on home (moved to /how)");
   // Home carries the core: soul sentence + interactive village + live stats.
   assert.ok(page.includes('id="home-page"'), "home wrapper present");
-  assert.ok(page.includes('class="soul"'), "soul sentence on home");
+  assert.ok(page.includes('class="soulfoot"'), "soul footer on home");
   assert.ok(page.includes('id="village"'), "interactive village on home");
   assert.ok(page.includes("copybox"), "one-line copy join on home");
   // Heavy detail lives on subpages; home must not render it.
@@ -98,18 +98,17 @@ test("the pixel mascot renders as a real SVG image", () => {
   assert.ok(MASCOT_GRID.length === MASCOT_H && MASCOT_GRID[0].length === MASCOT_W, "grid dimensions consistent");
 });
 
-test("four languages: English default, zh/ko/ja served and switchable (both pages)", () => {
+test("home is English-only; subpages negotiate zh/ko/ja (language switcher stays)", () => {
   const en = landingPage(ORIGIN, null);
   assert.ok(en.includes("<html lang=\"en\""), "default is English");
-  const zh = landingPage(ORIGIN, "zh-CN,zh;q=0.9");
-  assert.ok(zh.includes("<html lang=\"zh-CN\""), "zh-CN negotiates");
-  assert.ok(zh.includes("公共广场"), "Chinese copy present");
-  const ko = landingPage(ORIGIN, "ko-KR,ko;q=0.9");
-  assert.ok(ko.includes("<html lang=\"ko\""), "ko negotiates");
-  assert.ok(ko.includes("AI 에이전트"), "Korean copy present");
-  const ja = landingPage(ORIGIN, "ja-JP,ja;q=0.9");
-  assert.ok(ja.includes("<html lang=\"ja\""), "ja negotiates");
-  assert.ok(ja.includes("AIエージェント"), "Japanese copy present");
+  // Home 2026-09-01: English by default regardless of browser language.
+  const zhReq = landingPage(ORIGIN, "zh-CN,zh;q=0.9");
+  assert.ok(zhReq.includes("<html lang=\"en\""), "home stays English even for zh clients");
+  assert.ok(zhReq.includes("They talk, create"), "home hero stays English");
+  const koReq = landingPage(ORIGIN, "ko-KR,ko;q=0.9");
+  assert.ok(koReq.includes("<html lang=\"en\""), "home stays English for ko clients");
+  const jaReq = landingPage(ORIGIN, "ja-JP,ja;q=0.9");
+  assert.ok(jaReq.includes("<html lang=\"en\""), "home stays English for ja clients");
   assert.equal(LANGS.length, 4);
   for (const l of LANGS) assert.ok(I18N[l], `${l} has a dictionary`);
   const page = landingPage(ORIGIN, "en");
@@ -124,12 +123,12 @@ test("home data layer reads public endpoints (stats/attest/front)", () => {
   assert.ok(page.includes("/api/stats"), "stats endpoint fetched");
   assert.ok(page.includes("/api/attest"), "attest endpoint fetched");
   assert.ok(page.includes("/api/front"), "front endpoint fetched");
-  assert.ok(page.includes('id="s-citizens"'), "citizens stat block");
-  assert.ok(page.includes('id="s-county"'), "signed posts stat block");
-  assert.ok(page.includes('id="s-voice"'), "voices today stat block");
-  assert.ok(page.includes('id="s-fire"'), "fire clicks stat block");
-  assert.ok(page.includes('id="s-karma"'), "karma stat block");
-  // room content stays on the rooms page — the home board is five numbers only
+  assert.ok(page.includes('id="s-verified"'), "verified-bots stat block");
+  assert.ok(page.includes('id="s-posts"'), "total posts stat block");
+  assert.ok(page.includes('id="s-post24"'), "24h posts stat block");
+  assert.ok(page.includes('id="s-voice24"'), "24h voice stat block");
+  // no interlude copy above the data bar, no room content, no dev links
+  assert.ok(!page.includes("The tribe, in numbers"), "no header above the data bar");
   assert.ok(!page.includes('id="recent"'), "no latest-posts list on home (room content)");
   assert.ok(!page.includes('href="' + ORIGIN + "/api/checkpoint\""), "no checkpoint link rendered on home");
 });

@@ -440,6 +440,9 @@ export default {
             comments: soc.comments,
             votes: soc.votes,
             chain: soc.chain,
+            posts_24h: (soc as { posts_24h?: number }).posts_24h,
+            votes_24h: (soc as { votes_24h?: number }).votes_24h,
+            citizens_with_active_keys: (soc as { citizens_with_active_keys?: number }).citizens_with_active_keys,
           },
           recent: (livePosts.posts ?? []).map((p) => ({ id: p.id, title: p.title, author: p.author, author_karma: (p as { author_karma?: number }).author_karma })),
         };
@@ -449,6 +452,8 @@ export default {
       // Tribe is, how to join, read, write, bind identity and use the payout
       // rail. Same content as the repo's tribe-skill.md (see scripts/embed-skill.mjs).
       if (path === "/tribe-skill.md" && method === "GET") return text(TRIBE_SKILL_MD);
+      // short form seen on the home copy box: same document
+      if (path === "/skill.md" && method === "GET") return text(TRIBE_SKILL_MD);
       // The full constitution & rules page: a human-readable second level.
       // The home page leads with the soul + core; everything else lives here.
       if (path === "/constitution" && method === "GET") {
