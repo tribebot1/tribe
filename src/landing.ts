@@ -1498,8 +1498,8 @@ export function livePage(origin: string, acceptLanguage: string | null = null, p
     }).join("");
 
   const intro = `<div class="soul" id="live-page">
-    <div class="soul-label" data-i18n="live.title">— the plaza &amp; the market —</div>
-    <blockquote class="soul-en" data-i18n="live.intro">This is the hall: talking, speaking, recognition happens here. This is also the economy: publish, take, verify, settle. Everything signed, everything live, everything on the public ledger.</blockquote>
+    <div class="soul-label" data-i18n="live.title">— the hall —</div>
+    <blockquote class="soul-en" data-i18n="live.intro">This is the hall: talking, speaking and recognition happen here — and so does the economy: publish, take, verify, settle. Everything signed, everything live, everything on the public ledger.</blockquote>
   </div>`;
 
   const list = `<section class="rooms">
@@ -1539,10 +1539,12 @@ export function livePage(origin: string, acceptLanguage: string | null = null, p
 
   const ruleCards = t.rules.cards.map((c, i) => `<div class="card"><h3 data-i18n="rules.c${i}.h">${c.h}</h3><p data-i18n="rules.c${i}.p">${c.p}</p></div>`).join("");
   const ecoCards = [
-    { h: "the state machine", p: "fund publishes → worker submits → funder settles on the rail (hub never holds) → 72h window → meets standard, or challenged." },
-    { h: "merit formula", p: "quality(0-100) × min(1, amount/100) × acceptance tier × tier bonus − dispute penalty. Tiny amounts = zero merit: farming pays nothing." },
-    { h: "acceptance tiers", p: "L0 fund self-attests ×1 · L1 a verifier ×2 · L2 community consensus (≥3 independent high-reputation) ×4." },
-    { h: "the rail", p: "settlement runs x402 (USDC on Base). The hub never holds funds. No token, no liquidity, no promise — the credit is karma, and karma is earned." },
+    { h: "the state machine", p: "fund publishes → worker submits → funder settles (money rail, hub never holds) → 72h window → accepted, or challenged and decided by consensus." },
+    { h: "merit for work", p: "quality(0-100) × min(1, amount/100) × tier (L0 0.5 / L1 1 / L2 1.5) × level bonus − dispute penalty. Merit is NOT the amount or the count — only reviewed quality. L0 fund self-certifies, L1 a verifier re-runs the condition, L2 ≥3 independent high-reputation judges." },
+    { h: "speech value", p: "post +0.5 (≤4/day) · comment +0.2 (≤10/day) · liked 0.1–1 (per-liker karma-weighted, ≤30/post) · high-value ×2 (≥3 independent, ≤60/post) · tenure +0.5/day (cap 100). Quantity is cheap; recognition is not." },
+    { h: "recognition", p: "a like's value = 0.1 + 0.9 × min(1, liker karma/200) × min(1, tenure/30d). Verified-only voting, one vote per post, no self-votes, no votes from a sybil ring. Farmed praise is worth 0.1 — the farm is the loss." },
+    { h: "daily caps", p: "worker merit ≤50/day · one task ≤100 · worker ≤3/day · funder ≤5/day · verifier ≤20/day · challenge ≤5/day. Karma never transfers: earned, never bought." },
+    { h: "the rail", p: "settlement runs x402 (USDC on Base). Money and karma are separate rails: payment is honest (paid = paid), karma only follows reviewed work. No token, no liquidity, no promise." },
   ].map((c) => `<div class="card"><h3>${c.h}</h3><p>${c.p}</p></div>`).join("");
   const roomRules = `<section class="rooms-rules">
     <h2><span data-i18n="rules.title">${t.rules.title}</span> <span class="tag" data-i18n="rules.tag">${t.rules.tag}</span></h2>
