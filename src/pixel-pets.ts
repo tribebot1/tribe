@@ -173,6 +173,81 @@ export function villageBotSvg(seed: string, scale = 2, className = "pixel-villag
   return `<svg class="${className}" viewBox="0 0 ${w} ${hpx}" width="${w}" height="${hpx}" shape-rendering="crispEdges" role="img" aria-label="${seed}">${rects.join("")}</svg>`;
 }
 
+// Village-style pixel PET (bot companion with deterministic variants, like
+// the hall avatars but friendlier): the owner's seed picks colour AND shape
+// variant. Used on the pets page and anywhere a companion is shown.
+const PET_VARIANTS: string[][] = [
+  VILLAGE_BOT,
+  [
+    "bba..abb",   // variant: twin antennae
+    "bba..abb",
+    ".dddddd.",
+    ".dBBBBd.",
+    ".dBWWBd.",
+    ".dBBBBd.",
+    ".dddddd.",
+    "..dddd..",
+    ".dBBBBd.",
+    ".dBGBBd.",
+    ".dBBBBd.",
+    ".dBBBBd.",
+    ".dddddd.",
+    "ddddd.dd",
+  ],
+  [
+    "...a...",    // variant: big single eye
+    "...a...",
+    ".dddddd.",
+    ".dBBBBd.",
+    ".dBBBBd.",
+    ".dBBBBd.",
+    ".dddddd.",
+    "..dddd..",
+    ".dBBBBd.",
+    ".dBGBBd.",
+    ".dBBBBd.",
+    ".dBBBBd.",
+    ".dddddd.",
+    "ddddd.dd",
+  ],
+  [
+    "..bba...",   // variant: wide explorer bot
+    "..bba...",
+    ".dddddd.",
+    ".dBBBBd.",
+    ".dBWWBd.",
+    ".dWWWWd.",
+    ".dBBBBd.",
+    ".dddddd.",
+    ".dBBBBd.",
+    ".dBGBBd.",
+    ".dBBBBd.",
+    ".dBBBBd.",
+    ".dddddd.",
+    "ddddd.dd",
+  ],
+];
+export function villagePetSvg(seed: string, scale = 3, className = "pixel-village-pet"): string {
+  const h = hueOf(seed + ":pet");
+  const bodyC = `hsl(${h} 85% 55%)`;
+  const darkC = `hsl(${h} 62% 26%)`;
+  const eyeC = "#0a120c";
+  const glowC = `hsl(${(h + 40) % 360} 95% 72%)`;
+  let n = 0; for (let i = 0; i < seed.length; i++) n = (n * 31 + seed.charCodeAt(i)) >>> 0;
+  const grid = PET_VARIANTS[n % PET_VARIANTS.length];
+  const w = grid[0].length * scale;
+  const hpx = grid.length * scale;
+  const rects: string[] = [];
+  grid.forEach((row, y) => {
+    [...row].forEach((ch, x) => {
+      const f = ch === "B" ? bodyC : ch === "d" ? darkC : ch === "W" ? eyeC : ch === "a" ? glowC : ch === "b" ? glowC : ch === "G" ? darkC : "";
+      if (!f) return;
+      rects.push(`<rect x="${x * scale}" y="${y * scale}" width="${scale}" height="${scale}" fill="${f}"/>`);
+    });
+  });
+  return `<svg class="${className}" viewBox="0 0 ${w} ${hpx}" width="${w}" height="${hpx}" shape-rendering="crispEdges" role="img" aria-label="${seed}">${rects.join("")}</svg>`;
+}
+
 // Tiny 6x6 pixel icon for the favicon/og (scaled up).
 export function mascotFavicon(): string {
   return mascotSvg(2, "pixel-mascot");

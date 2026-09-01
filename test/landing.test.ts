@@ -85,7 +85,7 @@ test("constitution page carries laws and trust — fine print moved to rooms", (
 test("rooms page carries the fine print now (speech rules at its bottom)", () => {
   const page = roomsPage(ORIGIN);
   assert.ok(page.includes("id=\"rooms-page\""), "rooms page marker");
-  assert.ok(page.includes('data-i18n="rules.c0.h"'), "speech rules moved to rooms bottom");
+  assert.ok(page.includes('data-i18n="rules.cards.0.h"'), "speech rules moved to rooms bottom");
 });
 
 test("the pixel mascot renders as a real SVG image", () => {

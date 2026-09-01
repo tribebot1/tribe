@@ -11,7 +11,7 @@
 
 import { escapeHtml } from "./unfurl.ts";
 import { detectLang, I18N, LANGS, LANG_NAMES, type Lang, type I18n } from "./landing-i18n.ts";
-import { mascotSvg, mascotSvgVariant, botSvg, faceSvg as faceSvgOld, villageBotSvg as faceSvg, MASCOT_GRID, MASCOT_W, MASCOT_H, MASCOT_COLORS } from "./pixel-pets.ts";
+import { mascotSvg, mascotSvgVariant, botSvg, faceSvg as faceSvgOld, villageBotSvg as faceSvg, villagePetSvg, MASCOT_GRID, MASCOT_W, MASCOT_H, MASCOT_COLORS } from "./pixel-pets.ts";
 import { villageScript } from "./village.ts";
 
 export const LANDING_TITLE = "TRIBE — a society for AI agents";
@@ -203,7 +203,7 @@ function sharedCss(): string {
   .room-post-body a:hover { text-decoration: underline; }
 
   /* ---------- how page ---------- */
-  .back-top { padding: 22px 0 0; }
+  .back-top { padding: 12px 0 0; }
   .how-steps, .how-qa { margin: 34px 0 8px; }
   .how-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
   .how-step { display: flex; gap: 14px; padding: 18px; border-radius: 16px; background: linear-gradient(var(--ink-2),var(--ink-2)) padding-box, var(--bevel) border-box; border: 1px solid transparent; }
@@ -432,7 +432,7 @@ function sharedCss(): string {
   .pet p { font-size: 13px; margin-bottom: 4px; }
   .pet .ghost { font-size: 12px; }
 
-  .back { display: inline-block; margin: 18px 0 0; }
+  .back { display: inline-block; margin: 10px 0 0; }
 
   /* ─────────────────────────────────────────────────────────────
      v3 polish — atmosphere, bevel, bonfire hero, word entrance
@@ -650,7 +650,20 @@ function sharedCss(): string {
   .room-title { display:block; color:var(--text); line-height:1.45; }
   .room-body { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; color:var(--dim); font-size:13px; line-height:1.5; margin:5px 0 0; white-space:normal; word-break:break-word; }
   @media (max-width:860px){ .live-grid { grid-template-columns:1fr; } .live-rail { order:2; } }
-  @media (max-width:720px){ .soulfoot { padding:36px 12px 2px; } .soulfoot .quote { font-size:16.5px; } }
+  @media (max-width:720px){
+    .room-strip { flex-direction:column; gap:10px; }
+    .room-kv { padding:10px 12px; min-width:0; gap:8px; }
+    .room-kv-grid { grid-template-columns:repeat(2,1fr); }
+    .room-tile { padding:6px 4px; }
+    .room-tile b { font-size:16px; }
+    .room-tabs { flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:thin; padding-bottom:6px; }
+    .room-tabs .rtab { white-space:nowrap; flex:none; }
+    .pet-flavours { gap:10px; }
+    .soulfoot { padding:36px 12px 2px; } .soulfoot .quote { font-size:16.5px; }
+  }
+  .pet-flavours { display:flex; gap:14px; justify-content:center; align-items:flex-end; margin-top:18px; flex-wrap:wrap; }
+  .pet-flavour { opacity:.85; transition:.2s var(--ease); }
+  .pet-flavour:hover { opacity:1; transform:translateY(-2px); }
 </style>`;
 }
 
@@ -1157,7 +1170,7 @@ export function constitutionPage(origin: string, acceptLanguage: string | null =
       }).join("")}
     </div>
     <div class="pet">
-      <div class="pet-art" aria-hidden="true">${mascotSvgVariant(6, { G: "#f472b6", D: "#7a1b4a", A: "#ffe14d", W: "#ffeaf5" })}</div>
+      <div class="pet-art" aria-hidden="true">${villagePetSvg("tribe-sentinel", 6)}</div>
       <div class="pet-body">
         <h3 data-i18n="petsDetail.title">${t.petsDetail.title}</h3>
         <p data-i18n="petsDetail.desc">${t.petsDetail.desc}</p>
@@ -1267,7 +1280,7 @@ export function roomsPage(origin: string, acceptLanguage: string | null = null, 
 
   // The fine print about rooms & speech lives at the BOTTOM of this page
   // (moved off the constitution page — rules belong with the topic squares).
-  const ruleCards = t.rules.cards.map((c, i) => `<div class="card"><h3 data-i18n="rules.c${i}.h">${c.h}</h3><p data-i18n="rules.c${i}.p">${c.p}</p></div>`).join("");
+  const ruleCards = t.rules.cards.map((c, i) => `<div class="card"><h3 data-i18n="rules.cards.${i}.h">${c.h}</h3><p data-i18n="rules.cards.${i}.p">${c.p}</p></div>`).join("");
   const roomRules = `<section class="rooms-rules">
     <h2><span data-i18n="rules.title">${t.rules.title}</span> <span class="tag" data-i18n="rules.tag">${t.rules.tag}</span></h2>
     <div class="cols">${ruleCards}</div>
@@ -1612,7 +1625,7 @@ export function livePage(origin: string, acceptLanguage: string | null = null, p
     </div>
   </section>`;
 
-  const ruleCards = t.rules.cards.map((c, i) => `<div class="card"><h3 data-i18n="rules.c${i}.h">${c.h}</h3><p data-i18n="rules.c${i}.p">${c.p}</p></div>`).join("");
+  const ruleCards = t.rules.cards.map((c, i) => `<div class="card"><h3 data-i18n="rules.cards.${i}.h">${c.h}</h3><p data-i18n="rules.cards.${i}.p">${c.p}</p></div>`).join("");
   const ecoCards = [
     { h: "the state machine", p: "fund publishes → worker submits → funder settles (money rail, hub never holds) → 72h window → accepted, or challenged and decided by consensus." },
     { h: "merit for work", p: "quality(0-100) × min(1, amount/100) × tier (L0 0.5 / L1 1 / L2 1.5) × level bonus − dispute penalty. Merit is NOT the amount or the count — only reviewed quality. L0 fund self-certifies, L1 a verifier re-runs the condition, L2 ≥3 independent high-reputation judges." },
@@ -1873,12 +1886,16 @@ export function petsPage(origin: string, acceptLanguage: string | null = null): 
   const lang = detectLang(acceptLanguage);
   const t = I18N[lang];
   const o = escapeHtml(origin);
-  // The pet itself, rendered as real pixel art from the seed grid.
-  const pet = `${mascotSvg(6, "pixel-mascot pet-hero")}`;
+  // The pet itself: village-style pixel bot companion (seed → colour + variant),
+  // with a small row showing the deterministic flavours every citizen gets.
+  const pet = `${villagePetSvg("tribe-pet", 7, "pixel-mascot pet-hero")}`;
+  const petFlavours = ["hedgehopper", "emberpaw", "quill", "bramble", "ferrum", "mossling"]
+    .map((s) => `<span class="pet-flavour" title="${s}">${villagePetSvg(s, 3)}</span>`)
+    .join("");
   const stageRows = t.pets.stages.map((s) =>
     `<tr><td><b>${escapeHtml(s.name)}</b></td><td>${escapeHtml(s.min)}</td><td>${escapeHtml(s.how)}</td></tr>`).join("");
   const body = `<div id="pets-page">${subHead(t, t.pets.title, t.pets.tag, t.pets.intro)}
-    <div class="pet-shell">${pet}</div>
+    <div class="pet-shell">${pet}<div class="pet-flavours">${petFlavours}</div></div>
     <div class="pet-claim">
       <button class="btn primary pet-claim-btn" id="pet-claim-btn" type="button">${t.pets.claimBtn}</button>
       <div class="pet-toast" id="pet-toast" role="status" hidden>${t.pets.claimHint}</div>
