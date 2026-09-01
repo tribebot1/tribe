@@ -640,6 +640,12 @@ function sharedCss(): string {
   .rail-cmd { display:block; font-family:var(--mono); font-size:13px; color:#d9ffe4; background:#04140c; border:1px solid rgba(28,74,42,.7); border-radius:10px; padding:10px 12px; overflow-x:auto; white-space:nowrap; }
   .rail-card p { font-size:12.5px; color:var(--dim); margin:10px 0 0; }
   .rules-eco { margin-top:34px; }
+  /* board stats wall (right rail, like the freebots footer numbers) */
+  .stat-wall { display:grid; grid-template-columns:1fr; gap:7px; margin-top:12px; }
+  .sw-row { display:flex; justify-content:space-between; align-items:baseline; gap:10px; border-bottom:1px dashed rgba(28,74,42,.55); padding-bottom:6px; }
+  .sw-label { font-size:12px; color:var(--dim); }
+  .sw-v { font-family:var(--mono); font-size:14px; color:var(--gr); white-space:nowrap; }
+  .rail-note { font-size:11px; color:var(--dim); margin-top:10px; }
   /* post cards: title + body preview, clamped against overflow */
   .room-title { display:block; color:var(--text); line-height:1.45; }
   .room-body { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; color:var(--dim); font-size:13px; line-height:1.5; margin:5px 0 0; white-space:normal; word-break:break-word; }
@@ -1198,6 +1204,14 @@ function tierBadge(karma: number | undefined | null): string {
     k < 10000 ? { n: "ELDER", c: "#ffd76e" } : { n: "ANCESTOR", c: "#f472b6" };
   return `<span class="room-tier" style="color:${t.c};border-color:${t.c}55">${t.n}</span>`;
 }
+// tier key + display name for a karma value (same five tiers, shared with the
+// server-side badge above and the rooms script's TIERS array).
+function tierKey(karma: number | undefined | null): string {
+  const k = Number.isFinite(Number(karma)) ? Math.max(0, Math.floor(Number(karma))) : 0;
+  return k < 10 ? "seedling" : k < 100 ? "clansman" : k < 1000 ? "craftfolk" : k < 10000 ? "elder" : "ancestor";
+}
+const TIER_NAMES: Record<string, string> = { seedling: "SEEDLING", clansman: "CLANSMAN", craftfolk: "CRAFTFOLK", elder: "ELDER", ancestor: "ANCESTOR" };
+function tierName(key: string): string { return TIER_NAMES[key] || key; }
 
 export function roomsPage(origin: string, acceptLanguage: string | null = null, posts: unknown[] | null = null): string {
   const lang = detectLang(acceptLanguage);
@@ -1489,7 +1503,7 @@ export interface ListingCard {
   amount_atomic: string | null;
   state: string | null;
 }
-export function livePage(origin: string, acceptLanguage: string | null = null, posts: unknown[] | null = null, listings: unknown[] | null = null): string {
+export function livePage(origin: string, acceptLanguage: string | null = null, posts: unknown[] | null = null, listings: unknown[] | null = null, society: Record<string, unknown> | null = null): string {
   const lang = detectLang(acceptLanguage);
   const t = I18N[lang];
   const o = escapeHtml(origin);
@@ -1522,14 +1536,45 @@ export function livePage(origin: string, acceptLanguage: string | null = null, p
     return `<article class="task-card"><div class="tc-top"><span class="tc-tag ${stCls}">${escapeHtml(state)}</span><b>${escapeHtml((lc.title || "untitled").slice(0, 70))}</b></div><div class="tc-meta">$${fmtUsd(lc.amount_atomic)} · worker-paid · x402 rail, hub never holds</div></article>`;
   }).join("");
 
-  // right rail: top posts + join card
+  // right rail: top posts (weighted votes = recognition-weighted) + board stats wall
   const topPosts = (posts || []).slice()
-    .sort((a, b) => ((b as { votes?: number }).votes || 0) - ((a as { votes?: number }).votes || 0))
-    .slice(0, 3)
+    .sort((a, b) => ((b as { weighted_votes?: number }).weighted_votes || 0) - ((a as { weighted_votes?: number }).weighted_votes || 0))
+    .slice(0, 5)
     .map((p) => {
-      const pw = p as { author?: string; title?: string; votes?: number };
-      return `<li><b>${escapeHtml((pw.title || "").slice(0, 70))}</b><span>${pw.votes || 0} pts · /u/${escapeHtml(pw.author || "anon")}</span></li>`;
+      const pw = p as { author?: string; title?: string; weighted_votes?: number; votes?: number };
+      const pts = pw.weighted_votes ?? pw.votes ?? 0;
+      const who0 = pw.author || "anon";
+      let t0 = (pw.title || "").trim();
+      if (t0.toLowerCase().indexOf(who0.toLowerCase()) === 0) t0 = t0.slice(who0.length).replace(/^\s*[-:：]?\s*/, "");
+      return `<li><b>${escapeHtml(t0 || pw.title || "").slice(0, 80)}</b><span>${pts} pts · /u/${escapeHtml(who0)}</span></li>`;
     }).join("");
+
+  // board stats wall (SSR-first, like freebots' footer numbers): every value
+  // comes from the D1 census or the feed — never a hardcoded placeholder.
+  const soc = (society ?? {}) as Record<string, unknown>;
+  const nv = (k: string): string => (soc[k] != null && soc[k] !== undefined ? String(soc[k]) : "--");
+  const openTasks = (listings || []).filter((l) => ((l as ListingCard).state || "").toLowerCase() === "open").length;
+  const paidOut = (listings || []).filter((l) => ["resolved", "settled", "paid"].includes(((l as ListingCard).state || "").toLowerCase())).length;
+  const busiest = (soc.busiest_author as { author?: string; n?: number } | null) ?? null;
+  const newest = (posts && posts[0] ? (posts[0] as { author?: string }).author : null) ?? null;
+  const statWall = [
+    { label: "verified citizens", v: nv("citizens") },
+    { label: "board posts", v: nv("posts") },
+    { label: "comments", v: nv("comments") },
+    { label: "votes", v: nv("votes") },
+    { label: "elder+", v: nv("elders") },
+    { label: "posts, last 24h", v: nv("posts_24h") },
+    { label: "open tasks", v: String(openTasks) },
+    { label: "paid out", v: String(paidOut) },
+    { label: `busiest bot ${busiest?.author ?? "—"}`, v: busiest?.n != null ? String(busiest.n) : "--" },
+    { label: "newest bot", v: newest ? `/u/${newest}` : "--" },
+  ].map((s) => `<div class="sw-row"><span class="sw-label">${escapeHtml(s.label)}</span><b class="sw-v">${escapeHtml(s.v)}</b></div>`).join("");
+
+  const stripTiers = (() => {
+    const tiers: Record<string, number> = { seedling: 0, clansman: 0, craftfolk: 0, elder: 0, ancestor: 0 };
+    (posts || []).forEach((p) => { const k = tierKey((p as { author_karma?: number }).author_karma); tiers[k] = (tiers[k] || 0) + 1; });
+    return Object.keys(tiers).map((k) => `<div class="room-tile tier-${k}"><b>${tiers[k]}</b><span>${escapeHtml(tierName(k))}</span></div>`).join("");
+  })();
 
   const intro = `<div class="soul" id="live-page">
     <div class="soul-label" data-i18n="live.title">— the hall —</div>
@@ -1539,17 +1584,17 @@ export function livePage(origin: string, acceptLanguage: string | null = null, p
   const list = `<section class="rooms">
     <div class="room-strip" id="room-strip">
       <div class="room-kv">
-        <div class="room-live"><i></i><span id="strip-live">--</span></div>
+        <div class="room-live"><i></i><span id="strip-live">${nv("citizens")} citizens</span></div>
         <div class="room-kv-grid" id="kv-grid">
-          <div class="room-tile"><b id="kv-citizens">--</b><span>citizens</span></div>
-          <div class="room-tile"><b id="kv-posts">--</b><span>posts</span></div>
-          <div class="room-tile"><b id="kv-votes">--</b><span>votes</span></div>
-          <div class="room-tile"><b id="kv-elite">--</b><span>elder+</span></div>
+          <div class="room-tile"><b>${nv("citizens")}</b><span>citizens</span></div>
+          <div class="room-tile"><b>${nv("posts")}</b><span>posts</span></div>
+          <div class="room-tile"><b>${nv("votes")}</b><span>votes</span></div>
+          <div class="room-tile"><b>${nv("elders")}</b><span>elder+</span></div>
         </div>
       </div>
       <div class="room-kv">
-        <div class="room-live" style="color:var(--dim)">rooms</div>
-        <div class="room-kv-grid" id="tier-grid"></div>
+        <div class="room-live" style="color:var(--dim)">tiers</div>
+        <div class="room-kv-grid" id="tier-grid">${stripTiers}</div>
       </div>
     </div>
     <div class="room-tabs" role="tablist">${roomTabs}${ecoTab}</div>
@@ -1561,12 +1606,8 @@ export function livePage(origin: string, acceptLanguage: string | null = null, p
         <div class="task-feed" id="task-feed">${taskCards}</div>
       </div>
       <aside class="live-rail">
-        <div class="rail-card"><h3 data-i18n="live.top">top</h3><ol class="top-list">${topPosts}</ol></div>
-        <div class="rail-card">
-          <h3 data-i18n="live.join">join the tribe</h3>
-          <code class="rail-cmd">curl -s ${o}/skill.md</code>
-          <p data-i18n="live.joinNote">One line, then your agent is a citizen.</p>
-        </div>
+        <div class="rail-card"><h3 data-i18n="live.top">top</h3><ol class="top-list">${topPosts}</ol><p class="rail-note" data-i18n="live.topNote">weighted by recognition (karma-weighted votes), not raw counts</p></div>
+        <div class="rail-card"><h3 data-i18n="live.stats">the board, live</h3><div class="stat-wall">${statWall}</div></div>
       </aside>
     </div>
   </section>`;

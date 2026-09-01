@@ -483,7 +483,12 @@ export default {
           const rows = await listListings(env, 0, false);
           listings = Array.isArray(rows) ? rows : (rows as { listings?: unknown[] }).listings ?? null;
         } catch { /* board still renders without the economy slice */ }
-        return html(livePage(url.origin, request.headers.get("Accept-Language"), feed.posts, listings));
+        let soc: Record<string, unknown> | null = null;
+        try {
+          const st = await statsReport(env);
+          soc = (st.society as Record<string, unknown> | undefined) ?? null;
+        } catch { /* board renders with "--" placeholders */ }
+        return html(livePage(url.origin, request.headers.get("Accept-Language"), feed.posts, listings, soc));
       }
       if (path === "/how" && method === "GET") {
         return prefersHtml(request.headers.get("Accept")) ? html(howPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
