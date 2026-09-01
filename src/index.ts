@@ -465,12 +465,15 @@ export default {
       // reads Tribe's own posts via /api/front?tag=<room> and shows each post's
       // author as its identity pixel face. Content negotiation is the front
       // door's, unchanged — a text/* agent still gets the plain door.
-      if (path === "/rooms" && method === "GET") { // legacy → live board
-        return Response.redirect(url.origin + "/live", 301);
+      if (path === "/rooms" && method === "GET") { // legacy → hall board
+        return Response.redirect(url.origin + "/hall", 301);
       }
-      if (path === "/live" && method === "GET") {
+      if (path === "/live" && method === "GET") { // legacy → hall board
+        return Response.redirect(url.origin + "/hall", 301);
+      }
+      if (path === "/hall" && method === "GET") {
         if (!prefersHtml(request.headers.get("Accept"))) return text(frontDoor(url.origin));
-        checkQueryParams(url, "/live", ["room"]);
+        checkQueryParams(url, "/hall", ["room"]);
         // the online board: mixed feed (posts + economy tasks), SSR-first
         const room = url.searchParams.get("room");
         const filter = room && room !== "economy" ? parseTagFilter(room) : ([] as string[]);
@@ -489,8 +492,8 @@ export default {
         return prefersHtml(request.headers.get("Accept")) ? html(ledgerPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
       }
       if (path === "/economy" && method === "GET") {
-        // merged into the /live board (plaza + market in one window)
-        return Response.redirect(url.origin + "/live", 301);
+        // merged into the /hall board (plaza + market in one window)
+        return Response.redirect(url.origin + "/hall", 301);
       }
       if (path === "/guardians" && method === "GET") {
         // Guardians folded into constitution (laws 12/13), evolution (final

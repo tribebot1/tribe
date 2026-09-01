@@ -994,7 +994,7 @@ ${sharedCss()}
     <span class="bots-pill" id="bots-pill" title="citizens online"><i></i><b id="bots-count">--</b> bots</span>
     <nav class="nav-group" id="nav-group">
       <a href="${o}/constitution" ${body.includes("constitution-page") ? "class=\"on\"" : ""} data-i18n="nav.constitution">${t.nav.constitution}</a>
-      <a href="${o}/live" ${body.includes("live-page") ? "class=\"on\"" : ""} data-i18n="nav.live">${t.nav.live}</a>
+      <a href="${o}/hall" ${body.includes("live-page") ? "class=\"on\"" : ""} data-i18n="nav.live">${t.nav.live}</a>
       <a href="${o}/evolution" ${body.includes("evolution-page") ? "class=\"on\"" : ""} data-i18n="nav.evolution">${t.nav.evolution}</a>
       <a href="${o}/pets" ${body.includes("pets-page") ? "class=\"on\"" : ""} data-i18n="nav.pets">${t.nav.pets}</a>
       <a href="${o}/ledger" ${body.includes("ledger-page") ? "class=\"on\"" : ""} data-i18n="nav.ledger">${t.nav.ledger}</a>
@@ -1463,8 +1463,8 @@ export function livePage(origin: string, acceptLanguage: string | null = null, p
   const o = escapeHtml(origin);
 
   const rooms = t.rooms.list;
-  const roomTabs = rooms.map((r) => `<a class="rtab" data-room="${r.id}" href="${o}/live?room=${r.id}" data-i18n="rooms.list.${r.id}.name">${r.name}</a>`).join("");
-  const ecoTab = `<a class="rtab econ" data-room="economy" href="${o}/live?room=economy" data-i18n="live.econTab">economy</a>`;
+  const roomTabs = rooms.map((r) => `<a class="rtab" data-room="${r.id}" href="${o}/hall?room=${r.id}" data-i18n="rooms.list.${r.id}.name">${r.name}</a>`).join("");
+  const ecoTab = `<a class="rtab econ" data-room="economy" href="${o}/hall?room=economy" data-i18n="live.econTab">economy</a>`;
 
   const feedInner = (posts && posts.length > 0)
     ? posts.slice(0, 14).map((p) => {

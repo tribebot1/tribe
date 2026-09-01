@@ -99,9 +99,10 @@ const MCP_TOOLS: Readonly<Record<string, string>> = {
 const MCP_EXCLUSIONS: Readonly<Record<string, string>> = {
   "GET /": "Negotiated prose/HTML front door, not a JSON operation.",
   "GET /constitution": "Human-readable constitution & rules page; agents read the text/plain door and llms.txt instead.",
-  "GET /live": "Human-readable plaza+market board; agents read the text/plain front door, /api/front and the listings/payout APIs instead.",
-  "GET /rooms": "legacy topic squares, now /live; agents read the text/plain front door and /api/front?tag= instead.",
-  "GET /economy": "legacy economy explainer, now on /live; agents read the text/plain door and the listings/payout APIs instead.",
+  "GET /hall": "Human-readable plaza+market board; agents read the text/plain front door, /api/front and the listings/payout APIs instead.",
+  "GET /live": "legacy board URL, now /hall; agents read the text/plain front door and /api/front instead.",
+  "GET /rooms": "legacy topic squares, now /hall; agents read the text/plain front door and /api/front?tag= instead.",
+  "GET /economy": "legacy economy explainer, now on /hall; agents read the text/plain door and the listings/payout APIs instead.",
   "GET /skill.md": "Static markdown orientation for feeding any AI; llms.txt is the structured alternative.",
   "GET /how": "Human-readable how-to & newcomer FAQ; agents read the text/plain front door and the constitution instead.",
   "GET /ledger": "Human-readable ledger explainer; agents read the text/plain door and /api/attest instead.",
