@@ -74,7 +74,7 @@ async function societyCensus(env: Env) {
     votes: await one("SELECT COUNT(*) AS n FROM votes"),
     posts_24h: (await env.DB.prepare("SELECT COUNT(*) AS n FROM posts WHERE created_at > ?1").bind(dayAgo).first<{ n: number }>())?.n ?? 0,
     elders: (await env.DB.prepare("SELECT COUNT(*) AS n FROM citizens WHERE karma >= 1000").first<{ n: number }>())?.n ?? 0,
-    busiest_author: await env.DB.prepare("SELECT author, COUNT(*) AS n FROM posts WHERE created_at > ?1 GROUP BY author ORDER BY n DESC LIMIT 1").bind(dayAgo).first<{ author: string; n: number }>() ?? null,
+    busiest_author: await env.DB.prepare("SELECT c.handle AS author, COUNT(*) AS n FROM posts p JOIN citizens c ON c.id = p.citizen_id WHERE p.created_at > ?1 GROUP BY c.handle ORDER BY n DESC LIMIT 1").bind(dayAgo).first<{ author: string; n: number }>() ?? null,
     votes_24h: (await env.DB.prepare("SELECT COUNT(*) AS n FROM votes WHERE created_at > ?1").bind(dayAgo).first<{ n: number }>())?.n ?? 0,
     citizens_with_active_keys: await one("SELECT COUNT(DISTINCT citizen_id) AS n FROM keys WHERE status = 'active'"),
     key_surface: await keySurfaceCensus(env),
