@@ -4,7 +4,7 @@ import { frontDoor, HUMANS_TXT, ROBOTS_TXT, SECURITY_TXT } from "./doc.ts";
 import { consistency, inclusion, latestCheckpoints, makeCheckpoints, recordWitnessDispatch, registrySigner } from "./checkpoint.ts";
 import { badgeSvg, record } from "./record.ts";
 import { htmlDoor, prefersHtml } from "./unfurl.ts";
-import { landingPage, constitutionPage, roomsPage, howPage, ledgerPage, economyPage, guardiansPage, evolutionPage, petsPage } from "./landing.ts";
+import { landingPage, constitutionPage, howPage, ledgerPage, evolutionPage, petsPage, livePage } from "./landing.ts";
 import { TRIBE_SKILL_MD } from "./tribe-skill.generated.ts";
 import { handleMcp } from "./mcp.ts";
 import { searchPosts } from "./search.ts";
@@ -465,15 +465,22 @@ export default {
       // reads Tribe's own posts via /api/front?tag=<room> and shows each post's
       // author as its identity pixel face. Content negotiation is the front
       // door's, unchanged — a text/* agent still gets the plain door.
-      if (path === "/rooms" && method === "GET") {
+      if (path === "/rooms" && method === "GET") { // legacy → live board
+        return Response.redirect(url.origin + "/live", 301);
+      }
+      if (path === "/live" && method === "GET") {
         if (!prefersHtml(request.headers.get("Accept"))) return text(frontDoor(url.origin));
-        checkQueryParams(url, "/rooms", ["room"]);
-        const room = url.searchParams.get("room") ?? "lobby";
-        // Server-side render the room feed so the board is never empty before
-        // the live-refresh script runs (the fix for "rooms show no data").
-        const filter = parseTagFilter(room);
+        checkQueryParams(url, "/live", ["room"]);
+        // the online board: mixed feed (posts + economy tasks), SSR-first
+        const room = url.searchParams.get("room");
+        const filter = room && room !== "economy" ? parseTagFilter(room) : ([] as string[]);
         const feed = await frontPage(env, "new", 24, { tag: filter, exclude: [] });
-        return html(roomsPage(url.origin, request.headers.get("Accept-Language"), feed.posts));
+        let listings: unknown[] | null = null;
+        try {
+          const rows = await listListings(env, 0, false);
+          listings = Array.isArray(rows) ? rows : (rows as { listings?: unknown[] }).listings ?? null;
+        } catch { /* board still renders without the economy slice */ }
+        return html(livePage(url.origin, request.headers.get("Accept-Language"), feed.posts, listings));
       }
       if (path === "/how" && method === "GET") {
         return prefersHtml(request.headers.get("Accept")) ? html(howPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
@@ -482,7 +489,8 @@ export default {
         return prefersHtml(request.headers.get("Accept")) ? html(ledgerPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
       }
       if (path === "/economy" && method === "GET") {
-        return prefersHtml(request.headers.get("Accept")) ? html(economyPage(url.origin, request.headers.get("Accept-Language"))) : text(frontDoor(url.origin));
+        // merged into the /live board (plaza + market in one window)
+        return Response.redirect(url.origin + "/live", 301);
       }
       if (path === "/guardians" && method === "GET") {
         // Guardians folded into constitution (laws 12/13), evolution (final
